@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Interview Chat — Rehearse the room before you walk in</title>
+  <meta name="description" content="An AI interviewer that asks the real questions, listens to your answers, and scores every response on structure, clarity and impact.">
+  <meta property="og:title" content="AI Interview Chat">
+  <meta property="og:description" content="Rehearse the room before you walk in. AI mock interviews with instant scoring and coaching.">
+  <meta name="theme-color" content="#06070A">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="page">
+
+  <!-- ===================== NAV ===================== -->
+  <header class="nav-wrap">
+    <nav class="nav container" aria-label="Main">
+      <a href="#top" class="brand">
+        <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="16" cy="16" r="14" stroke="var(--accent)" stroke-width="1.5" opacity=".5"/>
+          <circle cx="16" cy="16" r="8.5" stroke="var(--accent)" stroke-width="1.5"/>
+          <circle cx="16" cy="16" r="3" fill="var(--accent)"/>
+        </svg>
+        <span>AI Interview Chat</span>
+      </a>
+      <div class="nav-links">
+        <a href="#why">Why it works</a>
+        <a href="#demo">Live demo</a>
+        <a href="#how">How it works</a>
+        <a href="#progress">Progress</a>
+      </div>
+      <a href="#demo" class="btn btn-white btn-sm">Start practicing
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </nav>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <section id="top" class="hero">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="glow glow-a" aria-hidden="true"></div>
+    <div class="glow glow-b" aria-hidden="true"></div>
+
+    <div class="container hero-inner">
+      <div class="hero-copy">
+        <p class="eyebrow rise">&gt; The AI interview coach</p>
+        <h1 class="hero-title">
+          <span class="rise d1">Rehearse</span>
+          <span class="rise d2">the room</span>
+          <span class="rise d3 gradient-text">before you walk in.</span>
+        </h1>
+        <p class="hero-lede rise d4">An AI interviewer that asks the real questions, listens to your answers, and scores every response on structure, clarity and impact. Instantly.</p>
+        <div class="hero-ctas rise d5">
+          <a href="#demo" class="btn btn-accent btn-lg">Try a live question
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#how" class="btn btn-ghost btn-lg">See how it works</a>
+        </div>
+      </div>
+
+      <!-- Voice orb -->
+      <div class="orb-col rise d2" aria-hidden="true">
+        <div class="orb">
+          <div class="orb-ring-dashed"></div>
+          <div class="orb-ring-conic"></div>
+          <div class="orb-ring-orbit"><span class="orb-satellite"></span></div>
+          <div class="orb-core"></div>
+          <div class="orb-wave" id="orbWave"></div>
+          <div class="chip chip-1"><span class="dot-live"></span>Listening to your answer</div>
+          <div class="chip chip-2"><span class="muted">STAR structure</span> <span class="teal">detected</span></div>
+          <div class="chip chip-3 mono accent">clarity ↑ · impact ↑</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ROLE MARQUEE ===================== -->
+  <section class="marquee" aria-label="Roles you can practice for">
+    <div class="marquee-track" id="marquee"></div>
+  </section>
+
+  <!-- ===================== THE PROBLEM ===================== -->
+  <section id="why" class="section section-why">
+    <div class="container">
+      <p class="eyebrow">&gt; The problem</p>
+      <h2 class="h2 h2-xl">Interviews are a performance. <span class="dim">Almost nobody gets to rehearse with a real audience.</span></h2>
+
+      <div class="compare reveal">
+        <div class="compare-col compare-old">
+          <p class="label">Practicing alone</p>
+          <p class="compare-word">Guesswork.</p>
+          <ul class="checklist">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" class="ic-x"><path d="M6 6l12 12M18 6L6 18"/></svg>Rehearsing answers in a mirror</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" class="ic-x"><path d="M6 6l12 12M18 6L6 18"/></svg>No idea which answers land</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" class="ic-x"><path d="M6 6l12 12M18 6L6 18"/></svg>Rambling goes unnoticed</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" class="ic-x"><path d="M6 6l12 12M18 6L6 18"/></svg>Progress is a feeling, not a record</li>
+          </ul>
+        </div>
+        <div class="compare-col compare-new">
+          <p class="label accent">With AI Interview Chat</p>
+          <p class="compare-word white">Signal.</p>
+          <ul class="checklist bright">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" class="ic-check"><path d="M5 12l5 5L20 7"/></svg>Realistic questions for your target role</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" class="ic-check"><path d="M5 12l5 5L20 7"/></svg>Every answer scored the moment you finish</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" class="ic-check"><path d="M5 12l5 5L20 7"/></svg>One specific fix for your next attempt</li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true" class="ic-check"><path d="M5 12l5 5L20 7"/></svg>Sessions saved, so you can pick up where you left off</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== LIVE DEMO ===================== -->
+  <section id="demo" class="section section-demo">
+    <div class="glow glow-demo" aria-hidden="true"></div>
+    <div class="container narrow">
+      <div class="demo-head">
+        <div>
+          <p class="eyebrow">&gt; Live demo</p>
+          <h2 class="h2">Pick a role.<br><span class="dim">Feel the feedback loop.</span></h2>
+        </div>
+        <p class="demo-intro">This is a preview of a single round: the interviewer asks, a sample candidate answers, and the AI breaks the response down.</p>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Choose a role" id="roleTabs"></div>
+
+      <div class="demo-body">
+        <!-- conversation -->
+        <div class="panel convo">
+          <div class="convo-bar">
+            <div class="convo-title"><span class="dot-live"></span>Mock interview · <span id="roleName"></span></div>
+            <span class="mono small dimmer">ROUND 01</span>
+          </div>
+          <div class="convo-feed">
+            <div class="msg">
+              <div class="avatar" aria-hidden="true"></div>
+              <div class="msg-content">
+                <p class="msg-label">AI INTERVIEWER</p>
+                <p class="question" aria-live="polite"><span id="question"></span><span class="caret" id="caret"></span></p>
+              </div>
+            </div>
+            <div class="answer hidden" id="answerBox">
+              <p class="msg-label">SAMPLE ANSWER</p>
+              <p id="answer"></p>
+            </div>
+            <button type="button" class="btn btn-accent btn-md hidden" id="analyzeBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z"/></svg>
+              Analyze this answer
+            </button>
+            <div class="analyzing hidden" role="status" id="analyzing">
+              <span class="dots"><span></span><span></span><span></span></span>
+              Analyzing structure, clarity and impact
+            </div>
+            <div class="msg hidden" id="tipBox">
+              <div class="avatar" aria-hidden="true"></div>
+              <div class="tip">
+                <p class="msg-label accent">COACHING NOTE</p>
+                <p id="tip"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- scorecard -->
+        <div class="panel scorecard">
+          <div class="score-head">
+            <p class="label">SCORECARD</p>
+            <button type="button" class="btn-replay hidden" id="replayBtn">Replay</button>
+          </div>
+          <div class="score-total">
+            <span id="overall">--</span>
+            <span class="out-of">/ 100</span>
+          </div>
+          <div class="score-list" id="scoreList"></div>
+          <p class="fineprint">Demo scores for a sample answer. Your own sessions are scored on what you actually say.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== HOW IT WORKS ===================== -->
+  <section id="how" class="section section-how">
+    <div class="container">
+      <p class="eyebrow">&gt; How it works</p>
+      <h2 class="h2">One loop. <span class="dim">Repeat it until the answers feel like yours.</span></h2>
+
+      <div class="timeline" aria-hidden="true"><div class="timeline-pulse"></div></div>
+      <ol class="steps">
+        <li class="reveal">
+          <p class="step-n">01</p>
+          <p class="step-title">Choose your role</p>
+          <p class="step-body">Pick the job you are going for and the AI tailors the questions to it.</p>
+        </li>
+        <li class="reveal">
+          <p class="step-n">02</p>
+          <p class="step-title">Answer out loud</p>
+          <p class="step-body">Respond the way you would in the room. One question at a time, no pressure to be perfect.</p>
+        </li>
+        <li class="reveal">
+          <p class="step-n">03</p>
+          <p class="step-title">Get scored instantly</p>
+          <p class="step-body">See how your answer rates on structure, clarity, impact and relevance, plus one concrete fix.</p>
+        </li>
+        <li class="reveal">
+          <p class="step-n">04</p>
+          <p class="step-title">Come back stronger</p>
+          <p class="step-body">Your progress and history are saved, so every session builds on the last.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===================== PROGRESS ===================== -->
+  <section id="progress" class="section section-progress">
+    <div class="container progress-inner">
+      <div class="progress-copy">
+        <p class="eyebrow">&gt; Progress</p>
+        <h2 class="h2 h2-md">It remembers every round, <span class="dim">so you can see yourself improve.</span></h2>
+        <p class="body-lg">Your account keeps a history of every session. Stop halfway through and your progress is saved, ready when you come back.</p>
+        <ul class="feature-list">
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>Full session history</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Resume an unfinished interview</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Scores tracked across attempts</li>
+        </ul>
+      </div>
+
+      <div class="history-col" role="img" aria-label="Example session history">
+        <div class="glow glow-history" aria-hidden="true"></div>
+        <div class="panel history reveal">
+          <div class="history-head">
+            <span class="history-title">Your sessions</span>
+            <span class="mono tiny dimmer">EXAMPLE</span>
+          </div>
+          <div class="trend" id="trend"></div>
+          <div class="history-list">
+            <div class="history-row"><div><p>Software Engineer</p><p class="sub">Technical · 6 questions</p></div><span class="pill teal">84</span></div>
+            <div class="history-row"><div><p>Product Manager</p><p class="sub">Behavioral · 5 questions</p></div><span class="pill accent">78</span></div>
+            <div class="history-row"><div><p>Data Analyst</p><p class="sub">Case study · 4 questions</p></div><span class="pill accent">71</span></div>
+            <div class="history-row"><div><p>Software Engineer</p><p class="sub">Behavioral · 6 questions</p></div><span class="pill muted">63</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CTA ===================== -->
+  <section class="cta">
+    <div class="cta-glow" aria-hidden="true"></div>
+    <div class="cta-horizon" aria-hidden="true"></div>
+    <div class="container cta-inner">
+      <h2 class="cta-title">Walk in<br><span class="gradient-text-2">ready.</span></h2>
+      <p class="body-lg center">Create a free account, pick your role, and answer your first question in under a minute.</p>
+      <div class="cta-actions">
+        <a href="#demo" class="btn btn-white btn-xl">Start your first interview
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>© 2026 AI Interview Chat · Built by Roland Ngoy</span>
+      <div class="footer-links">
+        <a href="https://github.com/rolandngoy">GitHub</a>
+        <a href="https://www.linkedin.com/in/roland-ngoy-5319532a7/">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
