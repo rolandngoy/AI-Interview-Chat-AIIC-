@@ -455,3 +455,10 @@ button { font-family: inherit; }
 .btn.recording svg { animation: pulse-mic 1.2s ease-in-out infinite; }
 @keyframes pulse-mic { 50% { opacity: .35; } }
 @media (prefers-reduced-motion: reduce) { .btn.recording svg { animation: none; } }
+
+/* voice buttons: filled color instead of the default outline */
+#ivListen { background: var(--accent); color: var(--bg); border: 0; font-weight: 600; }
+#ivListen:hover { color: var(--bg); }
+#ivMic { background: #FFB86B; color: var(--bg); border: 0; font-weight: 600; }
+#ivMic:hover { color: var(--bg); }
+#ivMic.recording { background: #E5484D; color: #FFFFFF; }
