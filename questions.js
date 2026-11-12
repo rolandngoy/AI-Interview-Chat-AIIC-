@@ -823,3 +823,12 @@ window.AIIC_ROLE_QUESTIONS = {
     `How do you handle physically demanding work in hot or cold weather?`
   ]
 };
+
+// Hands-on or calculation questions. These are best typed, so voice answers are off for them.
+window.AIIC_PRACTICAL = [
+  `How would you design a URL shortener that handles millions of requests a day?`,
+  `Walk me through how you would test a login page.`,
+  `Which SQL techniques do you use most, and how would you find duplicate records?`,
+  `How would you estimate the size of the market for electric scooters in a large city?`,
+  `If depreciation increases by $10, what happens to the three financial statements?`
+];

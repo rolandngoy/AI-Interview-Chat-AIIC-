@@ -167,12 +167,14 @@
   const clamp = (n) => Math.max(0, Math.min(100, Math.round(n)));
   const count = (re, s) => (s.match(re) || []).length;
 
-  function score(text) {
+  function score(text, voice) {
     const lower = text.toLowerCase();
     const words = text.trim().split(/\s+/).filter(Boolean);
     const wc = words.length;
     const sentences = text.split(/[.!?]+/).map((s) => s.trim()).filter(Boolean);
-    const avgLen = sentences.length ? wc / sentences.length : wc;
+    // Dictated text has no punctuation, so don't penalize it for "long sentences".
+    const rawAvg = sentences.length ? wc / sentences.length : wc;
+    const avgLen = voice ? Math.min(rawAvg, 20) : rawAvg;
 
     const star = [/\b(when|while|at my|during|last|previously|situation|context)\b/, /\b(task|goal|responsib|needed to|had to|asked to|objective)\b/, /\b(i (built|led|created|wrote|designed|decided|organized|ran|implemented|worked|set|asked|started|talked|planned|made|developed)|action|steps?|approach)\b/, /\b(result|outcome|as a result|which led|ended up|achieved|so that|learned)\b/]
       .reduce((n, re) => n + (re.test(lower) ? 1 : 0), 0);
@@ -227,6 +229,89 @@
     el.replaceChildren(scoreTile('Overall', s.overall), scoreTile('Structure', s.structure), scoreTile('Clarity', s.clarity), scoreTile('Impact', s.impact));
   }
 
+  /* ---------- voice: listen to questions, speak answers (Web Speech API) ---------- */
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  const PRACTICAL = window.AIIC_PRACTICAL || [];
+  let recognizer = null, listening = false, usedVoice = false, baseText = '';
+
+  const questionText = (q) => (typeof q === 'object' ? q.prompt : q);
+  const voiceAllowed = (q) => typeof q !== 'object' && PRACTICAL.indexOf(q) === -1;
+
+  function setListenUi(on) {
+    $('ivListenLabel').textContent = on ? 'Stop listening' : 'Listen to question';
+    $('ivListen').setAttribute('aria-pressed', on);
+  }
+  function stopSpeaking() { if (canSpeak) { speechSynthesis.cancel(); setListenUi(false); } }
+  function speak(text) {
+    if (!canSpeak) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US'; u.rate = 0.95;
+    u.onend = u.onerror = function () { setListenUi(false); };
+    setListenUi(true);
+    speechSynthesis.speak(u);
+  }
+
+  function setMicUi(on) {
+    listening = on;
+    $('ivMicLabel').textContent = on ? 'Stop recording' : 'Answer by voice';
+    $('ivMic').setAttribute('aria-pressed', on);
+    $('ivMic').classList.toggle('recording', on);
+  }
+  function stopVoice() {
+    if (recognizer) { try { recognizer.stop(); } catch (e) {} recognizer = null; }
+    setMicUi(false);
+  }
+  function startVoice() {
+    stopSpeaking();
+    const status = $('ivMicStatus');
+    const ta = $('ivAnswer');
+    baseText = ta.value.trim();
+    const rec = new SpeechRec();
+    rec.lang = 'en-US'; rec.continuous = true; rec.interimResults = true;
+    let finalText = '';
+    rec.onresult = function (e) {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) finalText += t + ' '; else interim += t;
+      }
+      ta.value = (baseText ? baseText + ' ' : '') + (finalText + interim).trim();
+      usedVoice = true;
+      ta.dispatchEvent(new Event('input'));
+    };
+    rec.onerror = function (e) {
+      status.textContent =
+        e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'Microphone blocked. Allow microphone access for this site in your browser, then try again.' :
+        e.error === 'no-speech' ? 'No speech heard. Try again.' :
+        e.error === 'audio-capture' ? 'No microphone found.' :
+        e.error === 'network' ? 'Voice input needs an internet connection.' : 'Voice input stopped.';
+    };
+    rec.onend = function () { if (recognizer === rec) { recognizer = null; setMicUi(false); if (!status.textContent) status.textContent = 'Stopped. You can edit the text before submitting.'; } };
+    recognizer = rec;
+    status.textContent = '';
+    try { rec.start(); setMicUi(true); status.textContent = 'Listening… speak your answer.'; }
+    catch (e) { recognizer = null; setMicUi(false); status.textContent = 'Could not start the microphone.'; }
+  }
+
+  function setupVoiceForQuestion(q) {
+    stopVoice();
+    usedVoice = false;
+    $('ivMicStatus').textContent = '';
+    $('ivListen').classList.toggle('hidden', !canSpeak);
+    $('ivAutoRead').parentElement.classList.toggle('hidden', !canSpeak);
+    const row = $('ivMicRow');
+    const allowed = voiceAllowed(q);
+    row.classList.toggle('hidden', typeof q === 'object');
+    if (typeof q !== 'object') {
+      $('ivMic').disabled = !allowed || !SpeechRec;
+      if (!SpeechRec) $('ivMicStatus').textContent = 'Voice answers are not supported in this browser. Try Chrome, Edge or Safari.';
+      else if (!allowed) $('ivMicStatus').textContent = 'This is a hands-on question, so please type your answer.';
+    }
+    if (canSpeak && $('ivAutoRead').checked) speak(questionText(q)); else stopSpeaking();
+  }
+
   function showQuestion() {
     const q = questions[index];
     const isCode = typeof q === 'object';
@@ -236,6 +321,7 @@
     $('ivCount').textContent = 'Question ' + (index + 1) + ' of ' + questions.length;
     $('ivBar').style.width = (index / questions.length * 100) + '%';
     show('ivQuestionView');
+    setupVoiceForQuestion(q);
     if (isCode) {
       $('ivCode').value = q.starter;
       $('ivCodeOut').classList.add('hidden');
@@ -316,6 +402,7 @@
   }
 
   function showSummary() {
+    stopVoice(); stopSpeaking();
     $('ivBar').style.width = '100%';
     $('ivCount').textContent = 'Done';
     const avg = (k) => {
@@ -351,7 +438,8 @@
     e.preventDefault();
     const text = $('ivAnswer').value.trim();
     if (!text) return;
-    const s = score(text);
+    const s = score(text, usedVoice);
+    stopVoice();
     results.push({ q: questions[index], a: text, s: s });
     persist(false);
     renderScores($('ivScores'), s);
@@ -360,6 +448,17 @@
     show('ivFeedbackView');
     $('ivNext').focus();
   });
+  $('ivListen').addEventListener('click', function () {
+    if (canSpeak && speechSynthesis.speaking) stopSpeaking(); else speak(questionText(questions[index]));
+  });
+  try { $('ivAutoRead').checked = localStorage.getItem('aiic_autoread') === '1'; } catch (e) {}
+  $('ivAutoRead').addEventListener('change', function () {
+    try { localStorage.setItem('aiic_autoread', this.checked ? '1' : '0'); } catch (e) {}
+    if (this.checked) speak(questionText(questions[index])); else stopSpeaking();
+  });
+  $('ivMic').addEventListener('click', function () { if (listening) stopVoice(); else startVoice(); });
+  window.addEventListener('pagehide', function () { stopVoice(); stopSpeaking(); });
+
   $('ivRunCode').addEventListener('click', runFromUi);
   $('ivSkipCode').addEventListener('click', function () {
     index++;

@@ -34,9 +34,23 @@
 
     <section id="ivQuestionView">
       <div class="iv-bubble" id="ivQuestion" aria-live="polite"></div>
+      <div class="iv-tools" id="ivTools">
+        <button type="button" class="btn btn-ghost btn-sm" id="ivListen" aria-pressed="false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+          <span id="ivListenLabel">Listen to question</span>
+        </button>
+        <label class="iv-auto mono small"><input type="checkbox" id="ivAutoRead"> Read questions aloud automatically</label>
+      </div>
       <form id="ivForm">
         <label for="ivAnswer" class="mono small iv-label">Your answer</label>
         <textarea id="ivAnswer" class="iv-answer" rows="8" placeholder="Type your answer as if you were speaking to the interviewer. Aim for 80–200 words." required></textarea>
+        <div class="iv-mic" id="ivMicRow">
+          <button type="button" class="btn btn-ghost btn-md" id="ivMic" aria-pressed="false">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>
+            <span id="ivMicLabel">Answer by voice</span>
+          </button>
+          <p class="mono small iv-words" id="ivMicStatus" role="status"></p>
+        </div>
         <div class="iv-row">
           <span class="mono small iv-words" id="ivWords">0 words</span>
           <button type="submit" class="btn btn-accent btn-md">Submit answer</button>
