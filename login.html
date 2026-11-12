@@ -21,9 +21,37 @@
       <span>AI Interview Chat</span>
     </a>
     <h1 class="login-title">Welcome back</h1>
-    <p class="body-lg center">Sign in with Google to start practicing.</p>
+    <p class="body-lg center">Log in or create an account to start practicing.</p>
     <div id="googleBtn"></div>
     <p class="login-msg small" id="loginMsg" role="status"></p>
+
+    <p class="login-or mono small"><span>or use your email</span></p>
+
+    <div class="login-tabs" role="tablist" aria-label="Email account">
+      <button type="button" role="tab" id="tabLogin" aria-selected="true">Log in</button>
+      <button type="button" role="tab" id="tabSignup" aria-selected="false">Create an account</button>
+    </div>
+
+    <form id="loginForm" class="login-form">
+      <label class="mono small" for="liEmail">Email</label>
+      <input class="role-search" id="liEmail" name="email" type="email" autocomplete="email" required>
+      <label class="mono small" for="liPw">Password</label>
+      <input class="role-search" id="liPw" name="password" type="password" autocomplete="current-password" required>
+      <button type="submit" class="btn btn-accent btn-md">Log in</button>
+    </form>
+
+    <form id="signupForm" class="login-form hidden">
+      <label class="mono small" for="suName">Name</label>
+      <input class="role-search" id="suName" name="name" type="text" autocomplete="name" maxlength="60" required>
+      <label class="mono small" for="suEmail">Email</label>
+      <input class="role-search" id="suEmail" name="email" type="email" autocomplete="email" required>
+      <label class="mono small" for="suPw">Password (8+ characters)</label>
+      <input class="role-search" id="suPw" name="password" type="password" autocomplete="new-password" minlength="8" required>
+      <label class="mono small" for="suConfirm">Confirm password</label>
+      <input class="role-search" id="suConfirm" name="confirm" type="password" autocomplete="new-password" required>
+      <button type="submit" class="btn btn-accent btn-md">Create account</button>
+    </form>
+    <p class="login-msg small" id="formMsg" role="alert"></p>
     <a href="index.html" class="login-back">← Back to home</a>
   </main>
   <script src="config.js"></script>

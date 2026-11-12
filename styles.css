@@ -396,3 +396,15 @@ button { font-family: inherit; }
 .hist-m { color: var(--dimmer); }
 #ivReturn { background: var(--teal); color: var(--bg); border: 0; font-weight: 600; }
 #ivReturn:hover { color: var(--bg); }
+
+/* ---------- email login / sign up ---------- */
+.login-or { width: 100%; max-width: 360px; display: flex; align-items: center; gap: 12px; color: var(--dimmer); }
+.login-or::before, .login-or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.login-tabs { display: flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 999px; }
+.login-tabs button { min-height: 40px; padding: 0 18px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: 500 14px var(--sans); cursor: pointer; }
+.login-tabs button[aria-selected="true"] { background: #FFFFFF; color: var(--bg); }
+.login-form { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.login-form label { color: var(--dimmer); margin-top: 6px; }
+.login-form .role-search { max-width: none; }
+.login-form .btn { margin-top: 14px; justify-content: center; }
+#formMsg { color: #FF9A9A; }
