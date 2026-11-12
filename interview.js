@@ -18,8 +18,15 @@
     'Describe a goal you set and how you achieved it.',
     'Tell me about a mistake you made and what you learned from it.',
     'Describe a time you had to learn something quickly to get a job done.',
-    'Tell me about a time you worked under a tight deadline.'
+    'Tell me about a time you worked under a tight deadline.',
+    'Tell me about a time you took initiative without being asked.',
+    'Describe a time you received tough feedback. What did you do with it?',
+    'Tell me about a time you had to juggle several priorities at once.',
+    'Describe a time you helped a teammate who was struggling.',
+    'Tell me about something you are proud of that you accomplished at work or school.'
   ];
+  const CLOSING = 'Do you have any questions for us?';
+  const TOTAL = 15;
 
   const BY_CATEGORY = {
     tech: [
@@ -96,8 +103,7 @@
       'What are your greatest strengths and how have they helped you at work?',
       'Where do you want to be in five years?',
       'Why should we hire you over other candidates?',
-      'What kind of work environment helps you do your best work?',
-      'Do you have any questions for us?'
+      'What kind of work environment helps you do your best work?'
     ]
   };
 
@@ -126,10 +132,31 @@
     return a.slice(0, n);
   }
 
+  // 15 questions: intro, motivation, 12 mixed (role-specific, field-related and
+  // behavioral, shuffled), then the closing question.
   function buildQuestions() {
-    const first = 'Tell me about yourself and why you are interested in the ' + role + ' role.';
-    const rest = pick(GENERAL.slice(1), 1).concat(pick(BY_CATEGORY[categoryFor(role)], 3));
-    return [first].concat(rest);
+    const MID = TOTAL - 3;
+    const behavioralPool = GENERAL.slice(1);
+    let specific = pick((window.AIIC_ROLE_QUESTIONS || {})[role] || [], 5);
+    if (!specific.length) {
+      // A role typed in by the user: use questions that name the role.
+      specific = [
+        'What skills matter most for success as a ' + role + ', and how have you developed them?',
+        'What do you think is the hardest part of working as a ' + role + '?',
+        'Walk me through how you would approach your first 90 days as a ' + role + '.'
+      ];
+    }
+    const behavioral = pick(behavioralPool, 4);
+    let mid = specific.concat(behavioral);
+    const fieldPool = Array.from(new Set(BY_CATEGORY[categoryFor(role)].concat(BY_CATEGORY.general)));
+    mid = mid.concat(pick(fieldPool, Math.max(0, Math.min(fieldPool.length, MID - mid.length))));
+    if (mid.length < MID) {
+      mid = mid.concat(pick(behavioralPool.filter((q) => mid.indexOf(q) === -1), MID - mid.length));
+    }
+    return [
+      'Tell me about yourself and why you are interested in the ' + role + ' role.',
+      'What draws you to ' + role + ' work, and what do you want to get out of this position?'
+    ].concat(pick(mid, MID), [CLOSING]);
   }
 
   /* ---------- scoring ---------- */
