@@ -393,8 +393,8 @@ button { font-family: inherit; }
 .hist-q { font-family: var(--display); font-size: 17px; }
 .hist-a { color: var(--muted); line-height: 1.6; white-space: pre-wrap; }
 .hist-m { color: var(--dimmer); }
-#ivReturn { background: var(--teal); color: var(--bg); border: 0; font-weight: 600; }
-#ivReturn:hover { color: var(--bg); }
+#ivReturn, #hReturn { background: var(--teal); color: var(--bg); border: 0; font-weight: 600; }
+#ivReturn:hover, #hReturn:hover { color: var(--bg); }
 
 /* ---------- email login / sign up ---------- */
 .login-or { width: 100%; max-width: 360px; display: flex; align-items: center; gap: 12px; color: var(--dimmer); }
