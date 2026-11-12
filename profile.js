@@ -73,7 +73,7 @@
     box.setAttribute('role', 'alertdialog');
     box.setAttribute('aria-modal', 'true');
     box.setAttribute('aria-labelledby', 'delTitle');
-    const title = el('h2', null, 'Delete your account?');
+    const title = el('h2', null, 'Are you sure you want to delete your account?');
     title.id = 'delTitle';
     const body = el('p', null, 'This permanently deletes your account and all of your practice history. This cannot be undone.');
     box.append(title, body);
@@ -88,8 +88,8 @@
     const msg = el('p', 'dialog-msg small');
     msg.setAttribute('role', 'alert');
     const actions = el('div', 'dialog-actions');
-    const cancel = el('button', 'btn btn-ghost btn-md', 'Cancel'); cancel.type = 'button';
-    const confirmBtn = el('button', 'btn btn-danger btn-md', 'Delete account'); confirmBtn.type = 'button';
+    const cancel = el('button', 'btn btn-ghost btn-md', 'No, keep my account'); cancel.type = 'button';
+    const confirmBtn = el('button', 'btn btn-danger btn-md', 'Yes, delete my account'); confirmBtn.type = 'button';
     actions.append(cancel, confirmBtn);
     box.append(msg, actions);
     overlay.appendChild(box);
