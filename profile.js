@@ -88,7 +88,7 @@
     const msg = el('p', 'dialog-msg small');
     msg.setAttribute('role', 'alert');
     const actions = el('div', 'dialog-actions');
-    const cancel = el('button', 'btn btn-ghost btn-md', 'No, keep my account'); cancel.type = 'button';
+    const cancel = el('button', 'btn btn-accent btn-md', 'No, keep my account'); cancel.type = 'button';
     const confirmBtn = el('button', 'btn btn-danger btn-md', 'Yes, delete my account'); confirmBtn.type = 'button';
     actions.append(cancel, confirmBtn);
     box.append(msg, actions);
