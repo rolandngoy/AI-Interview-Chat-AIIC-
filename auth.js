@@ -27,7 +27,7 @@
   function initLoginPage() {
     const slot = document.getElementById('googleBtn');
     if (!slot) return;
-    if (getUser()) { window.location.replace('index.html#demo'); return; }
+    if (getUser()) { window.location.replace('roles.html'); return; }
 
     const clientId = (window.AIIC_CONFIG || {}).googleClientId;
     const msg = document.getElementById('loginMsg');
@@ -42,7 +42,7 @@
         callback: function (res) {
           const p = decodeJwt(res.credential);
           setUser({ name: p.name, email: p.email, picture: p.picture });
-          window.location.href = 'index.html#demo';
+          window.location.href = 'roles.html';
         }
       });
       google.accounts.id.renderButton(slot, { type: 'standard', theme: 'filled_black', size: 'large', text: 'signin_with', shape: 'pill' });
@@ -57,7 +57,7 @@
     if (!cta) return;
     const user = getUser();
     if (!user) return;
-    cta.setAttribute('href', '#demo');
+    cta.setAttribute('href', 'roles.html');
     const who = document.getElementById('navUser');
     who.querySelector('.nav-user-name').textContent = (user.name || user.email || '').split(' ')[0];
     who.classList.remove('hidden');
@@ -65,7 +65,7 @@
       signOut();
       window.location.href = 'index.html';
     });
-    document.querySelectorAll('a[href="login.html"]').forEach(function (a) { a.setAttribute('href', '#demo'); });
+    document.querySelectorAll('a[href="login.html"]').forEach(function (a) { a.setAttribute('href', 'roles.html'); });
   }
 
   initLoginPage();
