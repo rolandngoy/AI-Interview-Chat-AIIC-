@@ -338,3 +338,4 @@ button { font-family: inherit; }
 .login-title { font-family: var(--display); font-size: 40px; font-weight: 600; letter-spacing: -.02em; }
 .login-back { color: var(--muted); font-size: 14px; text-decoration: none; }
 .login-back:hover { color: #FFFFFF; }
+.login-top { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: center; padding: 20px 24px; }
