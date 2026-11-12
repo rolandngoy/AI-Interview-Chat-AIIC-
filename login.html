@@ -12,11 +12,7 @@
 </head>
 <body>
   <header class="login-top">
-    <div id="g_id_onload"
-         data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
-         data-callback="handleGoogleSignIn"
-         data-auto_prompt="false"></div>
-    <div class="g_id_signin" data-type="standard" data-theme="filled_black" data-size="large" data-text="signin_with" data-shape="pill"></div>
+    <div id="googleBtn"></div>
   </header>
   <main class="login-page">
     <a href="index.html" class="brand">
@@ -29,16 +25,11 @@
     </a>
     <h1 class="login-title">Welcome back</h1>
     <p class="body-lg center">Sign in with Google to start practicing.</p>
+    <p class="login-msg small" id="loginMsg" role="status"></p>
     <a href="index.html" class="login-back">← Back to home</a>
   </main>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script>
-    function handleGoogleSignIn(response) {
-      // The ID token is a JWT; decode the payload for display name/email.
-      var payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-      try { sessionStorage.setItem('aiic_user', JSON.stringify({ name: payload.name, email: payload.email, picture: payload.picture })); } catch (e) {}
-      window.location.href = 'index.html#demo';
-    }
-  </script>
+  <script src="config.js"></script>
+  <script id="gsiScript" src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="auth.js"></script>
 </body>
 </html>
