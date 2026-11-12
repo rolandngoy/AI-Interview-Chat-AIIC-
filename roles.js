@@ -28,7 +28,7 @@
 
   function choose(role) {
     try { sessionStorage.setItem('aiic_role', role); } catch (e) {}
-    window.location.href = 'index.html#demo';
+    window.location.href = 'interview.html';
   }
 
   Object.keys(ROLES).forEach(function (cat) {

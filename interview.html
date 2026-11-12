@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mock interview — AI Interview Chat</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="iv-page container narrow">
+    <header class="iv-head">
+      <a href="index.html" class="brand">
+        <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="16" cy="16" r="14" stroke="var(--accent)" stroke-width="1.5" opacity=".5"/>
+          <circle cx="16" cy="16" r="8.5" stroke="var(--accent)" stroke-width="1.5"/>
+          <circle cx="16" cy="16" r="3" fill="var(--accent)"/>
+        </svg>
+        <span>AI Interview Chat</span>
+      </a>
+      <div class="iv-meta mono small">
+        <span id="ivRole"></span>
+        <a href="roles.html" class="iv-change">Change role</a>
+      </div>
+    </header>
+
+    <div class="iv-progress" aria-hidden="true"><div class="iv-progress-bar" id="ivBar"></div></div>
+    <p class="mono small iv-count" id="ivCount"></p>
+
+    <section id="ivQuestionView">
+      <div class="iv-bubble" id="ivQuestion" aria-live="polite"></div>
+      <form id="ivForm">
+        <label for="ivAnswer" class="mono small iv-label">Your answer</label>
+        <textarea id="ivAnswer" class="iv-answer" rows="8" placeholder="Type your answer as if you were speaking to the interviewer. Aim for 80–200 words." required></textarea>
+        <div class="iv-row">
+          <span class="mono small iv-words" id="ivWords">0 words</span>
+          <button type="submit" class="btn btn-accent btn-md">Submit answer</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="ivFeedbackView" class="hidden" aria-live="polite">
+      <div class="iv-scores" id="ivScores"></div>
+      <ul class="iv-tips" id="ivTips"></ul>
+      <button type="button" class="btn btn-accent btn-md" id="ivNext">Next question</button>
+    </section>
+
+    <section id="ivSummaryView" class="hidden">
+      <h1 class="login-title">Session complete</h1>
+      <div class="iv-scores" id="ivSummaryScores"></div>
+      <ol class="iv-history" id="ivHistory"></ol>
+      <div class="iv-row iv-row-center">
+        <button type="button" class="btn btn-accent btn-md" id="ivRetry">Practice again</button>
+        <a href="roles.html" class="btn btn-ghost btn-md">Pick another role</a>
+      </div>
+    </section>
+
+    <p class="iv-note small">Scores are calculated in your browser from the structure, clarity and specifics of your answer. They are a practice guide, not an AI evaluation.</p>
+  </main>
+  <script src="interview.js"></script>
+</body>
+</html>
