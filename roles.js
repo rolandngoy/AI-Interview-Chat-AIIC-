@@ -33,10 +33,6 @@
     }
   });
 
-  document.getElementById('rolesSignOut').addEventListener('click', function () {
-    AIIC_AUTH.signOut().then(function () { window.location.href = 'index.html'; });
-  });
-
   const grid = document.getElementById('roleGrid');
   const search = document.getElementById('roleSearch');
   const empty = document.getElementById('roleEmpty');

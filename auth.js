@@ -42,7 +42,7 @@
         if (onLoginPage && !busy) window.location.replace('roles.html');
       } else {
         clearUser();
-        if (GUARDED.test(window.location.pathname)) window.location.replace('login.html');
+        if (GUARDED.test(window.location.pathname) && !window.AIIC_AUTH.suppressRedirect) window.location.replace('login.html');
       }
       resolveReady();
     });
@@ -51,11 +51,12 @@
   }
 
   function signOut() {
+    window.AIIC_AUTH.suppressRedirect = true;
     clearUser();
     return auth ? auth.signOut() : Promise.resolve();
   }
 
-  window.AIIC_AUTH = { ready: ready, configured: configured, signOut: signOut, getUser: getUser };
+  window.AIIC_AUTH = { ready: ready, configured: configured, auth: auth, signOut: signOut, getUser: getUser, suppressRedirect: false };
 
   /* ---------- login page ---------- */
   function friendly(err) {
@@ -150,12 +151,6 @@
     const user = getUser();
     if (!user) return;
     cta.setAttribute('href', 'roles.html');
-    const who = document.getElementById('navUser');
-    who.querySelector('.nav-user-name').textContent = (user.name || user.email || '').split(' ')[0];
-    who.classList.remove('hidden');
-    document.getElementById('signOutBtn').addEventListener('click', function () {
-      signOut().then(function () { window.location.href = 'index.html'; });
-    });
     document.querySelectorAll('a[href="login.html"]').forEach(function (a) { a.setAttribute('href', 'roles.html'); });
   }
 

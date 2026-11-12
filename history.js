@@ -8,7 +8,6 @@
   if (!user) { window.location.replace('login.html'); return; }
 
   const $ = (id) => document.getElementById(id);
-  $('hUser').textContent = user.name || user.email;
 
   const avg = (arr) => arr.length ? Math.round(arr.reduce((n, x) => n + x, 0) / arr.length) : 0;
   const sessionScore = (s) => avg(s.results.map((r) => r.s.overall));

@@ -34,14 +34,10 @@
         <a href="#how">How it works</a>
         <a href="#progress">Progress</a>
       </div>
-      <div class="nav-user hidden" id="navUser">
-        <span class="nav-user-name"></span>
-        <a href="history.html" class="nav-signout">History</a>
-        <button type="button" class="nav-signout" id="signOutBtn">Sign out</button>
-      </div>
       <a href="login.html" class="btn btn-white btn-sm" id="navCta">Start practicing
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
       </a>
+      <div class="profile hidden" id="profileMenu"></div>
     </nav>
   </header>
 
@@ -283,7 +279,10 @@
 <script src="config.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="auth.js"></script>
+<script src="store.js"></script>
+<script src="profile.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
