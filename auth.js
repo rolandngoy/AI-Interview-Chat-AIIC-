@@ -69,7 +69,9 @@
     signupForm.addEventListener('submit', async function (e) {
       e.preventDefault();
       msg.textContent = '';
-      const name = signupForm.elements.name.value.trim();
+      const first = signupForm.elements.first.value.trim();
+      const last = signupForm.elements.last.value.trim();
+      const name = first + ' ' + last;
       const email = signupForm.elements.email.value.trim().toLowerCase();
       const pw = signupForm.elements.password.value;
       if (pw.length < 8) { msg.textContent = 'Use a password of at least 8 characters.'; return; }
@@ -78,7 +80,7 @@
       if (accounts[email]) { msg.textContent = 'An account with this email already exists. Log in instead.'; return; }
       try {
         const salt = toHex(crypto.getRandomValues(new Uint8Array(16)));
-        accounts[email] = { name: name, salt: salt, hash: await hashPassword(pw, salt) };
+        accounts[email] = { name: name, first: first, last: last, salt: salt, hash: await hashPassword(pw, salt) };
         if (!saveAccounts(accounts)) { msg.textContent = 'Could not save your account. Check that browser storage is enabled.'; return; }
         setUser({ name: name, email: email });
         window.location.href = 'roles.html';
