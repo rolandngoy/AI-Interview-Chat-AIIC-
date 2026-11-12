@@ -20,8 +20,13 @@
       </svg>
       <span>AI Interview Chat</span>
     </a>
+    <nav class="iv-meta mono small" aria-label="Account">
+      <a href="history.html" class="iv-change">My history</a>
+      <button type="button" class="nav-signout" id="rolesSignOut">Sign out</button>
+    </nav>
     <h1 class="login-title">What role are you applying for?</h1>
-    <p class="body-lg center">Pick the closest match and we'll tailor your practice questions.</p>
+    <p class="body-lg center"><span id="roleHello"></span>pick the closest match and we'll tailor your practice questions.</p>
+    <p class="mono small login-msg hidden" id="roleLast"></p>
 
     <input type="search" id="roleSearch" class="role-search" placeholder="Search roles…" aria-label="Search roles" autocomplete="off">
 
@@ -36,6 +41,7 @@
       </div>
     </form>
   </main>
+  <script src="store.js"></script>
   <script src="roles.js"></script>
 </body>
 </html>

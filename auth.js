@@ -1,7 +1,7 @@
 /* =========================================================
    AI Interview Chat — client-side auth (Google Identity Services)
    Shared by login.html and index.html.
-   The session lives in sessionStorage; nothing is verified server-side.
+   The signed-in user is remembered in localStorage; nothing is verified server-side.
    ========================================================= */
 (function () {
   'use strict';
@@ -9,13 +9,13 @@
   const KEY = 'aiic_user';
 
   function getUser() {
-    try { return JSON.parse(sessionStorage.getItem(KEY)); } catch (e) { return null; }
+    try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; }
   }
   function setUser(user) {
-    try { sessionStorage.setItem(KEY, JSON.stringify(user)); } catch (e) {}
+    try { localStorage.setItem(KEY, JSON.stringify(user)); } catch (e) {}
   }
   function signOut() {
-    try { sessionStorage.removeItem(KEY); } catch (e) {}
+    try { localStorage.removeItem(KEY); } catch (e) {}
     if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
   }
   function decodeJwt(token) {

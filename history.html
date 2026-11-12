@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My history — AI Interview Chat</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="iv-page container narrow">
+    <header class="iv-head">
+      <a href="index.html" class="brand">
+        <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="16" cy="16" r="14" stroke="var(--accent)" stroke-width="1.5" opacity=".5"/>
+          <circle cx="16" cy="16" r="8.5" stroke="var(--accent)" stroke-width="1.5"/>
+          <circle cx="16" cy="16" r="3" fill="var(--accent)"/>
+        </svg>
+        <span>AI Interview Chat</span>
+      </a>
+      <div class="iv-meta mono small"><span id="hUser"></span></div>
+    </header>
+
+    <h1 class="login-title">Your practice history</h1>
+    <div class="iv-scores hist-stats" id="hStats"></div>
+    <p class="body-lg center hidden" id="hEmpty">No sessions yet. Finish a question to see it here.</p>
+    <div id="hList" class="hist-list"></div>
+
+    <div class="iv-row iv-row-center">
+      <a href="roles.html" class="btn btn-accent btn-md">Start a new interview</a>
+      <button type="button" class="btn btn-ghost btn-md hidden" id="hClear">Clear history</button>
+    </div>
+    <p class="iv-note small">History is saved in this browser for your Google account. It doesn't sync to other devices.</p>
+  </main>
+  <script src="store.js"></script>
+  <script src="history.js"></script>
+</body>
+</html>

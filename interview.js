@@ -7,7 +7,7 @@
   'use strict';
 
   let user, role;
-  try { user = sessionStorage.getItem('aiic_user'); role = sessionStorage.getItem('aiic_role'); } catch (e) {}
+  try { user = JSON.parse(localStorage.getItem('aiic_user')); role = sessionStorage.getItem('aiic_role'); } catch (e) {}
   if (!user) { window.location.replace('login.html'); return; }
   if (!role) { window.location.replace('roles.html'); return; }
 
@@ -177,7 +177,12 @@
   const views = ['ivQuestionView', 'ivFeedbackView', 'ivSummaryView'];
   function show(id) { views.forEach((v) => $(v).classList.toggle('hidden', v !== id)); }
 
-  let questions, index, results;
+  let questions, index, results, sessionId;
+
+  function persist(complete) {
+    if (!results.length || !window.AIIC_STORE) return;
+    AIIC_STORE.saveSession(user.email, { id: sessionId, role: role, date: sessionId, total: questions.length, complete: complete, results: results });
+  }
 
   function scoreTile(label, value) {
     const d = document.createElement('div');
@@ -213,6 +218,7 @@
       li.append(q, sc);
       return li;
     }));
+    persist(true);
     show('ivSummaryView');
   }
 
@@ -220,6 +226,7 @@
     questions = buildQuestions();
     index = 0;
     results = [];
+    sessionId = Date.now();
     showQuestion();
   }
 
@@ -233,7 +240,8 @@
     const text = $('ivAnswer').value.trim();
     if (!text) return;
     const s = score(text);
-    results.push({ q: questions[index], s: s });
+    results.push({ q: questions[index], a: text, s: s });
+    persist(false);
     renderScores($('ivScores'), s);
     $('ivTips').replaceChildren.apply($('ivTips'), s.tips.map((t) => { const li = document.createElement('li'); li.textContent = t; return li; }));
     $('ivNext').textContent = index === questions.length - 1 ? 'See results' : 'Next question';
@@ -245,6 +253,12 @@
     if (index >= questions.length) showSummary(); else showQuestion();
   });
   $('ivRetry').addEventListener('click', start);
+
+  $('ivReturn').addEventListener('click', function () {
+    const draft = $('ivAnswer').value.trim();
+    if (!$('ivQuestionView').classList.contains('hidden') && draft && !confirm('Leave the interview? Your current unsent answer will be lost. Answers you already submitted are saved in your history.')) return;
+    window.location.href = 'roles.html';
+  });
 
   start();
 })();

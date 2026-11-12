@@ -18,7 +18,23 @@
     'Hospitality, Retail & Trades': ['Retail Associate', 'Store Manager', 'Restaurant Server', 'Chef / Cook', 'Hotel Front Desk', 'Barista', 'Electrician', 'Plumber', 'Warehouse Associate', 'Delivery Driver', 'Construction Worker']
   };
 
-  if (!sessionStorage.getItem('aiic_user')) { window.location.replace('login.html'); return; }
+  let user = null;
+  try { user = JSON.parse(localStorage.getItem('aiic_user')); } catch (e) {}
+  if (!user) { window.location.replace('login.html'); return; }
+
+  const hi = document.getElementById('roleHello');
+  if (hi) hi.textContent = 'Hi ' + String(user.name || user.email || '').split(' ')[0] + ' — ';
+  const last = (window.AIIC_STORE ? AIIC_STORE.getHistory(user.email) : []).slice(-1)[0];
+  const lastEl = document.getElementById('roleLast');
+  if (last && lastEl) {
+    lastEl.textContent = 'Last practiced: ' + last.role;
+    lastEl.classList.remove('hidden');
+  }
+
+  document.getElementById('rolesSignOut').addEventListener('click', function () {
+    try { localStorage.removeItem('aiic_user'); sessionStorage.removeItem('aiic_role'); } catch (e) {}
+    window.location.href = 'index.html';
+  });
 
   const grid = document.getElementById('roleGrid');
   const search = document.getElementById('roleSearch');
