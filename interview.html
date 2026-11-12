@@ -42,6 +42,21 @@
           <button type="submit" class="btn btn-accent btn-md">Submit answer</button>
         </div>
       </form>
+
+      <form id="ivCodeForm" class="hidden">
+        <label for="ivCode" class="mono small iv-label">Python 3 · write your solution</label>
+        <textarea id="ivCode" class="iv-answer iv-code" rows="12" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+        <p class="mono small iv-words" id="ivPyStatus" role="status"></p>
+        <div id="ivCodeOut" class="iv-codeout hidden" aria-live="polite"></div>
+        <div class="iv-row">
+          <button type="button" class="btn btn-ghost btn-md" id="ivSkipCode">Skip problem</button>
+          <div class="iv-row-btns">
+            <button type="button" class="btn btn-ghost btn-md" id="ivRunCode">Run tests</button>
+            <button type="submit" class="btn btn-accent btn-md" id="ivSubmitCode">Submit solution</button>
+          </div>
+        </div>
+        <p class="mono small iv-words">Press Tab to indent. Press Esc, then Tab, to move focus out of the editor.</p>
+      </form>
     </section>
 
     <section id="ivFeedbackView" class="hidden" aria-live="polite">
@@ -70,6 +85,7 @@
   <script src="store.js"></script>
   <script src="profile.js"></script>
   <script src="questions.js"></script>
+  <script src="codeproblems.js"></script>
   <script src="interview.js"></script>
 </body>
 </html>

@@ -51,9 +51,11 @@
       s.results.forEach(function (r) {
         const box = document.createElement('div'); box.className = 'hist-answer';
         const q = document.createElement('p'); q.className = 'hist-q'; q.textContent = r.q;
-        const a = document.createElement('p'); a.className = 'hist-a'; a.textContent = r.a;
+        const a = document.createElement('p'); a.className = r.kind === 'code' ? 'hist-a hist-code' : 'hist-a'; a.textContent = r.a;
         const m = document.createElement('p'); m.className = 'mono small hist-m';
-        m.textContent = 'Overall ' + r.s.overall + ' · Structure ' + r.s.structure + ' · Clarity ' + r.s.clarity + ' · Impact ' + r.s.impact;
+        m.textContent = r.kind === 'code'
+          ? 'Overall ' + r.s.overall + ' · Tests passed ' + r.s.tests.passed + '/' + r.s.tests.total
+          : 'Overall ' + r.s.overall + ' · Structure ' + r.s.structure + ' · Clarity ' + r.s.clarity + ' · Impact ' + r.s.impact;
         box.append(q, a, m);
         d.appendChild(box);
       });

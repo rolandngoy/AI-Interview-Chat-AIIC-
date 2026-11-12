@@ -133,9 +133,10 @@
   }
 
   // 15 questions: intro, motivation, 12 mixed (role-specific, field-related and
-  // behavioral, shuffled), then the closing question.
+  // behavioral, shuffled; one is a Python problem for coding roles), then the closing question.
   function buildQuestions() {
-    const MID = TOTAL - 3;
+    const coding = window.AIIC_CODE && AIIC_CODE.isCodingRole(role);
+    const MID = TOTAL - 3 - (coding ? 1 : 0);
     const behavioralPool = GENERAL.slice(1);
     let specific = pick((window.AIIC_ROLE_QUESTIONS || {})[role] || [], 5);
     if (!specific.length) {
@@ -153,10 +154,13 @@
     if (mid.length < MID) {
       mid = mid.concat(pick(behavioralPool.filter((q) => mid.indexOf(q) === -1), MID - mid.length));
     }
+    mid = pick(mid, MID);
+    // Roles that involve coding get one simple Python problem, about midway through.
+    if (coding) mid.splice(Math.floor(MID / 2), 0, AIIC_CODE.pick(role));
     return [
       'Tell me about yourself and why you are interested in the ' + role + ' role.',
       'What draws you to ' + role + ' work, and what do you want to get out of this position?'
-    ].concat(pick(mid, MID), [CLOSING]);
+    ].concat(mid, [CLOSING]);
   }
 
   /* ---------- scoring ---------- */
@@ -224,19 +228,100 @@
   }
 
   function showQuestion() {
-    $('ivQuestion').textContent = questions[index];
-    $('ivAnswer').value = '';
-    $('ivWords').textContent = '0 words';
+    const q = questions[index];
+    const isCode = typeof q === 'object';
+    $('ivQuestion').textContent = isCode ? 'Coding problem: ' + q.prompt : q;
+    $('ivForm').classList.toggle('hidden', isCode);
+    $('ivCodeForm').classList.toggle('hidden', !isCode);
     $('ivCount').textContent = 'Question ' + (index + 1) + ' of ' + questions.length;
     $('ivBar').style.width = (index / questions.length * 100) + '%';
     show('ivQuestionView');
-    $('ivAnswer').focus();
+    if (isCode) {
+      $('ivCode').value = q.starter;
+      $('ivCodeOut').classList.add('hidden');
+      $('ivCodeOut').replaceChildren();
+      $('ivPyStatus').textContent = '';
+      getRunner();
+      $('ivCode').focus();
+    } else {
+      $('ivAnswer').value = '';
+      $('ivWords').textContent = '0 words';
+      $('ivAnswer').focus();
+    }
+  }
+
+  /* ---------- Python runner (Web Worker + Pyodide) ---------- */
+  let worker = null, workerReady = false, workerError = '', nextRunId = 1;
+  const pending = {};
+
+  function getRunner() {
+    if (worker) return worker;
+    workerReady = false; workerError = '';
+    worker = new Worker('pyworker.js');
+    worker.onmessage = function (e) {
+      const d = e.data;
+      if (d.ready) { workerReady = true; setPyStatus(''); }
+      else if (d.loadError) { workerError = d.loadError; setPyStatus('Could not load the Python runner. Check your connection, or skip this problem.'); }
+      else if (pending[d.id]) { pending[d.id](d.out); delete pending[d.id]; }
+    };
+    worker.onerror = function () { workerError = 'worker'; setPyStatus('Could not load the Python runner. Check your connection, or skip this problem.'); };
+    setPyStatus('Loading Python…');
+    return worker;
+  }
+  function setPyStatus(t) { const el = $('ivPyStatus'); if (el) el.textContent = t; }
+
+  // Runs the candidate's code against the tests. Times out after 5 seconds.
+  function runCode(q, code) {
+    if (worker && workerError) { worker.terminate(); worker = null; } // retry a failed load
+    const w = getRunner();
+    return new Promise(function (resolve) {
+      const id = nextRunId++;
+      const timer = setTimeout(function () {
+        const loaded = workerReady;
+        delete pending[id];
+        w.terminate(); worker = null;
+        getRunner(); // restart for the next attempt
+        resolve(loaded
+          ? { error: 'Your code ran for more than 5 seconds. Check for an infinite loop.' }
+          : { error: 'Python took too long to load. Check your connection, or skip this problem.', loadFail: true });
+      }, workerReady ? 5000 : 60000);
+      pending[id] = function (out) { clearTimeout(timer); resolve(out); };
+      w.postMessage({ id: id, code: code, fn: q.fn, tests: q.tests });
+    });
+  }
+
+  function renderCodeOut(out) {
+    const box = $('ivCodeOut');
+    box.classList.remove('hidden');
+    box.replaceChildren();
+    if (out.error) { const p = document.createElement('p'); p.className = 'iv-code-err'; p.textContent = out.error; box.appendChild(p); return; }
+    out.results.forEach(function (r) {
+      const row = document.createElement('div'); row.className = 'iv-test ' + (r.ok ? 'pass' : 'fail');
+      const head = document.createElement('strong'); head.textContent = (r.ok ? '✓ ' : '✗ ') + r.call;
+      row.appendChild(head);
+      if (!r.ok) { const d = document.createElement('span'); d.textContent = 'expected ' + r.expected + ', got ' + r.got; row.appendChild(d); }
+      box.appendChild(row);
+    });
+  }
+
+  async function runFromUi() {
+    const q = questions[index];
+    $('ivRunCode').disabled = $('ivSubmitCode').disabled = true;
+    setPyStatus(workerReady ? 'Running tests…' : 'Loading Python… your tests will run when it is ready.');
+    const out = await runCode(q, $('ivCode').value);
+    $('ivRunCode').disabled = $('ivSubmitCode').disabled = false;
+    setPyStatus(workerError ? 'Could not load the Python runner. Check your connection, or skip this problem.' : '');
+    renderCodeOut(out);
+    return out;
   }
 
   function showSummary() {
     $('ivBar').style.width = '100%';
     $('ivCount').textContent = 'Done';
-    const avg = (k) => Math.round(results.reduce((n, r) => n + r.s[k], 0) / results.length);
+    const avg = (k) => {
+      const rs = k === 'overall' ? results : results.filter((r) => r.kind !== 'code');
+      return rs.length ? Math.round(rs.reduce((n, r) => n + r.s[k], 0) / rs.length) : 0;
+    };
     renderScores($('ivSummaryScores'), { overall: avg('overall'), structure: avg('structure'), clarity: avg('clarity'), impact: avg('impact') });
     $('ivHistory').replaceChildren.apply($('ivHistory'), results.map((r) => {
       const li = document.createElement('li');
@@ -275,6 +360,43 @@
     show('ivFeedbackView');
     $('ivNext').focus();
   });
+  $('ivRunCode').addEventListener('click', runFromUi);
+  $('ivSkipCode').addEventListener('click', function () {
+    index++;
+    if (index >= questions.length) showSummary(); else showQuestion();
+  });
+  $('ivCodeForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const q = questions[index];
+    const out = await runFromUi();
+    if (out.loadFail || workerError) return;
+    const rs = out.results || [];
+    const passed = rs.filter((r) => r.ok).length, total = q.tests.length;
+    const overall = Math.round(passed / total * 100);
+    results.push({ q: 'Coding problem: ' + q.title, a: $('ivCode').value, kind: 'code', s: { overall: overall, tests: { passed: passed, total: total } } });
+    persist(false);
+    $('ivScores').replaceChildren(scoreTile('Overall', overall), scoreTile('Tests passed', passed + '/' + total));
+    const tips = [];
+    if (out.error) tips.push(out.error);
+    rs.filter((r) => !r.ok).slice(0, 3).forEach((r) => tips.push(r.call + ' should return ' + r.expected + ' but returned ' + r.got + '.'));
+    if (!tips.length) tips.push('All tests passed. In a real interview, also explain your approach and its time complexity out loud.');
+    else tips.push('In a real interview, talk through your approach and test edge cases such as empty input.');
+    $('ivTips').replaceChildren.apply($('ivTips'), tips.map((t) => { const li = document.createElement('li'); li.textContent = t; return li; }));
+    $('ivNext').textContent = index === questions.length - 1 ? 'See results' : 'Next question';
+    show('ivFeedbackView');
+    $('ivNext').focus();
+  });
+  // Tab inserts spaces in the editor; press Escape first to move focus out instead.
+  let tabEscapes = false;
+  $('ivCode').addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { tabEscapes = true; return; }
+    if (e.key === 'Tab' && !e.shiftKey && !tabEscapes) {
+      e.preventDefault();
+      const s = this.selectionStart;
+      this.setRangeText('    ', s, this.selectionEnd, 'end');
+    } else if (e.key !== 'Shift') { tabEscapes = false; }
+  });
+
   $('ivNext').addEventListener('click', function () {
     index++;
     if (index >= questions.length) showSummary(); else showQuestion();
@@ -282,7 +404,9 @@
   $('ivRetry').addEventListener('click', start);
 
   $('ivReturn').addEventListener('click', function () {
-    const draft = $('ivAnswer').value.trim();
+    const q = questions[index];
+    const inCode = typeof q === 'object' && !$('ivCodeForm').classList.contains('hidden');
+    const draft = inCode ? ($('ivCode').value.trim() !== q.starter.trim()) : $('ivAnswer').value.trim();
     if (!$('ivQuestionView').classList.contains('hidden') && draft && !confirm('Leave the interview? Your current unsent answer will be lost. Answers you already submitted are saved in your history.')) return;
     window.location.href = 'roles.html';
   });
