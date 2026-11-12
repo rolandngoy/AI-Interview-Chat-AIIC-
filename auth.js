@@ -1,12 +1,16 @@
 /* =========================================================
-   AI Interview Chat — client-side auth (Google Identity Services)
-   Shared by login.html and index.html.
-   The signed-in user is remembered in localStorage; nothing is verified server-side.
+   AI Interview Chat — accounts (Firebase Authentication)
+   Shared by every page. Email/password and Google sign-in.
+   The signed-in user is mirrored into localStorage so pages can
+   check it synchronously; Firebase remains the source of truth.
    ========================================================= */
 (function () {
   'use strict';
 
   const KEY = 'aiic_user';
+  const GUARDED = /\/(roles|interview|history)(\.html)?$/;
+  const cfg = (window.AIIC_CONFIG || {}).firebase || {};
+  const configured = !!(cfg.apiKey && cfg.apiKey.indexOf('YOUR_') !== 0 && window.firebase);
 
   function getUser() {
     try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; }
@@ -14,38 +18,66 @@
   function setUser(user) {
     try { localStorage.setItem(KEY, JSON.stringify(user)); } catch (e) {}
   }
+  function clearUser() {
+    try { localStorage.removeItem(KEY); sessionStorage.removeItem('aiic_role'); } catch (e) {}
+  }
+  const toUser = (fb) => ({ uid: fb.uid, name: fb.displayName || '', email: fb.email || '', picture: fb.photoURL || '' });
+
+  let auth = null;
+  if (configured) { firebase.initializeApp(cfg); auth = firebase.auth(); }
+
+  let resolveReady;
+  const ready = new Promise((r) => { resolveReady = r; });
+  let busy = false; // set while a login/sign-up form is mid-flight
+  const onLoginPage = !!document.getElementById('googleBtn');
+
+  if (auth) {
+    auth.onAuthStateChanged(function (fb) {
+      if (fb) {
+        // Keep the name we set at sign-up if Firebase has not caught up yet.
+        const prev = getUser();
+        const u = toUser(fb);
+        if (!u.name && prev && prev.uid === u.uid) u.name = prev.name;
+        setUser(u);
+        if (onLoginPage && !busy) window.location.replace('roles.html');
+      } else {
+        clearUser();
+        if (GUARDED.test(window.location.pathname)) window.location.replace('login.html');
+      }
+      resolveReady();
+    });
+  } else {
+    resolveReady();
+  }
+
   function signOut() {
-    try { localStorage.removeItem(KEY); } catch (e) {}
-    if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
-  }
-  function decodeJwt(token) {
-    const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-    return JSON.parse(decodeURIComponent(escape(atob(b64))));
+    clearUser();
+    return auth ? auth.signOut() : Promise.resolve();
   }
 
+  window.AIIC_AUTH = { ready: ready, configured: configured, signOut: signOut, getUser: getUser };
 
-  /* ---------- email accounts (stored in this browser only) ---------- */
-  const ACCOUNTS_KEY = 'aiic_accounts';
-  const ITERATIONS = 200000;
-
-  function getAccounts() {
-    try { return JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || {}; } catch (e) { return {}; }
+  /* ---------- login page ---------- */
+  function friendly(err) {
+    switch (err && err.code) {
+      case 'auth/email-already-in-use': return 'An account with this email already exists. Log in instead.';
+      case 'auth/invalid-credential':
+      case 'auth/user-not-found':
+      case 'auth/wrong-password': return 'Incorrect email or password.';
+      case 'auth/weak-password': return 'Use a password of at least 8 characters.';
+      case 'auth/invalid-email': return 'Enter a valid email address.';
+      case 'auth/too-many-requests': return 'Too many attempts. Wait a few minutes and try again.';
+      case 'auth/network-request-failed': return 'Network error. Check your connection and try again.';
+      case 'auth/popup-blocked': return 'Your browser blocked the Google pop-up. Allow pop-ups for this site and try again.';
+      case 'auth/unauthorized-domain': return 'This site\'s domain is not authorized in Firebase yet.';
+      default: return 'Something went wrong. Please try again.';
+    }
   }
-  function saveAccounts(a) {
-    try { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(a)); return true; } catch (e) { return false; }
-  }
-  const toHex = (buf) => Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
-  const fromHex = (hex) => new Uint8Array(hex.match(/.{2}/g).map((h) => parseInt(h, 16)));
 
-  async function hashPassword(password, saltHex) {
-    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
-    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: fromHex(saltHex), iterations: ITERATIONS }, key, 256);
-    return toHex(bits);
-  }
-
-  function initEmailForms() {
+  function initLoginPage() {
+    const googleBtn = document.getElementById('googleBtn');
+    if (!googleBtn) return;
     const loginForm = document.getElementById('loginForm');
-    if (!loginForm) return;
     const signupForm = document.getElementById('signupForm');
     const tabLogin = document.getElementById('tabLogin');
     const tabSignup = document.getElementById('tabSignup');
@@ -62,77 +94,53 @@
     tabLogin.addEventListener('click', () => showTab('login'));
     tabSignup.addEventListener('click', () => showTab('signup'));
 
-    if (!(window.crypto && crypto.subtle)) {
-      msg.textContent = 'Email accounts need a secure (https) connection.';
+    if (!auth) {
+      msg.textContent = 'Accounts are not set up yet. Add your Firebase settings in config.js.';
+      [googleBtn].concat(Array.from(document.querySelectorAll('.login-form button'))).forEach((b) => { b.disabled = true; });
+      return;
     }
 
-    signupForm.addEventListener('submit', async function (e) {
-      e.preventDefault();
+    async function run(fn) {
       msg.textContent = '';
+      busy = true;
+      try { await fn(); window.location.href = 'roles.html'; }
+      catch (err) {
+        busy = false;
+        if (err && err.code === 'auth/popup-closed-by-user') return;
+        msg.textContent = friendly(err);
+      }
+    }
+
+    googleBtn.addEventListener('click', () => run(() => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())));
+
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      run(() => auth.signInWithEmailAndPassword(loginForm.elements.email.value.trim(), loginForm.elements.password.value));
+    });
+
+    signupForm.addEventListener('submit', function (e) {
+      e.preventDefault();
       const first = signupForm.elements.first.value.trim();
       const last = signupForm.elements.last.value.trim();
-      const name = first + ' ' + last;
-      const email = signupForm.elements.email.value.trim().toLowerCase();
       const pw = signupForm.elements.password.value;
       if (pw.length < 8) { msg.textContent = 'Use a password of at least 8 characters.'; return; }
       if (pw !== signupForm.elements.confirm.value) { msg.textContent = 'Passwords do not match.'; return; }
-      const accounts = getAccounts();
-      if (accounts[email]) { msg.textContent = 'An account with this email already exists. Log in instead.'; return; }
-      try {
-        const salt = toHex(crypto.getRandomValues(new Uint8Array(16)));
-        accounts[email] = { name: name, first: first, last: last, salt: salt, hash: await hashPassword(pw, salt) };
-        if (!saveAccounts(accounts)) { msg.textContent = 'Could not save your account. Check that browser storage is enabled.'; return; }
-        setUser({ name: name, email: email });
-        window.location.href = 'roles.html';
-      } catch (err) { msg.textContent = 'Something went wrong creating your account.'; }
-    });
-
-    loginForm.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      msg.textContent = '';
-      const email = loginForm.elements.email.value.trim().toLowerCase();
-      const acct = getAccounts()[email];
-      try {
-        if (!acct || (await hashPassword(loginForm.elements.password.value, acct.salt)) !== acct.hash) {
-          msg.textContent = 'Incorrect email or password.';
-          return;
-        }
-        setUser({ name: acct.name, email: email });
-        window.location.href = 'roles.html';
-      } catch (err) { msg.textContent = 'Something went wrong logging you in.'; }
-    });
-  }
-
-  /* ---------- login page ---------- */
-  function initLoginPage() {
-    const slot = document.getElementById('googleBtn');
-    if (!slot) return;
-    if (getUser()) { window.location.replace('roles.html'); return; }
-    initEmailForms();
-
-    const clientId = (window.AIIC_CONFIG || {}).googleClientId;
-    const msg = document.getElementById('loginMsg');
-    if (!clientId || clientId.indexOf('YOUR_') === 0) {
-      msg.textContent = 'Google sign-in is not configured yet. Add your client ID in config.js.';
-      return;
-    }
-    initGoogle(slot, clientId);
-  }
-
-  function initGoogle(slot, clientId) {
-    function render() {
-      google.accounts.id.initialize({
-        client_id: clientId,
-        callback: function (res) {
-          const p = decodeJwt(res.credential);
-          setUser({ name: p.name, email: p.email, picture: p.picture });
-          window.location.href = 'roles.html';
-        }
+      run(async function () {
+        const cred = await auth.createUserWithEmailAndPassword(signupForm.elements.email.value.trim(), pw);
+        const name = first + ' ' + last;
+        await cred.user.updateProfile({ displayName: name });
+        setUser({ uid: cred.user.uid, name: name, email: cred.user.email, picture: '' });
       });
-      google.accounts.id.renderButton(slot, { type: 'standard', theme: 'filled_black', size: 'large', text: 'signin_with', shape: 'pill' });
-    }
-    if (window.google && google.accounts) render();
-    else document.getElementById('gsiScript').addEventListener('load', render);
+    });
+
+    document.getElementById('forgotBtn').addEventListener('click', async function () {
+      const email = loginForm.elements.email.value.trim();
+      if (!email) { msg.textContent = 'Enter your email above, then click "Forgot password?".'; return; }
+      try {
+        await auth.sendPasswordResetEmail(email);
+        msg.textContent = 'If an account exists for that email, a reset link is on its way.';
+      } catch (err) { msg.textContent = friendly(err); }
+    });
   }
 
   /* ---------- landing page nav ---------- */
@@ -146,8 +154,7 @@
     who.querySelector('.nav-user-name').textContent = (user.name || user.email || '').split(' ')[0];
     who.classList.remove('hidden');
     document.getElementById('signOutBtn').addEventListener('click', function () {
-      signOut();
-      window.location.href = 'index.html';
+      signOut().then(function () { window.location.href = 'index.html'; });
     });
     document.querySelectorAll('a[href="login.html"]').forEach(function (a) { a.setAttribute('href', 'roles.html'); });
   }

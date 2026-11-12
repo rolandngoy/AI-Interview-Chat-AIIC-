@@ -22,8 +22,7 @@
     </a>
     <h1 class="login-title">Welcome back</h1>
     <p class="body-lg center">Log in or create an account to start practicing.</p>
-    <div id="googleBtn"></div>
-    <p class="login-msg small" id="loginMsg" role="status"></p>
+    <button type="button" class="btn btn-white btn-md" id="googleBtn">Continue with Google</button>
 
     <p class="login-or mono small"><span>or use your email</span></p>
 
@@ -38,6 +37,7 @@
       <label class="mono small" for="liPw">Password</label>
       <input class="role-search" id="liPw" name="password" type="password" autocomplete="current-password" required>
       <button type="submit" class="btn btn-accent btn-md">Log in</button>
+      <button type="button" class="nav-signout" id="forgotBtn">Forgot password?</button>
     </form>
 
     <form id="signupForm" class="login-form hidden">
@@ -57,7 +57,8 @@
     <a href="index.html" class="login-back">← Back to home</a>
   </main>
   <script src="config.js"></script>
-  <script id="gsiScript" src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="auth.js"></script>
 </body>
 </html>

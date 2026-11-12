@@ -21,8 +21,11 @@
     return d;
   }
 
-  function render() {
-    const sessions = AIIC_STORE.getHistory(user.email).filter((s) => s.results && s.results.length).sort((a, b) => b.date - a.date);
+  async function render() {
+    $('hLoading').classList.remove('hidden');
+    const all = await AIIC_STORE.getHistory(user);
+    $('hLoading').classList.add('hidden');
+    const sessions = all.filter((s) => s.results && s.results.length).sort((a, b) => b.date - a.date);
     const list = $('hList');
     list.replaceChildren();
     $('hEmpty').classList.toggle('hidden', sessions.length > 0);
@@ -59,9 +62,9 @@
     });
   }
 
-  $('hClear').addEventListener('click', function () {
-    if (confirm('Delete all your saved practice history in this browser? This cannot be undone.')) {
-      AIIC_STORE.clearHistory(user.email);
+  $('hClear').addEventListener('click', async function () {
+    if (confirm('Delete all your saved practice history? This cannot be undone.')) {
+      await AIIC_STORE.clearHistory(user);
       render();
     }
   });

@@ -24,16 +24,17 @@
 
   const hi = document.getElementById('roleHello');
   if (hi) hi.textContent = 'Hi ' + String(user.name || user.email || '').split(' ')[0] + ' — ';
-  const last = (window.AIIC_STORE ? AIIC_STORE.getHistory(user.email) : []).slice(-1)[0];
   const lastEl = document.getElementById('roleLast');
-  if (last && lastEl) {
-    lastEl.textContent = 'Last practiced: ' + last.role;
-    lastEl.classList.remove('hidden');
-  }
+  AIIC_STORE.getHistory(user).then(function (list) {
+    const last = list.sort((a, b) => b.date - a.date)[0];
+    if (last && lastEl) {
+      lastEl.textContent = 'Last practiced: ' + last.role;
+      lastEl.classList.remove('hidden');
+    }
+  });
 
   document.getElementById('rolesSignOut').addEventListener('click', function () {
-    try { localStorage.removeItem('aiic_user'); sessionStorage.removeItem('aiic_role'); } catch (e) {}
-    window.location.href = 'index.html';
+    AIIC_AUTH.signOut().then(function () { window.location.href = 'index.html'; });
   });
 
   const grid = document.getElementById('roleGrid');

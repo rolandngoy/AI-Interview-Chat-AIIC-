@@ -26,6 +26,7 @@
 
     <h1 class="login-title">Your practice history</h1>
     <div class="iv-scores hist-stats" id="hStats"></div>
+    <p class="body-lg center hidden" id="hLoading">Loading your history…</p>
     <p class="body-lg center hidden" id="hEmpty">No sessions yet. Finish a question to see it here.</p>
     <div id="hList" class="hist-list"></div>
 
@@ -33,8 +34,13 @@
       <a href="roles.html" class="btn btn-accent btn-md">Start a new interview</a>
       <button type="button" class="btn btn-ghost btn-md hidden" id="hClear">Clear history</button>
     </div>
-    <p class="iv-note small">History is saved in this browser for your Google account. It doesn't sync to other devices.</p>
+    <p class="iv-note small">Your history is saved to your account, so you can see it on any device you log in from.</p>
   </main>
+  <script src="config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="auth.js"></script>
   <script src="store.js"></script>
   <script src="history.js"></script>
 </body>

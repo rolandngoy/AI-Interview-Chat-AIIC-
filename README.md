@@ -65,3 +65,15 @@ In **Settings → Pages → Custom domain**, enter your domain (for example `aii
 ---
 
 Built by [Roland Ngoy](https://www.linkedin.com/in/roland-ngoy-5319532a7/).
+
+## Accounts and history (Firebase)
+
+Accounts and practice history are stored in Firebase so they follow users across devices.
+
+1. Create a project at [console.firebase.google.com](https://console.firebase.google.com).
+2. **Build → Authentication → Get started.** Enable the **Email/Password** and **Google** providers.
+3. **Authentication → Settings → Authorized domains:** add your live site's domain (for example `your-app.azurestaticapps.net`). `localhost` is already allowed.
+4. **Build → Firestore Database → Create database.** Then open the **Rules** tab and paste the contents of `firestore.rules`.
+5. **Project settings → Your apps → Web (`</>`).** Register an app and copy the config values into `config.js`.
+
+The values in `config.js` are public by design; the Firestore rules are what keep each user's history private.

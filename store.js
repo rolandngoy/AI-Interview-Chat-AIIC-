@@ -1,35 +1,49 @@
 /* =========================================================
-   AI Interview Chat — local storage for users and history
-   History is kept per Google account (email) in this browser's
-   localStorage, so it survives closing the tab and signing out.
-   It does not sync across devices.
+   AI Interview Chat — practice history (Cloud Firestore)
+   Sessions live at users/{uid}/sessions/{sessionId}, so a user's
+   history follows their account to any device.
+   Needs firebase-app, firebase-auth and firebase-firestore (compat)
+   and auth.js loaded first.
    ========================================================= */
 (function () {
   'use strict';
 
-  const USER_KEY = 'aiic_user';
-  const histKey = (email) => 'aiic_history_' + String(email || '').toLowerCase();
+  const sessions = (user) => firebase.firestore().collection('users').doc(user.uid).collection('sessions');
+  const usable = (user) => !!(user && user.uid && window.AIIC_AUTH && AIIC_AUTH.configured);
 
-  function read(key) {
-    try { return JSON.parse(localStorage.getItem(key)); } catch (e) { return null; }
+  // Resolves to the list of sessions (empty on error).
+  async function getHistory(user) {
+    if (!usable(user)) return [];
+    await AIIC_AUTH.ready;
+    try {
+      const snap = await sessions(user).get();
+      return snap.docs.map((d) => d.data());
+    } catch (e) { return []; }
   }
-  function write(key, value) {
-    try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (e) { return false; }
-  }
-
-  function getUser() { return read(USER_KEY); }
-  function getHistory(email) { const h = read(histKey(email)); return Array.isArray(h) ? h : []; }
 
   // Insert or update a session by id so partial sessions are saved as the user goes.
-  function saveSession(email, session) {
-    const list = getHistory(email);
-    const i = list.findIndex((s) => s.id === session.id);
-    if (i === -1) list.push(session); else list[i] = session;
-    return write(histKey(email), list);
-  }
-  function clearHistory(email) {
-    try { localStorage.removeItem(histKey(email)); } catch (e) {}
+  async function saveSession(user, session) {
+    if (!usable(user)) return false;
+    await AIIC_AUTH.ready;
+    try { await sessions(user).doc(String(session.id)).set(session); return true; } catch (e) { return false; }
   }
 
-  window.AIIC_STORE = { getUser: getUser, getHistory: getHistory, saveSession: saveSession, clearHistory: clearHistory };
+  async function clearHistory(user) {
+    if (!usable(user)) return false;
+    await AIIC_AUTH.ready;
+    try {
+      const snap = await sessions(user).get();
+      const batch = firebase.firestore().batch();
+      snap.docs.forEach((d) => batch.delete(d.ref));
+      await batch.commit();
+      return true;
+    } catch (e) { return false; }
+  }
+
+  window.AIIC_STORE = {
+    getUser: function () { return window.AIIC_AUTH ? AIIC_AUTH.getUser() : null; },
+    getHistory: getHistory,
+    saveSession: saveSession,
+    clearHistory: clearHistory
+  };
 })();

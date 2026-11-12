@@ -181,7 +181,7 @@
 
   function persist(complete) {
     if (!results.length || !window.AIIC_STORE) return;
-    AIIC_STORE.saveSession(user.email, { id: sessionId, role: role, date: sessionId, total: questions.length, complete: complete, results: results });
+    AIIC_STORE.saveSession(user, { id: sessionId, role: role, date: sessionId, total: questions.length, complete: complete, results: results });
   }
 
   function scoreTile(label, value) {
