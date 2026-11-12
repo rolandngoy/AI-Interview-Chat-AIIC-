@@ -832,3 +832,623 @@ window.AIIC_PRACTICAL = [
   `How would you estimate the size of the market for electric scooters in a large city?`,
   `If depreciation increases by $10, what happens to the three financial statements?`
 ];
+
+/* ---------- Additional roles ---------- */
+Object.assign(window.AIIC_ROLE_QUESTIONS, {
+  /* Technology */
+  'Solutions Architect': [
+    `Walk me through how you would design a solution for a customer with unclear requirements.`,
+    `How do you balance cost, performance, security and time to market in an architecture?`,
+    `Tell me about a time you had to explain a technical design to a non-technical executive.`,
+    `How do you decide between a monolith and microservices?`,
+    `Describe a design that failed in practice and what you learned.`,
+    `How do you keep an architecture from drifting after it is built?`
+  ],
+  'Technical Support Engineer': [
+    `Walk me through how you troubleshoot a customer problem you can't reproduce.`,
+    `Tell me about a technical issue you solved that required help from engineering.`,
+    `How do you explain a complex fix to a customer who isn't technical?`,
+    `How do you handle an angry customer during a major outage?`,
+    `How do you decide when to escalate a ticket?`,
+    `How do you turn repeated tickets into documentation or product fixes?`
+  ],
+  'Embedded Systems Engineer': [
+    `Walk me through how you would bring up a new board for the first time.`,
+    `How do you debug a problem that only happens intermittently on hardware?`,
+    `How do you manage limited memory and power on a small device?`,
+    `Tell me about a time you worked with both hardware and software teams.`,
+    `Explain how interrupts work and the risks of using them.`,
+    `How do you test firmware before it ships?`
+  ],
+  'Game Developer': [
+    `Walk me through a game system you built and the problems you hit.`,
+    `How do you find and fix performance problems like low frame rates?`,
+    `How do you work with designers who keep changing the requirements?`,
+    `Tell me about a bug that was hard to reproduce and how you found it.`,
+    `How do you structure game code so features stay easy to change?`,
+    `Which engines have you used, and what are the tradeoffs between them?`
+  ],
+  'AI Engineer': [
+    `How do you build a feature on top of a large language model and make it reliable?`,
+    `How do you evaluate whether an AI feature is actually working well?`,
+    `Tell me about a time a model gave wrong or unsafe output. What did you do?`,
+    `How do you manage cost and latency when you use AI models in production?`,
+    `How do you handle private or sensitive data in an AI system?`,
+    `How do you explain the limits of AI to a stakeholder who expects it to be perfect?`
+  ],
+  'Penetration Tester': [
+    `Walk me through how you would test a web application from start to finish.`,
+    `How do you decide what is in scope and what isn't?`,
+    `Tell me about the most serious vulnerability you found and how you reported it.`,
+    `How do you write a report that both engineers and executives can act on?`,
+    `How do you stay within legal and ethical limits during an engagement?`,
+    `How do you keep your skills and tools current?`
+  ],
+  'Technical Writer': [
+    `How do you learn a complex product well enough to document it?`,
+    `Walk me through how you plan and structure a set of documentation.`,
+    `How do you get busy engineers to review your work?`,
+    `Tell me about a document you improved after user feedback.`,
+    `How do you decide how much detail the reader needs?`,
+    `Which documentation tools and formats have you used?`
+  ],
+  'Business Intelligence Analyst': [
+    `Walk me through building a dashboard that leadership will actually use.`,
+    `How do you make sure the numbers in a report can be trusted?`,
+    `Tell me about an insight from your data that changed a decision.`,
+    `How do you handle two teams who define the same metric differently?`,
+    `Which BI tools and SQL techniques do you use most?`,
+    `How do you explain data to people who aren't comfortable with numbers?`
+  ],
+  'IT Manager': [
+    `How do you plan your IT budget and decide what to invest in?`,
+    `Tell me about a major outage or security incident you managed.`,
+    `How do you balance keeping systems stable with introducing new technology?`,
+    `How do you manage vendors and contracts?`,
+    `How do you lead a team that is always handling urgent requests?`,
+    `How do you align IT priorities with what the business needs?`
+  ],
+  'Engineering Manager': [
+    `How do you balance delivery speed with code quality and team health?`,
+    `Tell me about a time you managed an underperforming engineer.`,
+    `How do you decide what to build in-house and what to buy?`,
+    `How do you grow and promote engineers on your team?`,
+    `How do you handle a project that is going to miss its deadline?`,
+    `How do you stay technical enough to make good decisions?`
+  ],
+
+  /* Product & Design */
+  'Technical Program Manager': [
+    `How do you drive a program that depends on several engineering teams?`,
+    `Tell me about a technical risk you spotted early and how you handled it.`,
+    `How do you communicate status to both engineers and executives?`,
+    `How do you resolve a disagreement between two teams about an interface or deadline?`,
+    `How do you decide what to cut when a launch date can't move?`,
+    `How do you run a good launch readiness review?`
+  ],
+  'Product Owner': [
+    `How do you write and prioritize a backlog?`,
+    `How do you decide whether a story is ready for the team?`,
+    `Tell me about a time you pushed back on a stakeholder request.`,
+    `How do you work with the team when requirements change mid-sprint?`,
+    `How do you measure whether what you delivered created value?`,
+    `How do you gather input from users and customers?`
+  ],
+  'Motion Designer': [
+    `Walk me through how you take a project from storyboard to final animation.`,
+    `How do you use motion to help users understand an interface?`,
+    `Tell me about a project with tight deadlines and many revisions.`,
+    `Which tools do you use, and how do you hand off animations to developers?`,
+    `How do you keep file sizes and performance in check?`,
+    `How do you take feedback from a client or art director?`
+  ],
+
+  /* Business & Finance */
+  'Financial Advisor': [
+    `A client is 40 years old with $50,000 saved and wants to retire at 65. How would you start building their plan?`,
+    `How do you find out a client's real goals and tolerance for risk?`,
+    `Tell me about a time a client wanted to make a bad financial decision.`,
+    `How do you explain complex products in plain language?`,
+    `How do you build a client base from scratch?`,
+    `How do you keep up with regulations and your duty to act in a client's interest?`
+  ],
+  'Risk Analyst': [
+    `How do you identify and rank the risks a business faces?`,
+    `Walk me through how you would build a risk model and test its assumptions.`,
+    `Tell me about a risk you flagged that others ignored.`,
+    `How do you explain a risk to leaders who want to move fast?`,
+    `How do you tell the difference between a risk you accept and one you must reduce?`,
+    `Which tools and data sources do you use to monitor risk?`
+  ],
+  'Compliance Analyst': [
+    `How do you keep up with changing regulations and apply them to daily work?`,
+    `Tell me about a compliance issue you found and how you handled it.`,
+    `How do you get busy employees to follow compliance procedures?`,
+    `Walk me through how you would run a compliance review of a process.`,
+    `What would you do if a senior leader wanted to skip a required control?`,
+    `How do you document your work for auditors?`
+  ],
+  'Bank Teller': [
+    `How do you make sure cash transactions are accurate?`,
+    `How do you handle a customer who is upset about a hold or a fee?`,
+    `What would you do if you suspected a transaction was fraud?`,
+    `How do you suggest products to customers without being pushy?`,
+    `How do you stay accurate and friendly during a busy line?`,
+    `How do you handle confidential customer information?`
+  ],
+  'Loan Officer': [
+    `Walk me through how you decide whether to approve a loan application.`,
+    `How do you explain a denial to an applicant?`,
+    `How do you find and keep new borrowers?`,
+    `How do you spot signs of fraud or misrepresentation in an application?`,
+    `Tell me about a difficult loan you got across the line.`,
+    `How do you stay compliant with lending regulations?`
+  ],
+  'Insurance Agent': [
+    `How do you work out what coverage a client really needs?`,
+    `How do you explain a policy's exclusions so there are no surprises?`,
+    `Tell me about a time you helped a client through a claim.`,
+    `How do you find new clients and build referrals?`,
+    `How do you handle a client who says insurance is too expensive?`,
+    `How do you keep up with licensing and product changes?`
+  ],
+  'Real Estate Agent': [
+    `How do you price a home and explain it to a seller?`,
+    `Tell me about a deal that nearly fell apart and how you saved it.`,
+    `How do you find and win new clients?`,
+    `How do you handle negotiations when a buyer and seller are far apart?`,
+    `How do you manage several clients and showings at once?`,
+    `How do you stay on top of the local market?`
+  ],
+  'Procurement Specialist': [
+    `How do you choose a supplier and compare bids?`,
+    `Tell me about a negotiation that saved your company money.`,
+    `How do you handle a supplier who misses deliveries?`,
+    `How do you balance cost against quality and reliability?`,
+    `How do you make sure purchases follow company policy?`,
+    `How do you build good long-term relationships with vendors?`
+  ],
+  'Bookkeeper': [
+    `How do you reconcile a bank statement that doesn't match your books?`,
+    `How do you keep accurate records when receipts and paperwork are messy?`,
+    `Tell me about an error you found and how you fixed it.`,
+    `Which accounting software do you use?`,
+    `How do you handle month-end and year-end deadlines?`,
+    `How do you protect sensitive financial information?`
+  ],
+  'Logistics Coordinator': [
+    `How do you plan shipments and keep them on schedule?`,
+    `Tell me about a delay or disruption you managed.`,
+    `How do you work with carriers, warehouses and customers at once?`,
+    `How do you track shipments and report problems early?`,
+    `How do you reduce shipping costs without hurting service?`,
+    `How do you handle customs or documentation errors?`
+  ],
+
+  /* Sales & Marketing */
+  'Sales Development Representative': [
+    `How do you research a prospect before you reach out?`,
+    `Walk me through your approach to a cold call.`,
+    `How do you handle getting rejected many times in a row?`,
+    `How do you decide whether a lead is ready to pass to an account executive?`,
+    `Tell me about your best outreach message and why it worked.`,
+    `How do you manage your day to hit activity and meeting targets?`
+  ],
+  'Product Marketing Manager': [
+    `How do you position a new product against competitors?`,
+    `Walk me through a product launch you led.`,
+    `How do you learn what customers care about?`,
+    `How do you work with product, sales and design teams on messaging?`,
+    `How do you measure whether a launch succeeded?`,
+    `How do you train sales teams on a new product?`
+  ],
+  'SEO Specialist': [
+    `How do you do keyword research for a new website?`,
+    `Tell me about a time you grew a site's organic traffic.`,
+    `How do you respond to a sudden drop in search rankings?`,
+    `How do you balance technical SEO with content work?`,
+    `Which SEO tools do you use and how do you report results?`,
+    `How do you stay current with search engine changes?`
+  ],
+  'Event Planner': [
+    `Walk me through how you plan an event from request to follow-up.`,
+    `How do you stay on budget when costs keep going up?`,
+    `Tell me about a time something went wrong at an event.`,
+    `How do you manage vendors and a lot of last-minute changes?`,
+    `How do you work with a client who is hard to please?`,
+    `How do you measure whether an event was a success?`
+  ],
+  'Market Research Analyst': [
+    `How do you design a survey that gives reliable answers?`,
+    `Walk me through a research project from question to recommendation.`,
+    `How do you decide between qualitative and quantitative methods?`,
+    `How do you present findings so a team acts on them?`,
+    `Tell me about research that contradicted what the team believed.`,
+    `Which tools do you use to analyze data?`
+  ],
+
+  /* People & Admin */
+  'Training and Development Specialist': [
+    `How do you find out what training a team needs?`,
+    `Walk me through designing a training program from scratch.`,
+    `How do you measure whether training worked?`,
+    `How do you keep adult learners engaged?`,
+    `Tell me about a training session that didn't go well and what you changed.`,
+    `How do you make training fit a tight budget?`
+  ],
+  'Payroll Specialist': [
+    `How do you make sure payroll is accurate every cycle?`,
+    `What would you do if you found an error after payroll was paid?`,
+    `How do you keep up with tax and wage laws?`,
+    `How do you handle a frustrated employee whose pay is wrong?`,
+    `Which payroll systems have you used?`,
+    `How do you protect confidential employee information?`
+  ],
+  'Project Coordinator': [
+    `How do you keep many tasks and deadlines organized?`,
+    `Tell me about a time you helped a project get back on track.`,
+    `How do you follow up with people who don't respond?`,
+    `Which project tools do you use for tracking and reporting?`,
+    `How do you prepare for and follow up after meetings?`,
+    `How do you handle a request from a manager that conflicts with the plan?`
+  ],
+
+  /* Healthcare */
+  'Nurse Practitioner': [
+    `How do you decide when to treat a patient yourself and when to refer?`,
+    `Tell me about a hard diagnosis you made.`,
+    `How do you work with physicians when you see a case differently?`,
+    `How do you teach patients about managing a long-term condition?`,
+    `How do you manage a full schedule while giving each patient enough time?`,
+    `How do you stay current with changing guidelines?`
+  ],
+  'Occupational Therapist': [
+    `How do you build a plan around a patient's daily goals?`,
+    `Tell me about a patient whose progress was slow and how you adapted.`,
+    `How do you involve families and caregivers?`,
+    `How do you document progress for insurers?`,
+    `How do you adapt activities for different ages and abilities?`,
+    `How do you motivate a patient who feels discouraged?`
+  ],
+  'Speech-Language Pathologist': [
+    `How do you assess a new patient's speech or language needs?`,
+    `Tell me about a patient whose communication improved the most.`,
+    `How do you keep therapy engaging for children?`,
+    `How do you work with teachers, doctors and families?`,
+    `How do you decide when a patient is ready to be discharged?`,
+    `How do you handle a family with unrealistic expectations?`
+  ],
+  'Veterinarian': [
+    `How do you talk with an owner about an expensive treatment they can't afford?`,
+    `Walk me through how you diagnose an animal that can't tell you what is wrong.`,
+    `Tell me about a difficult case or a loss and how you handled it.`,
+    `How do you handle an owner who disagrees with your advice?`,
+    `How do you manage stress and compassion fatigue?`,
+    `How do you keep up with new treatments?`
+  ],
+  'Veterinary Technician': [
+    `How do you keep an animal calm during a procedure?`,
+    `How do you prepare equipment and a patient for surgery?`,
+    `Tell me about a time you noticed something wrong with a patient.`,
+    `How do you explain home care to an anxious owner?`,
+    `How do you stay safe around frightened or aggressive animals?`,
+    `How do you stay organized in a busy clinic?`
+  ],
+  'Nursing Assistant (CNA)': [
+    `How do you help a patient who is embarrassed or resistant to care?`,
+    `What do you do if a patient's condition looks different from earlier in your shift?`,
+    `How do you manage your time with many patients to care for?`,
+    `Tell me about a time you comforted a patient or family member.`,
+    `How do you work with nurses and report changes quickly?`,
+    `How do you protect patient dignity and privacy?`
+  ],
+  'Paramedic / EMT': [
+    `Walk me through how you assess a patient at an emergency scene.`,
+    `How do you stay calm and think clearly under extreme pressure?`,
+    `Tell me about a call that was especially hard and how you coped.`,
+    `How do you communicate with frightened patients and families?`,
+    `How do you work with a partner when you disagree on treatment?`,
+    `How do you take care of your mental health in this job?`
+  ],
+  'Dental Hygienist': [
+    `How do you help an anxious patient feel at ease?`,
+    `How do you teach patients to improve their home care?`,
+    `Tell me about a time you spotted a problem the dentist needed to see.`,
+    `How do you stay on schedule while giving thorough care?`,
+    `How do you follow infection control procedures?`,
+    `How do you talk with a patient who avoids the dentist?`
+  ],
+  'Radiologic Technologist': [
+    `How do you position a patient who is in pain or can't hold still?`,
+    `How do you keep radiation exposure as low as possible for patients and yourself?`,
+    `Tell me about a time you had to repeat or correct an image.`,
+    `How do you explain a procedure to a nervous patient?`,
+    `How do you prioritize when emergency scans come in?`,
+    `How do you work with radiologists and nurses?`
+  ],
+  'Medical Coder / Biller': [
+    `How do you make sure codes match the documentation?`,
+    `How do you handle a doctor's note that is unclear?`,
+    `Tell me about a billing error you found and fixed.`,
+    `How do you keep up with changing codes and payer rules?`,
+    `How do you work on denied claims?`,
+    `How do you protect patient privacy in your work?`
+  ],
+
+  /* Education & Public Service */
+  'School Counselor': [
+    `How do you build trust with a student who doesn't want to talk?`,
+    `What do you do when a student tells you something that worries you?`,
+    `How do you support students with college and career planning?`,
+    `How do you work with parents and teachers on a student's needs?`,
+    `Tell me about a student you helped through a hard time.`,
+    `How do you handle a large caseload?`
+  ],
+  'Teaching Assistant': [
+    `How do you support a student who is struggling without taking over?`,
+    `How do you work with a teacher whose style is different from yours?`,
+    `How do you handle a student who is disruptive?`,
+    `Tell me about a time you helped a student make a breakthrough.`,
+    `How do you stay flexible when the plan changes?`,
+    `How do you support students with special needs?`
+  ],
+  'Instructional Designer': [
+    `How do you start designing a course for a new audience?`,
+    `How do you write clear learning objectives and measure them?`,
+    `How do you work with subject matter experts who are short on time?`,
+    `Tell me about a course you improved using learner feedback.`,
+    `Which authoring tools and learning theories do you use?`,
+    `How do you make online learning engaging?`
+  ],
+  'Early Childhood Educator': [
+    `How do you plan activities for young children with short attention spans?`,
+    `How do you handle a child who is having a tantrum?`,
+    `How do you talk with parents about their child's development?`,
+    `How do you keep a classroom safe and calm?`,
+    `Tell me about a time you helped a shy or struggling child.`,
+    `How do you encourage learning through play?`
+  ],
+  'Tutor': [
+    `How do you find out where a student is struggling?`,
+    `How do you explain a concept in a different way when the first one doesn't work?`,
+    `How do you keep a discouraged student motivated?`,
+    `Tell me about a student whose results improved with your help.`,
+    `How do you work with parents and teachers?`,
+    `How do you plan a session so time is used well?`
+  ],
+  'Case Manager': [
+    `How do you manage a large caseload with many urgent needs?`,
+    `How do you build a plan with a client who is reluctant to engage?`,
+    `Tell me about a time you connected a client to the right resources.`,
+    `How do you keep accurate and confidential records?`,
+    `How do you handle a situation involving risk or safety?`,
+    `How do you work with other agencies and providers?`
+  ],
+  'Fundraising Coordinator': [
+    `How do you plan a fundraising campaign and set a goal?`,
+    `How do you build relationships with donors?`,
+    `Tell me about a campaign you ran and what it raised.`,
+    `How do you thank and keep donors involved over time?`,
+    `How do you write a grant proposal that stands out?`,
+    `How do you handle a donor who is unhappy?`
+  ],
+
+  /* Law, Engineering & Science */
+  'Industrial Engineer': [
+    `How do you find waste in a process and decide what to fix first?`,
+    `Tell me about a process you improved and how you measured the result.`,
+    `Walk me through a time-and-motion or layout study you did.`,
+    `How do you get workers on the floor to accept changes?`,
+    `Which methods, such as Lean or Six Sigma, have you used?`,
+    `How do you balance cost, quality and safety?`
+  ],
+  'Environmental Engineer': [
+    `Walk me through how you would assess a contaminated site.`,
+    `How do you make sure a project meets environmental regulations?`,
+    `Tell me about a project that reduced environmental impact.`,
+    `How do you work with regulators and the community?`,
+    `How do you balance cost against environmental goals?`,
+    `Which modeling and sampling methods have you used?`
+  ],
+  'Aerospace Engineer': [
+    `Walk me through a design problem where weight, cost and safety competed.`,
+    `How do you verify and test a design before flight?`,
+    `Tell me about a failure or anomaly and how it was investigated.`,
+    `How do you work with strict safety and certification requirements?`,
+    `Which simulation and analysis tools have you used?`,
+    `How do you document your work for review?`
+  ],
+  'Manufacturing Engineer': [
+    `How do you improve a production line that is slow or makes defects?`,
+    `Tell me about a time you brought a new product into production.`,
+    `How do you work with operators who resist changes?`,
+    `How do you use data to find the cause of a quality problem?`,
+    `How do you reduce downtime and scrap?`,
+    `How do you make sure changes are safe?`
+  ],
+  'Biologist': [
+    `Walk me through a research project you ran, from question to results.`,
+    `How do you design experiments with good controls?`,
+    `Tell me about an experiment that failed and what you did next.`,
+    `How do you analyze and present your data?`,
+    `How do you follow lab safety and ethics rules?`,
+    `How do you explain your research to non-scientists?`
+  ],
+  'Chemist': [
+    `How do you plan an experiment and choose methods and instruments?`,
+    `Tell me about an unexpected result and how you investigated it.`,
+    `How do you keep accurate records and follow safety rules?`,
+    `Which analytical techniques are you strongest in?`,
+    `How do you validate a method so the results can be trusted?`,
+    `How do you handle a result that doesn't meet specifications?`
+  ],
+  'Environmental Scientist': [
+    `How do you design a field study and collect reliable data?`,
+    `Tell me about a project where your findings influenced a decision.`,
+    `How do you explain scientific findings to the public or policymakers?`,
+    `How do you stay objective when stakeholders have strong interests?`,
+    `Which software and statistical methods do you use?`,
+    `How do you work with regulators and community groups?`
+  ],
+  'Quality Control Inspector': [
+    `How do you inspect a product and decide whether it passes?`,
+    `What do you do when you find a defect that others think is minor?`,
+    `Tell me about a time you caught a problem before it shipped.`,
+    `Which measuring tools and standards have you used?`,
+    `How do you document and report your findings?`,
+    `How do you work with production staff when you reject their work?`
+  ],
+
+  /* Creative & Media */
+  'Art Director': [
+    `How do you turn a brief into a creative concept for a team?`,
+    `How do you give feedback to a designer so the work improves?`,
+    `Tell me about a campaign you led and its results.`,
+    `How do you keep a strong vision while working with client constraints?`,
+    `How do you manage a budget and a deadline on a creative project?`,
+    `How do you present ideas to a client who is hard to please?`
+  ],
+  'Illustrator': [
+    `Walk me through your process from brief to final artwork.`,
+    `How do you develop a style while meeting a client's needs?`,
+    `How do you handle revisions and feedback?`,
+    `How do you manage deadlines on several projects at once?`,
+    `Which tools and media do you use?`,
+    `How do you find new clients and build a portfolio?`
+  ],
+  'Interior Designer': [
+    `How do you find out what a client really wants for a space?`,
+    `How do you work within a budget and a client's changing ideas?`,
+    `Tell me about a challenging space you transformed.`,
+    `How do you coordinate contractors and vendors?`,
+    `How do you consider safety, codes and accessibility?`,
+    `How do you present a design concept to a client?`
+  ],
+  'Fashion Designer': [
+    `Walk me through how you take a collection from concept to production.`,
+    `How do you research trends without copying others?`,
+    `How do you balance creativity with cost and manufacturing limits?`,
+    `Tell me about a design that didn't work and what you changed.`,
+    `How do you work with pattern makers, suppliers and factories?`,
+    `How do you take feedback on your designs?`
+  ],
+  'Podcast Producer': [
+    `How do you plan an episode from idea to release?`,
+    `How do you prepare a guest and get a good conversation?`,
+    `Tell me about how you edit audio to improve pacing and quality.`,
+    `How do you grow and keep an audience?`,
+    `How do you handle a recording that has technical problems?`,
+    `Which tools and platforms do you use?`
+  ],
+  'Translator / Interpreter': [
+    `How do you handle a phrase that doesn't translate directly?`,
+    `How do you prepare for a job in an unfamiliar subject?`,
+    `How do you stay accurate and neutral under time pressure?`,
+    `Tell me about a difficult or sensitive translation or interpreting job.`,
+    `How do you handle confidential material?`,
+    `Which tools do you use, and how do you keep your language skills sharp?`
+  ],
+
+  /* Hospitality, Retail & Trades */
+  'Bartender': [
+    `How do you handle a customer who has had too much to drink?`,
+    `How do you stay accurate and fast during a busy rush?`,
+    `Tell me about a time you turned around a bad customer experience.`,
+    `How do you check ID and follow alcohol laws?`,
+    `How do you keep your bar clean, stocked and organized?`,
+    `How do you recommend drinks to someone who can't decide?`
+  ],
+  'Flight Attendant': [
+    `How do you handle a passenger who is upset or breaking the rules?`,
+    `How do you stay calm during turbulence or an emergency?`,
+    `Tell me about a time you worked as part of a team under pressure.`,
+    `How do you deal with long hours, time zones and irregular schedules?`,
+    `How do you make nervous passengers feel safe?`,
+    `Why do you want this job?`
+  ],
+  'Cashier': [
+    `A customer hands you $20 for a $13.47 purchase. How much change do you give back?`,
+    `How do you stay accurate and friendly when the line is long?`,
+    `What do you do if your drawer doesn't balance at the end of a shift?`,
+    `How do you handle a customer who disputes a price?`,
+    `How do you handle a suspected fake bill or stolen card?`,
+    `Tell me about a time you helped a customer solve a problem.`
+  ],
+  'Hair Stylist': [
+    `How do you find out what a client wants when they can't describe it?`,
+    `How do you handle a client who is unhappy with their cut or color?`,
+    `How do you build a loyal client base?`,
+    `How do you keep up with trends and new techniques?`,
+    `How do you keep your station clean and safe?`,
+    `How do you manage your schedule when appointments run long?`
+  ],
+  'Personal Trainer': [
+    `How do you design a plan for a new client with a specific goal?`,
+    `How do you motivate a client who has stopped making progress?`,
+    `How do you work with a client who has an injury or health condition?`,
+    `How do you make sure exercises are done safely?`,
+    `How do you track progress and adjust the plan?`,
+    `How do you find and keep clients?`
+  ],
+  'Auto Mechanic': [
+    `Walk me through how you diagnose a car that makes a noise you can't place.`,
+    `How do you explain a repair and its cost to a customer?`,
+    `Tell me about a hard repair and how you solved it.`,
+    `How do you stay safe working in a shop?`,
+    `How do you keep up with new vehicle technology?`,
+    `How do you handle a customer who doesn't want to pay for a necessary repair?`
+  ],
+  'HVAC Technician': [
+    `Walk me through how you diagnose a system that isn't cooling.`,
+    `How do you stay safe working with electrical systems and refrigerants?`,
+    `How do you explain a repair versus a replacement to a customer?`,
+    `Tell me about a difficult service call.`,
+    `How do you handle an emergency call in extreme weather?`,
+    `How do you keep your certifications and skills up to date?`
+  ],
+  'Welder': [
+    `How do you prepare metal and choose a welding process for a job?`,
+    `How do you stay safe from fumes, heat and electrical hazards?`,
+    `How do you read blueprints and weld symbols?`,
+    `Tell me about a weld that failed inspection and what you did.`,
+    `Which processes, such as MIG, TIG and stick, are you qualified in?`,
+    `How do you keep quality consistent over a long shift?`
+  ],
+  'Carpenter': [
+    `How do you read plans and plan a job before cutting any wood?`,
+    `How do you make sure your measurements and cuts are accurate?`,
+    `Tell me about a difficult project and how you solved the problems.`,
+    `How do you stay safe with power tools?`,
+    `How do you work with other trades on a job site?`,
+    `How do you handle a client who changes the plan midway?`
+  ],
+  'Security Guard': [
+    `What would you do if you saw someone acting suspiciously?`,
+    `How do you handle a confrontation while staying calm?`,
+    `How do you write a clear incident report?`,
+    `How do you stay alert during long, quiet shifts?`,
+    `When do you call the police or emergency services?`,
+    `How do you treat visitors politely while enforcing the rules?`
+  ],
+  'Truck Driver': [
+    `How do you plan a long route and stay within hours-of-service rules?`,
+    `How do you do a pre-trip inspection?`,
+    `Tell me about a time you faced bad weather or a breakdown on the road.`,
+    `How do you stay alert and manage fatigue?`,
+    `How do you handle a delivery delay and communicate with dispatch?`,
+    `How do you keep your safety record clean?`
+  ],
+  'Landscaper': [
+    `How do you plan and price a landscaping job?`,
+    `How do you work safely with mowers, trimmers and chemicals?`,
+    `Tell me about a project you are proud of.`,
+    `How do you handle a client who is unhappy with the result?`,
+    `How do you work in hot or wet weather?`,
+    `How do you know which plants and materials suit a site?`
+  ]
+});
+
+window.AIIC_PRACTICAL.push(
+  `A client is 40 years old with $50,000 saved and wants to retire at 65. How would you start building their plan?`,
+  `A customer hands you $20 for a $13.47 purchase. How much change do you give back?`
+);

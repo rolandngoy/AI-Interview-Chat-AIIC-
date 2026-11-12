@@ -112,7 +112,7 @@
   PROBLEMS.forEach((p) => { p.starter = 'def ' + p.fn + '(' + p.args + '):\n    # write your solution here\n    pass\n'; });
 
   // Roles whose work involves writing code. Also matches roles typed in by the user.
-  const CODING_ROLES = /developer|programmer|coder|software|devops|\bsre\b|data (scien|analy|engin)|machine learning|\bml\b|\bsdet\b|\bqa\b|test engineer|cloud engineer|security (engineer|analyst)|cybersecurity/i;
+  const CODING_ROLES = /developer|programmer|(?<!medical )coder|software|devops|\bsre\b|data (scien|analy|engin)|machine learning|\bml\b|\bsdet\b|\bqa\b|test engineer|cloud engineer|security (engineer|analyst)|cybersecurity|embedded|\bai engineer|penetration|business intelligence/i;
 
   window.AIIC_CODE = {
     isCodingRole: (role) => CODING_ROLES.test(role),

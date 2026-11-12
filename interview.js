@@ -108,16 +108,16 @@
   };
 
   const CATEGORY_MATCH = [
-    ['health', /nurse|physician|doctor|pharmac|therapist|\bmedical|dentist|counselor|healthcare/],
-    ['eng', /mechanical|electrical|civil|chemical|biomedical|research scientist|lab technician|architect|lawyer|attorney|paralegal/],
-    ['creative', /video|journalist|copywriter|photograph|game|animat/],
-    ['trades', /retail|store|server|chef|cook|hotel|barista|electrician|plumber|warehouse|driver|construction/],
-    ['public', /teacher|professor|lecturer|school|social worker|policy|nonprofit|librarian|police|firefighter|military/],
-    ['people', /\bhr\b|recruit|assistant|customer service|receptionist|office/],
-    ['sales', /sales|marketer|account exec|account manager|customer success|marketing|content|social media|public relations|brand/],
+    ['health', /nurse|nursing|physician|doctor|pharmac|therapist|pathologist|veterinar|paramedic|\bemt\b|\bmedical|dentist|dental|radiologic|(?<!school )counselor|healthcare/],
+    ['eng', /mechanical|electrical|civil|chemical|biomedical|industrial|environmental|aerospace|manufacturing|biologist|chemist|quality control|surveyor|research scientist|lab technician|(?<!solutions )architect|lawyer|attorney|paralegal/],
+    ['creative', /video|journalist|copywriter|photograph|game designer|animat|technical writer|illustrator|art director|interior design|fashion|podcast|translator|interpreter/],
+    ['trades', /retail|store|server|chef|cook|hotel|barista|electrician|plumber|warehouse|driver|construction|bartender|flight attendant|cashier|hair|stylist|trainer|mechanic|hvac|welder|carpenter|security guard|truck|landscap/],
+    ['public', /teacher|teaching|professor|lecturer|school|social worker|policy|nonprofit|librarian|police|firefighter|military|instructional|early childhood|tutor|case manager|fundrais/],
+    ['people', /\bhr\b|recruit|assistant|customer service|receptionist|\boffice\b|payroll|project coordinator|training and development/],
+    ['sales', /sales|marketer|account exec|account manager|customer success|marketing|market research|\bseo\b|event planner|content|social media|public relations|brand/],
     ['product', /product|project|program|scrum|business analyst|\bux\b|\bui\b|design|researcher/],
-    ['business', /consult|financ|bank|accountant|audit|operations|supply|business dev|entrepreneur|founder|executive/],
-    ['tech', /engineer|developer|devops|sre|security|\bqa\b|test|\bit\b|systems|network|machine|data|database|software|cloud/]
+    ['business', /consult|financ|bank|accountant|audit|operations|supply|business dev|entrepreneur|founder|executive|risk|compliance|loan|insurance|real estate|procurement|bookkeep|logistics/],
+    ['tech', /engineer|developer|devops|sre|security|\bqa\b|test|\bit\b|systems|solutions|business intelligence|network|machine|data|database|software|cloud|\bai\b/]
   ];
 
   function categoryFor(r) {
