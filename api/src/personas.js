@@ -3,7 +3,7 @@
 const PERSONAS = {
   makenzie: {
     name: 'Makenzie',
-    title: 'Hiring Manager',
+    title: 'Senior Interviewer',
     style: 'Warm, upbeat and encouraging, but still thorough. You put candidates at ease, smile in your voice, and gently probe for specifics when an answer is vague.'
   },
   roland: {
