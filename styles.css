@@ -573,3 +573,32 @@ button { font-family: inherit; }
 .hist-item summary .iv-chip { width: 32px; height: 32px; font-size: 16px; }
 .hist-summary { padding: 14px 18px 4px; }
 .hist-better { padding-left: 12px; border-left: 3px solid var(--teal); color: #E5E8EE; }
+
+/* =========================================================
+   Buttons are never white. Every button is a color:
+   blue (--accent) is the main action, teal is secondary, amber is for retry or "warm" actions,
+   red is for anything destructive. Use these for any new button.
+   ========================================================= */
+.btn-white { background: linear-gradient(90deg, var(--accent), var(--teal)); color: var(--bg); }
+.btn-white:hover { color: var(--bg); }
+.btn-ghost { background: var(--teal); color: var(--bg); border: 0; font-weight: 600; }
+.btn-ghost:hover { color: var(--bg); border: 0; }
+.btn-replay { background: var(--accent); color: var(--bg); border: 0; font-weight: 600; }
+.btn-replay:hover { color: var(--bg); border: 0; }
+
+.tab { background: color-mix(in srgb, var(--accent) 14%, transparent); border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: #E4E9FF; }
+.tab:hover { color: #FFFFFF; border-color: var(--accent); }
+.tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.role-chip { background: color-mix(in srgb, var(--accent) 14%, transparent); border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: #E4E9FF; }
+.role-chip:hover { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.login-tabs { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.login-tabs button { background: color-mix(in srgb, var(--accent) 14%, transparent); color: #E4E9FF; }
+.login-tabs button[aria-selected="true"] { background: var(--accent); color: var(--bg); }
+
+.nav-signout, .stage-start .nav-signout { color: var(--teal); }
+.stage-sound { background: var(--teal); color: var(--bg); border: 0; font-weight: 600; }
+.stage-sound.is-off { background: #E5484D; color: #FFFFFF; }
+.profile-item { background: color-mix(in srgb, var(--accent) 16%, transparent); margin-bottom: 4px; }
+.profile-item:hover, .profile-item:focus-visible { background: var(--accent); color: var(--bg); }
+.profile-danger { background: rgba(229,72,77,.16); color: #FF9A9A; }
+.profile-danger:hover, .profile-danger:focus-visible { background: #E5484D; color: #FFFFFF; }
