@@ -207,12 +207,13 @@
 
   /* ---------- UI ---------- */
   const $ = (id) => document.getElementById(id);
-  const views = ['ivQuestionView', 'ivFeedbackView', 'ivSummaryView'];
+  const views = ['ivQuestionView', 'ivSummaryView'];
   function show(id) { views.forEach((v) => $(v).classList.toggle('hidden', v !== id)); }
 
   let questions, index, results, sessionId;
   let turn = 0;                 // bumped whenever the conversation moves on, so stale async steps stop
   let answering = false, silenceTimer = null, micDenied = false, restarts = 0;
+  let mediaRec = null, mediaStream = null, chunks = [], audioUrl = null;
 
   /* ---------- AI interviewer persona ---------- */
   const PEOPLE = window.AIIC_INTERVIEWERS || {};
@@ -324,38 +325,55 @@
   const pickOne = (arr) => arr[Math.floor(Math.random() * arr.length)];
   const wordCount = (t) => t.trim().split(/\s+/).filter(Boolean).length;
 
-  function setMicUi(on) {
-    listening = on;
-    $('ivMicLabel').textContent = on ? 'Pause mic' : 'Resume mic';
-    $('ivMic').setAttribute('aria-pressed', on);
-    $('ivMic').classList.toggle('recording', on);
+  const canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+  const PLAY_LABEL = '▶ Listen to your answer';
+
+  // The microphone is a three-step control: tap to answer, tap when finished, then review the recording.
+  function setVoiceState(st) {
+    $('ivMic').classList.toggle('recording', st === 'recording');
+    $('ivMic').classList.toggle('hidden', st === 'review');
+    $('ivMic').setAttribute('aria-pressed', st === 'recording');
+    $('ivMicLabel').textContent = st === 'recording' ? 'Tap when you are done' : 'Tap to answer';
+    $('ivReview').classList.toggle('hidden', st !== 'review');
   }
+  function stopPlayback() {
+    const a = $('ivAudio');
+    try { a.pause(); } catch (e) {}
+    $('ivPlay').textContent = PLAY_LABEL;
+  }
+  function releaseMedia() {
+    if (mediaStream) mediaStream.getTracks().forEach((t) => t.stop());
+    mediaStream = null; mediaRec = null;
+  }
+  // Abandons any recording in progress (used when the conversation moves on).
   function stopVoice() {
     answering = false;
     clearTimeout(silenceTimer);
-    if (recognizer) { const r = recognizer; recognizer = null; try { r.stop(); } catch (e) {} }
-    setMicUi(false);
+    if (recognizer) { const r = recognizer; recognizer = null; try { r.abort ? r.abort() : r.stop(); } catch (e) {} }
+    if (mediaRec && mediaRec.state !== 'inactive') { mediaRec.onstop = null; try { mediaRec.stop(); } catch (e) {} }
+    releaseMedia();
+    stopPlayback();
+    setVoiceState('idle');
   }
 
-  // Falls back to typing when the microphone can't be used.
+  // Falls back to typing when the microphone can't be used, or for hands-on questions.
+  function showTyped(message) {
+    $('ivVoice').classList.add('hidden');
+    $('ivTyped').classList.remove('hidden');
+    $('ivTypedNote').textContent = message || '';
+    $('ivWords').textContent = wordCount($('ivAnswer').value) + ' words';
+    $('ivAnswer').focus();
+  }
   function useTypingInstead(message) {
     micDenied = true;
     stopVoice();
-    const ta = $('ivAnswer');
-    ta.readOnly = false;
-    ta.placeholder = 'Type your answer. Aim for 80–200 words.';
-    $('ivMicRow').classList.add('hidden');
-    $('ivSubmitAns').textContent = 'Submit answer';
-    $('ivMicStatus').textContent = message;
-    ta.focus();
+    $('ivAnswer').value = '';
+    showTyped(message);
   }
 
-  // Listens continuously and shows the words as you speak. A pause of a few seconds after a real
-  // answer submits it, like a conversation; "Done answering" does the same straight away.
-  function startVoice() {
-    const status = $('ivMicStatus');
+  // Speech-to-text runs while recording, so the interviewer knows what was said. The words are not shown.
+  function startRecognition() {
     const ta = $('ivAnswer');
-    answering = true;
     baseText = ta.value.trim();
     const rec = new SpeechRec();
     rec.lang = 'en-US'; rec.continuous = true; rec.interimResults = true;
@@ -368,45 +386,91 @@
       }
       ta.value = (baseText ? baseText + ' ' : '') + (finalText + interim).trim();
       usedVoice = true;
-      ta.dispatchEvent(new Event('input'));
-      status.textContent = 'Listening… press Done answering, or just stop talking when you have finished.';
-      clearTimeout(silenceTimer);
-      if (wordCount(ta.value) >= 6) {
-        silenceTimer = setTimeout(function () { if (answering) submitAnswer(); }, 4500);
-      }
     };
     rec.onerror = function (e) {
       if (e.error === 'no-speech' || e.error === 'aborted') return; // onend restarts it
-      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') useTypingInstead('The microphone is blocked, so you can type your answer instead. Allow microphone access for this site to answer by voice.');
-      else if (e.error === 'audio-capture') useTypingInstead('No microphone was found, so you can type your answer instead.');
-      else if (e.error === 'network') useTypingInstead('Voice input needs an internet connection, so you can type your answer instead.');
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') useTypingInstead('The microphone is blocked, so please type your answer. Allow microphone access for this site to answer by voice.');
+      else if (e.error === 'audio-capture') useTypingInstead('No microphone was found, so please type your answer.');
+      else if (e.error === 'network') useTypingInstead('Voice input needs an internet connection, so please type your answer.');
     };
     rec.onend = function () {
       if (recognizer !== rec) return;
       recognizer = null;
-      if (answering && restarts < 25) { restarts++; startVoice(); } else setMicUi(false);   // browsers end long sessions on their own
+      if (answering && restarts < 25) { restarts++; startRecognition(); }   // browsers end long sessions on their own
     };
     recognizer = rec;
-    try { rec.start(); setMicUi(true); status.textContent = 'Listening… speak your answer.'; }
-    catch (e) { recognizer = null; answering = false; setMicUi(false); status.textContent = 'Could not start the microphone. Press Resume mic.'; }
+    try { rec.start(); } catch (e) { recognizer = null; }
+  }
+
+  async function startRecording() {
+    stopPlayback();
+    const ta = $('ivAnswer');
+    ta.value = ''; usedVoice = false; restarts = 0; chunks = []; audioUrl = null;
+    $('ivAudio').removeAttribute('src');
+    $('ivSubmitAns').classList.remove('hidden');
+    $('ivMicStatus').textContent = 'Allow the microphone if your browser asks…';
+    answering = true;
+    if (canRecord) {
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRec = new MediaRecorder(mediaStream);
+        mediaRec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+        mediaRec.start();
+      } catch (e) {
+        if (e && e.name === 'NotFoundError') { useTypingInstead('No microphone was found, so please type your answer.'); return; }
+        if (e && (e.name === 'NotAllowedError' || e.name === 'SecurityError')) { useTypingInstead('The microphone is blocked, so please type your answer. Allow microphone access for this site to answer by voice.'); return; }
+        mediaRec = null;                                    // recording failed, but speech-to-text can still work
+      }
+    }
+    if (!answering) return;                                  // the conversation moved on while waiting
+    startRecognition();
+    setVoiceState('recording');
+    $('ivMicStatus').textContent = 'Listening… tap the microphone again when you have finished.';
+  }
+
+  async function finishRecording() {
+    answering = false;
+    const waits = [];
+    if (recognizer) {
+      const r = recognizer; recognizer = null;
+      waits.push(new Promise(function (res) { r.onend = res; try { r.stop(); } catch (e) { res(); } setTimeout(res, 1200); }));
+    }
+    if (mediaRec && mediaRec.state !== 'inactive') {
+      const m = mediaRec;
+      waits.push(new Promise(function (res) { m.onstop = res; try { m.stop(); } catch (e) { res(); } setTimeout(res, 1200); }));
+    }
+    await Promise.all(waits);
+    if (chunks.length) {
+      audioUrl = URL.createObjectURL(new Blob(chunks, { type: (mediaRec && mediaRec.mimeType) || 'audio/webm' }));
+      $('ivAudio').src = audioUrl;
+    }
+    releaseMedia();
+    const heard = wordCount($('ivAnswer').value) >= 3;
+    setVoiceState('review');
+    $('ivPlay').classList.toggle('hidden', !audioUrl);
+    $('ivSubmitAns').classList.toggle('hidden', !heard);
+    $('ivMicStatus').textContent = heard
+      ? 'Happy with that? Listen to it, record it again, or press OK to continue.'
+      : 'I did not catch anything. Please record your answer again.';
   }
 
   // The interviewer has finished asking: it is now the candidate's turn.
   function beginAnswering(q) {
     if (typeof q === 'object') { $('ivCode').focus(); return; }
     const voice = voiceAllowed(q) && !!SpeechRec && !micDenied;
-    const ta = $('ivAnswer');
-    ta.value = ''; ta.readOnly = voice;
-    ta.placeholder = voice ? 'Your answer will appear here as you speak.' : 'Type your answer. Aim for 80–200 words.';
-    $('ivWords').textContent = '0 words';
+    $('ivAnswer').value = '';
     usedVoice = false; restarts = 0;
     $('ivForm').classList.remove('hidden');
-    $('ivMicRow').classList.toggle('hidden', !voice);
-    $('ivSubmitAns').textContent = voice ? 'Done answering' : 'Submit answer';
-    if (voice) { $('ivMicStatus').textContent = ''; startVoice(); }
-    else {
-      $('ivMicStatus').textContent = !voiceAllowed(q) ? 'This is a hands-on question, so please type your answer.' : (!SpeechRec ? 'Voice answers are not supported in this browser, so please type your answer. Chrome, Edge and Safari support voice.' : '');
-      ta.focus();
+    if (voice) {
+      $('ivTyped').classList.add('hidden');
+      $('ivVoice').classList.remove('hidden');
+      setVoiceState('idle');
+      $('ivMicStatus').textContent = 'Tap the microphone when you are ready to speak.';
+      $('ivMic').focus();
+    } else {
+      showTyped(!voiceAllowed(q)
+        ? 'This is a hands-on question, so please type your answer.'
+        : (!SpeechRec ? 'Voice answers are not supported in this browser, so please type your answer. Chrome, Edge and Safari support voice.' : ''));
     }
   }
 
@@ -636,14 +700,12 @@
     'What was the hardest part of that for you?',
     'Walk me through what you personally did, step by step.'
   ];
+  // Between questions the interviewers only acknowledge. All feedback is saved for the end.
+  const NEUTRAL = ['Okay, thank you.', 'Got it, thanks.', 'Alright, thank you for that.', 'Mm-hm. Thank you.', 'Understood, thank you.'];
   function localReply(q, text, canFollowUp) {
     const wc = wordCount(text), hasNumber = /\d/.test(text);
     if (q === CLOSING) return { reaction: 'Thanks for asking. We will wrap up there.', followUp: null };
-    const reaction = wc < 25
-      ? pickOne(['Okay, thanks. I think there is more to that story.', 'Alright. I would like to hear a little more detail there.'])
-      : (wc >= 90 && hasNumber
-        ? pickOne(['That is a great example, thank you. I like the detail.', 'Thanks, that was clear and specific.'])
-        : pickOne(['Thanks, that makes sense.', 'Good, I appreciate you walking me through that.', 'Okay, that is helpful.']));
+    const reaction = pickOne(NEUTRAL);
     const thin = wc < 60 || !hasNumber;
     const followUp = canFollowUp && (Math.random() < (thin ? 0.75 : 0.3)) ? pickOne(FOLLOW_UPS) : null;
     return { reaction: reaction, followUp: followUp };
@@ -670,7 +732,7 @@
     index++;
     if (index >= questions.length) {
       $('ivForm').classList.add('hidden'); $('ivCodeForm').classList.add('hidden');
-      const bye = 'Thank you, ' + firstName() + '. That is everything from us. Let\'s take a look at how you did.';
+      const bye = 'Thank you, ' + firstName() + '. That is everything from us. Your feedback is ready for you now.';
       $('ivQuestion').textContent = bye;
       await speakLine(prevWho, bye);
       if (myTurn !== turn) return;
@@ -692,13 +754,9 @@
 
   // The candidate has answered a spoken or typed question.
   async function submitAnswer() {
+    if ($('ivForm').classList.contains('hidden')) return;     // already submitted (e.g. a double tap)
     const text = $('ivAnswer').value.trim();
     if (!text) return;
-    if (usedVoice && wordCount(text) < 3) {
-      $('ivMicStatus').textContent = 'I did not catch that. Please say it again.';
-      $('ivAnswer').value = ''; stopVoice(); restarts = 0; startVoice();
-      return;
-    }
     const myTurn = ++turn;
     stopVoice();
     const who = personaId;
@@ -746,7 +804,15 @@
     syncSoundBtn();
     if (!this.checked) stopSpeaking();
   });
-  $('ivMic').addEventListener('click', function () { if (listening) { stopVoice(); } else { restarts = 0; startVoice(); } });
+  $('ivMic').addEventListener('click', function () { if (answering) finishRecording(); else startRecording(); });
+  $('ivRedo').addEventListener('click', startRecording);
+  $('ivPlay').addEventListener('click', function () {
+    const a = $('ivAudio');
+    if (!a.paused) { stopPlayback(); return; }
+    a.currentTime = 0;
+    a.play().then(function () { $('ivPlay').textContent = '⏸ Pause'; }, function () {});
+  });
+  $('ivAudio').addEventListener('ended', function () { $('ivPlay').textContent = PLAY_LABEL; });
   window.addEventListener('pagehide', function () { stopVoice(); stopSpeaking(); });
 
   $('ivRunCode').addEventListener('click', runFromUi);
@@ -754,24 +820,32 @@
   $('ivCodeForm').addEventListener('submit', async function (e) {
     e.preventDefault();
     const q = questions[index];
-    const out = await runFromUi();
-    if (out.loadFail || workerError) return;
+    // Submitting runs the tests quietly: the results are kept for the end of the interview, not shown now.
+    $('ivRunCode').disabled = $('ivSubmitCode').disabled = true;
+    setPyStatus(workerReady ? 'Submitting…' : 'Loading Python… your solution will be submitted when it is ready.');
+    const out = await runCode(q, $('ivCode').value);
+    $('ivRunCode').disabled = $('ivSubmitCode').disabled = false;
+    if (out.loadFail || workerError) { setPyStatus('Could not load the Python runner. Check your connection, or skip this problem.'); return; }
+    setPyStatus('');
     stopSpeaking();
     const rs = out.results || [];
     const passed = rs.filter((r) => r.ok).length, total = q.tests.length;
     const overall = Math.round(passed / total * 100);
-    results.push({ q: 'Coding problem: ' + q.title, a: $('ivCode').value, kind: 'code', s: { overall: overall, tests: { passed: passed, total: total } } });
-    persist(false);
-    $('ivScores').replaceChildren(scoreTile('Overall', overall), scoreTile('Tests passed', passed + '/' + total));
     const tips = [];
     if (out.error) tips.push(out.error);
     rs.filter((r) => !r.ok).slice(0, 3).forEach((r) => tips.push(r.call + ' should return ' + r.expected + ' but returned ' + r.got + '.'));
     if (!tips.length) tips.push('All tests passed. In a real interview, also explain your approach and its time complexity out loud.');
     else tips.push('In a real interview, talk through your approach and test edge cases such as empty input.');
-    $('ivTips').replaceChildren.apply($('ivTips'), tips.map((t) => { const li = document.createElement('li'); li.textContent = t; return li; }));
-    $('ivNext').textContent = index === questions.length - 1 ? 'See results' : 'Next question';
-    show('ivFeedbackView');
-    $('ivNext').focus();
+    results.push({ q: 'Coding problem: ' + q.title, a: $('ivCode').value, kind: 'code', s: { overall: overall, tests: { passed: passed, total: total } }, tips: tips });
+    persist(false);
+    const myTurn = ++turn, who = personaId;
+    $('ivCodeForm').classList.add('hidden');
+    const ack = pickOne(NEUTRAL);
+    $('ivAsker').textContent = PEOPLE[who].name + ' says:';
+    $('ivQuestion').textContent = ack;
+    await speakLine(who, ack);
+    if (myTurn !== turn) return;
+    await advance(who);
   });
   // Tab inserts spaces in the editor; press Escape first to move focus out instead.
   let tabEscapes = false;
@@ -784,18 +858,12 @@
     } else if (e.key !== 'Shift') { tabEscapes = false; }
   });
 
-  // After a coding problem: the next question, with the usual hand-off.
-  $('ivNext').addEventListener('click', function () {
-    ++turn; stopSpeaking();
-    show('ivQuestionView');
-    advance(personaId);
-  });
   $('ivRetry').addEventListener('click', start);
 
   $('ivReturn').addEventListener('click', function () {
     const q = questions[index];
     const inCode = typeof q === 'object' && !$('ivCodeForm').classList.contains('hidden');
-    const draft = inCode ? ($('ivCode').value.trim() !== q.starter.trim()) : ($('ivAnswer').value.trim() && !$('ivForm').classList.contains('hidden'));
+    const draft = inCode ? ($('ivCode').value.trim() !== q.starter.trim()) : (!$('ivTyped').classList.contains('hidden') && $('ivAnswer').value.trim());
     if (!$('ivQuestionView').classList.contains('hidden') && draft && !confirm('Leave the interview? Your current unsent answer will be lost. Answers you already submitted are saved in your history.')) return;
     window.location.href = 'roles.html';
   });

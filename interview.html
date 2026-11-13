@@ -41,8 +41,7 @@
         <div class="actor" data-seat="makenzie" style="--clip:polygon(51% 0,100% 0,100% 55.7%,51% 55.7%);--ox:80%;--oy:55%">
           <div class="figure">
             <img src="images/interview-room.jpg" alt="" width="1254" height="981">
-            <span class="gap" style="--gap:polygon(78.55% 41.62%,83.41% 39.55%,83.41% 40.78%,78.55% 42.81%)"></span>
-            <span class="jaw" style="--jaw:polygon(76.71% 42.46%,84.2% 39.25%,84.53% 44.03%,82.93% 45.46%,78.95% 45.67%,76.71% 44.44%)"><img src="images/interview-room.jpg" alt="" width="1254" height="981"></span>
+            <canvas class="jaw-canvas" width="150" height="120" data-src="images/interview-room.jpg" data-x="940" data-y="360" data-edge="971,413.5 980,416.3 990,418.8 1000,420.3 1010,417.5 1022.5,414.8 1033.8,409 1040,404.6 1046,398.8 1051,388" style="left:74.96%;top:36.7%;width:11.96%;height:12.23%"></canvas>
           </div>
         </div>
         <span class="tag tag-left" data-tag="roland">Roland · Senior Interviewer</span>
@@ -73,18 +72,27 @@
         <label class="iv-auto mono small"><input type="checkbox" id="ivAutoRead"> Interviewers speak aloud</label>
       </div>
       <form id="ivForm" class="hidden">
-        <label for="ivAnswer" class="mono small iv-label">Your answer</label>
-        <textarea id="ivAnswer" class="iv-answer" rows="8" placeholder="Your answer will appear here as you speak."></textarea>
-        <div class="iv-mic" id="ivMicRow">
-          <button type="button" class="btn btn-ghost btn-md" id="ivMic" aria-pressed="false">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>
-            <span id="ivMicLabel">Pause mic</span>
+        <div id="ivVoice" class="iv-voicebox">
+          <button type="button" class="iv-bigmic" id="ivMic" aria-pressed="false">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>
+            <span id="ivMicLabel">Tap to answer</span>
           </button>
           <p class="mono small iv-words" id="ivMicStatus" role="status"></p>
+          <div class="iv-review hidden" id="ivReview">
+            <button type="button" class="btn btn-ghost btn-md" id="ivPlay">▶ Listen to your answer</button>
+            <button type="button" class="btn btn-ghost btn-md" id="ivRedo">Record again</button>
+            <button type="submit" class="btn btn-accent btn-md" id="ivSubmitAns">OK, continue</button>
+          </div>
+          <audio id="ivAudio" preload="auto"></audio>
         </div>
-        <div class="iv-row">
-          <span class="mono small iv-words" id="ivWords">0 words</span>
-          <button type="submit" class="btn btn-accent btn-md" id="ivSubmitAns">Done answering</button>
+        <div id="ivTyped" class="hidden">
+          <p class="mono small iv-words" id="ivTypedNote" role="status"></p>
+          <label for="ivAnswer" class="mono small iv-label">Your answer</label>
+          <textarea id="ivAnswer" class="iv-answer" rows="8" placeholder="Type your answer. Aim for 80–200 words."></textarea>
+          <div class="iv-row">
+            <span class="mono small iv-words" id="ivWords">0 words</span>
+            <button type="submit" class="btn btn-accent btn-md" id="ivSubmitTyped">Submit answer</button>
+          </div>
         </div>
       </form>
 
@@ -102,12 +110,6 @@
         </div>
         <p class="mono small iv-words">Press Tab to indent. Press Esc, then Tab, to move focus out of the editor.</p>
       </form>
-    </section>
-
-    <section id="ivFeedbackView" class="hidden" aria-live="polite">
-      <div class="iv-scores" id="ivScores"></div>
-      <ul class="iv-tips" id="ivTips"></ul>
-      <button type="button" class="btn btn-accent btn-md" id="ivNext">Next question</button>
     </section>
 
     <section id="ivSummaryView" class="hidden">
