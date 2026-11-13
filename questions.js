@@ -1438,6 +1438,14 @@ Object.assign(window.AIIC_ROLE_QUESTIONS, {
     `How do you handle a delivery delay and communicate with dispatch?`,
     `How do you keep your safety record clean?`
   ],
+  'Physician Assistant': [
+    `Walk me through how you would evaluate a patient who comes in with chest pain, from the first minute to your plan.`,
+    `How do you decide when to treat a patient yourself and when to bring in the supervising physician?`,
+    `Tell me about a time you caught something others missed, or a diagnosis that was not what it first looked like.`,
+    `How do you explain a diagnosis and a treatment plan to a patient who is anxious or has little medical background?`,
+    `How do you prioritize when several patients need you at once in a busy clinic or emergency department?`,
+    `How do you stay current on new guidelines and medications, and how do you handle a disagreement with a physician about care?`
+  ],
   'Landscaper': [
     `How do you plan and price a landscaping job?`,
     `How do you work safely with mowers, trimmers and chemicals?`,
