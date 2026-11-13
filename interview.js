@@ -239,8 +239,20 @@
       const v = voices.find((x) => x.name.indexOf(p.voiceHints[i]) !== -1);
       if (v) return v;
     }
-    // Otherwise give each interviewer a different installed English voice.
-    return voices.length ? voices[PERSON_IDS.indexOf(p.id) % voices.length] : null;
+    // Otherwise give each interviewer a different installed English voice, skipping any this one should avoid.
+    const avoid = p.avoidVoices || [];
+    const pool = voices.filter((v) => !avoid.some((a) => v.name.indexOf(a) !== -1));
+    const list = pool.length ? pool : voices;
+    return list.length ? list[PERSON_IDS.indexOf(p.id) % list.length] : null;
+  }
+  // Browsers often load their voice list late, so the first line can come out in the default (often deep) voice.
+  function voicesReady() {
+    if (!('speechSynthesis' in window) || speechSynthesis.getVoices().length) return Promise.resolve();
+    return new Promise(function (resolve) {
+      const done = function () { speechSynthesis.removeEventListener('voiceschanged', done); resolve(); };
+      speechSynthesis.addEventListener('voiceschanged', done);
+      setTimeout(done, 1500);
+    });
   }
 
   function persist(complete) {
@@ -279,9 +291,10 @@
 
   // One interviewer says one line. The mouth and body animate for the whole line, with real
   // speech when sound is on and a timed silent version (captions only) when it is off or unsupported.
-  function speakLine(id, text) {
+  async function speakLine(id, text) {
     stopSpeaking();
     const p = PEOPLE[id];
+    if (soundOn()) await voicesReady();
     return new Promise(function (resolve) {
       let done = false, watchdog = null, ticker = null;
       const words = text.split(/\s+/).filter(Boolean).length;
@@ -303,6 +316,8 @@
         u.lang = 'en-US'; u.rate = p.rate; u.pitch = p.pitch;
         const v = pickVoice(p);
         if (v) u.voice = v;
+        const tag = document.querySelector('[data-tag="' + id + '"]');
+        if (tag) tag.title = 'Voice: ' + (v ? v.name : 'browser default');
         u.onboundary = function () { AIIC_STAGE.pulse(id); };
         u.onend = u.onerror = finish;
         watchdog = setTimeout(finish, Math.max(5000, words * 700 + 3000)); // some browsers never fire onend
@@ -644,6 +659,7 @@
     showQuestion();
   }
 
+  if ('speechSynthesis' in window) { try { speechSynthesis.getVoices(); } catch (e) {} }
   $('ivRole').textContent = role;
   setAsker('roland');
   $('ivBegin').addEventListener('click', runIntro);

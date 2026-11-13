@@ -10,9 +10,11 @@ window.AIIC_INTERVIEWERS = {
     name: 'Makenzie',
     title: 'Senior Interviewer',
     img: 'images/makenzie.jpg',
-    pitch: 1.24,
-    rate: 1.05,
-    voiceHints: ['Microsoft Jenny', 'Microsoft Aria', 'Ava', 'Allison', 'Zoe', 'Samantha', 'Google US English', 'Microsoft Zira', 'Susan', 'Victoria'],
+    pitch: 1.38,
+    rate: 1.06,
+    voiceHints: ['Microsoft Jenny', 'Microsoft Aria', 'Microsoft Emma', 'Microsoft Michelle', 'Ava', 'Allison', 'Zoe', 'Samantha', 'Serena', 'Joelle', 'Nicky', 'Susan', 'Victoria', 'Kathy', 'Tessa', 'Moira', 'Fiona', 'Karen', 'Google US English', 'Google UK English Female', 'Microsoft Zira', 'Microsoft Hazel', 'Female'],
+    // never fall back to these deeper voices when none of the hints are installed
+    avoidVoices: ['Alex', 'Daniel', 'Fred', 'Tom', 'Aaron', 'Guy', 'Davis', 'Christopher', 'Eric', 'Ryan', 'Mark', 'David', 'George', 'Rishi', 'Lee', 'Oliver', 'Male', 'Albert', 'Bruce', 'Ralph', 'Junior', 'Whisper', 'Bad News', 'Cellos', 'Deranged', 'Grandpa', 'Trinoids', 'Zarvox'],
     greeting: (role) => 'Hi, I\'m Makenzie, a senior interviewer here. Thanks for making the time today. I\'ll be interviewing you for the ' + role + ' role, so let\'s get started.'
   },
   roland: {
