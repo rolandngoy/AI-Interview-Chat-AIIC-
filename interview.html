@@ -29,26 +29,47 @@
 
     <div><button type="button" class="btn btn-ghost btn-sm" id="ivReturn">← Return to roles</button></div>
 
+    <section class="stage" id="stage" aria-label="Your interviewers, Roland and Makenzie, seated at a desk">
+      <div class="stage-room" aria-hidden="true"></div>
+      <div class="seat seat-left" data-seat="roland">
+        <div class="figure">
+          <img src="images/roland-seat.jpg" alt="Roland, senior interviewer" width="640" height="600">
+          <span class="mouth" data-tilt="-9" style="--mx:70%;--my:59.7%;--mw:15.6%;--mh:7%;--lip:#a35a3c"></span>
+        </div>
+      </div>
+      <div class="seat seat-right" data-seat="makenzie">
+        <div class="figure">
+          <img src="images/makenzie-seat.jpg" alt="Makenzie, hiring manager" width="640" height="600">
+          <span class="mouth" data-tilt="-17" style="--mx:74.7%;--my:63.3%;--mw:15.6%;--mh:7%;--lip:#e0837c"></span>
+        </div>
+      </div>
+      <div class="desk" aria-hidden="true">
+        <span class="plate plate-left">Roland · Senior Interviewer</span>
+        <span class="plate plate-right">Makenzie · Hiring Manager</span>
+      </div>
+      <button type="button" class="stage-sound" id="stageSound" aria-pressed="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+        <span id="stageSoundLabel">Sound on</span>
+      </button>
+      <p class="stage-caption hidden" id="stageCaption" aria-hidden="true"></p>
+      <div class="stage-start" id="stageStart">
+        <button type="button" class="btn btn-accent btn-lg" id="ivBegin">Begin interview</button>
+        <button type="button" class="nav-signout" id="ivSkipIntro">Skip the introductions</button>
+      </div>
+    </section>
+
     <div class="iv-progress" aria-hidden="true"><div class="iv-progress-bar" id="ivBar"></div></div>
     <p class="mono small iv-count" id="ivCount"></p>
 
     <section id="ivQuestionView">
-      <div class="iv-interviewer">
-        <div class="iv-avatar" id="ivAvatar"><img id="ivAvatarImg" alt=""></div>
-        <div class="iv-who">
-          <strong id="ivIName"></strong>
-          <span class="mono small" id="ivITitle"></span>
-        </div>
-        <div class="iv-switch" id="ivSwitch" role="group" aria-label="Choose your interviewer"></div>
-      </div>
-      <div class="iv-bubble iv-bubble-soft hidden" id="ivGreeting"></div>
+      <p class="mono small iv-asker" id="ivAsker"></p>
       <div class="iv-bubble" id="ivQuestion" aria-live="polite"></div>
       <div class="iv-tools" id="ivTools">
         <button type="button" class="btn btn-ghost btn-sm" id="ivListen" aria-pressed="false">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
           <span id="ivListenLabel">Listen to question</span>
         </button>
-        <label class="iv-auto mono small"><input type="checkbox" id="ivAutoRead"> Read questions aloud automatically</label>
+        <label class="iv-auto mono small"><input type="checkbox" id="ivAutoRead"> Interviewers speak aloud</label>
       </div>
       <form id="ivForm">
         <label for="ivAnswer" class="mono small iv-label">Your answer</label>
@@ -119,6 +140,7 @@
   <script src="questions.js"></script>
   <script src="codeproblems.js"></script>
   <script src="interviewers.js"></script>
+  <script src="stage.js"></script>
   <script src="interview.js"></script>
 </body>
 </html>
