@@ -1777,3 +1777,415 @@ window.AIIC_PRACTICAL.push(
   `If a company has $500 in assets and $200 in liabilities, what is its equity?`,
   `How would you estimate how many coffee shops there are in a large city?`
 );
+
+/* ---------- More internships (questions about interest, knowledge and what they would do) ---------- */
+Object.assign(window.AIIC_ROLE_QUESTIONS, {
+  'Web Development Intern': [
+    `What is the difference between HTML, CSS and JavaScript, and what does each one do?`,
+    `How would you make a web page work well on both a phone and a large monitor?`,
+    `If a button on a page stopped working, how would you find out why?`,
+    `Why does it matter that a website loads quickly?`,
+    `What does it mean for a website to be accessible, and how would you check it?`,
+    `If you were asked to build a simple contact form, what would you think about?`
+  ],
+  'Mobile App Development Intern': [
+    `What do you think makes a mobile app feel easy to use?`,
+    `How would an app behave if the user's internet connection dropped, and how would you handle it?`,
+    `What is the difference between a native app and a web app?`,
+    `If an app kept crashing for some users, how would you find the cause?`,
+    `Why is it important to protect the data an app collects?`,
+    `How would you go about learning a new mobile framework quickly?`
+  ],
+  'Cloud Computing Intern': [
+    `In your own words, what is cloud computing and why do companies use it?`,
+    `What is the difference between a virtual machine and a container?`,
+    `If a website suddenly got ten times more visitors, what would you want the system to do?`,
+    `Why is it important to control who has access to cloud resources?`,
+    `How might a team keep cloud costs under control?`,
+    `How would you learn a cloud platform you had never used?`
+  ],
+  'Quality Assurance Intern': [
+    `How would you test a login page?`,
+    `What is the difference between a bug and a feature request?`,
+    `How would you write a clear bug report so a developer could fix it?`,
+    `Why would a team automate some tests but not all of them?`,
+    `If you found a serious bug right before a release, what would you do?`,
+    `What do you think makes someone good at finding problems in software?`
+  ],
+  'AI Research Intern': [
+    `In your own words, how does a machine learning model learn from data?`,
+    `Why is the quality of the data so important to an AI system?`,
+    `What are some ways an AI system could be unfair, and how might you check for that?`,
+    `How would you decide whether a new technique is really better than an old one?`,
+    `How would you keep up with new research papers in a fast-moving field?`,
+    `If your experiment gave a surprising result, what would you do before telling anyone?`
+  ],
+  'Robotics Intern': [
+    `What are the basic parts that let a robot sense, think and act?`,
+    `If a robot kept drifting off a straight line, how would you work out why?`,
+    `Why is safety so important when people work near robots?`,
+    `How would you test a new robot program without risking damage?`,
+    `What problem would you most like a robot to solve, and why?`,
+    `How would you explain how a robot works to a ten-year-old?`
+  ],
+  'Hardware Engineering Intern': [
+    `How would you find the problem if a circuit board did not power on?`,
+    `What is the difference between a microcontroller and a computer?`,
+    `Why is it important to test a design in stages rather than all at once?`,
+    `How would you balance cost, size and performance in a new device?`,
+    `Why is documentation important when several people work on one design?`,
+    `What would you do if a part you needed was out of stock?`
+  ],
+  'Aerospace Engineering Intern': [
+    `What are the four main forces acting on an airplane in flight?`,
+    `Why is weight such an important factor in aerospace design?`,
+    `How would you check that a design is safe before it is ever flown?`,
+    `If a test showed a part was weaker than expected, what would you do?`,
+    `Why do aerospace teams follow such strict procedures and documentation?`,
+    `What area of aerospace interests you most, and why?`
+  ],
+  'Chemical Engineering Intern': [
+    `What is the difference between a chemical engineer and a chemist?`,
+    `How would you scale a process from a small lab batch to a large plant?`,
+    `Why is process safety so important in a chemical facility?`,
+    `If a reaction gave less product than expected, how would you investigate?`,
+    `How would you explain a conservation of mass problem in simple terms?`,
+    `How might a plant reduce waste and its impact on the environment?`
+  ],
+  'Biomedical Engineering Intern': [
+    `Why is patient safety the most important part of designing a medical device?`,
+    `How would you work with doctors and nurses to understand what a device needs to do?`,
+    `Why do medical devices need so much testing and documentation?`,
+    `If you had to choose a material for something inside the body, what would you consider?`,
+    `What medical technology do you find most exciting, and why?`,
+    `If a test result for a device looked wrong, what would you do?`
+  ],
+  'Industrial Engineering Intern': [
+    `How would you find ways to make a process faster or cheaper?`,
+    `What does it mean to reduce waste in a process?`,
+    `How would you collect data about how a process works today?`,
+    `How would you convince workers to try a new way of doing something?`,
+    `How would you design the layout of a small workspace to be efficient and safe?`,
+    `How would you know that a change really improved a process?`
+  ],
+  'Environmental Science Intern': [
+    `How would you design a simple study to measure the health of a river?`,
+    `Why is collecting accurate data in the field so important?`,
+    `How would you explain climate change to someone who is skeptical?`,
+    `What would you do if your data did not support the result you expected?`,
+    `How would you balance a community's needs with protecting the environment?`,
+    `What environmental issue matters most to you, and why?`
+  ],
+  'Chemistry Intern': [
+    `Why is following lab safety rules so important?`,
+    `If an experiment gave a different result from what you predicted, what would you do?`,
+    `Why do scientists repeat experiments?`,
+    `How would you keep careful records in a lab notebook?`,
+    `How would you check that a measuring instrument is working correctly?`,
+    `What area of chemistry interests you most, and why?`
+  ],
+  'Biomedical Research Intern': [
+    `How would you design an experiment to test whether a new treatment works?`,
+    `Why are control groups and large sample sizes important?`,
+    `What are some ethical rules researchers must follow when studying people or animals?`,
+    `How would you read a scientific paper you did not fully understand?`,
+    `If your results were not reproducible, what would you do?`,
+    `What disease or health problem would you most like to help solve, and why?`
+  ],
+  'Pharmacy Intern': [
+    `A medicine is 50 mg per 5 mL. How many mL would give a 150 mg dose?`,
+    `Why is double-checking so important in a pharmacy?`,
+    `How would you explain to a patient how to take a new medicine?`,
+    `What would you do if a prescription looked unusual to you?`,
+    `Why is patient privacy so important?`,
+    `How would you handle a long line of patients while staying accurate?`
+  ],
+  'Nursing Intern': [
+    `Why is clear communication so important between nurses and the rest of the care team?`,
+    `How would you comfort a patient who is scared?`,
+    `What would you do if you noticed a patient looked worse than before and no one was nearby?`,
+    `Why is hand hygiene so important in a hospital?`,
+    `How would you take care of your own well-being during a stressful shift?`,
+    `What do you hope to learn from nurses during this internship?`
+  ],
+  'Physical Therapy Intern': [
+    `What does a physical therapist do, in your own words?`,
+    `How would you motivate a patient who did not want to do their exercises?`,
+    `Why is it important to keep an exercise safe for each person's condition?`,
+    `How would you explain an exercise so that a patient could do it correctly at home?`,
+    `What would you do if a patient said an exercise hurt?`,
+    `Why does teamwork with doctors and other providers matter?`
+  ],
+  'Public Health Intern': [
+    `What is the difference between public health and medicine?`,
+    `How would you help a community understand the importance of vaccines?`,
+    `Why is good data important when responding to an outbreak?`,
+    `How would you plan a health campaign for people with limited resources?`,
+    `Why does a health message need to be adapted for different communities?`,
+    `Which public health problem interests you most, and why?`
+  ],
+  'Veterinary Intern': [
+    `How would you help a frightened animal feel calm during a visit?`,
+    `Why is it important to listen carefully to what an owner tells you?`,
+    `What would you do if you noticed an animal in distress and no one was nearby?`,
+    `How would you keep a clinic clean and safe for animals and people?`,
+    `How would you comfort an owner who was upset about a pet?`,
+    `What do you hope to learn from watching veterinary professionals work?`
+  ],
+  'Psychology Research Intern': [
+    `Why do researchers use surveys and experiments, and how are they different?`,
+    `Why is it important to protect the privacy of people in a study?`,
+    `How would you design a simple study about how sleep affects memory?`,
+    `What is a bias in research, and how could you reduce it?`,
+    `If your study found no effect, why might that still be useful?`,
+    `What question in psychology would you most like to explore?`
+  ],
+  'Teaching Intern': [
+    `How would you explain a hard idea to a student who did not understand it the first time?`,
+    `What would you do if a student kept disrupting the class?`,
+    `How would you keep students interested during a long lesson?`,
+    `Why is it important to give students feedback, and how would you do it kindly?`,
+    `How would you help a student who is far ahead or far behind?`,
+    `What do you hope to learn from your mentor teacher?`
+  ],
+  'Social Work Intern': [
+    `Why are confidentiality and boundaries so important in social work?`,
+    `How would you build trust with someone who did not want to talk to you?`,
+    `What would you do if a client told you something that worried you about their safety?`,
+    `How would you take care of yourself when working with people in difficult situations?`,
+    `Why is it important to respect people's different backgrounds and beliefs?`,
+    `What do you hope to learn from your supervisor?`
+  ],
+  'Museum Intern': [
+    `What makes an exhibit interesting for both children and adults?`,
+    `How would you help a visitor who looked confused or lost?`,
+    `Why is it important to care for objects and artwork carefully?`,
+    `How would you explain a piece in the collection to someone with no background?`,
+    `What would you do if you noticed a visitor touching an artifact?`,
+    `Which museum or exhibit has impressed you, and why?`
+  ],
+  'Fashion Design Intern': [
+    `How would you research trends without copying other designers?`,
+    `What is the process for turning a sketch into a finished garment?`,
+    `How would you design for a customer you had never met?`,
+    `Why do fabric and fit matter so much to a design?`,
+    `How would you take feedback if your design was not chosen for a collection?`,
+    `Which designer or brand inspires you, and why?`
+  ],
+  'Interior Design Intern': [
+    `How would you find out what a client really wants for a room?`,
+    `How would you make a small space feel larger?`,
+    `Why do lighting and color matter so much in a space?`,
+    `How would you balance the client's taste with their budget?`,
+    `What would you do if a client changed their mind after you had ordered materials?`,
+    `Which space have you seen that you think is beautifully designed, and why?`
+  ],
+  'Photography Intern': [
+    `What makes a photo interesting rather than just a snapshot?`,
+    `How would you set up lighting for a portrait in a small room?`,
+    `What would you do if your camera stopped working during a shoot?`,
+    `How would you make a nervous person comfortable in front of the camera?`,
+    `Why is it important to back up and organize photos carefully?`,
+    `Which photographer do you admire, and why?`
+  ],
+  'Podcast and Radio Intern': [
+    `What makes a podcast or radio show worth coming back to?`,
+    `How would you prepare a guest for an interview?`,
+    `Why is sound quality so important, and how would you improve it?`,
+    `What would you do if an interview went off track?`,
+    `How would you come up with ideas for a new episode?`,
+    `Which show do you admire, and why?`
+  ],
+  'Sports Management Intern': [
+    `What makes a great experience for fans at a game?`,
+    `How would you promote a team with a small budget?`,
+    `What would you do if a big event had a last-minute problem?`,
+    `Why do sponsors matter to a team, and how would you keep them happy?`,
+    `How would you handle a long season of late nights and weekends?`,
+    `What area of the sports business interests you most, and why?`
+  ],
+  'Real Estate Intern': [
+    `What do you think makes a property valuable?`,
+    `How would you help a first-time buyer feel less nervous?`,
+    `Why is honesty especially important in real estate?`,
+    `How would you research the market in a neighborhood you did not know?`,
+    `What would you do if a client was upset about an offer that was not accepted?`,
+    `What interests you about real estate?`
+  ],
+  'Insurance Intern': [
+    `In your own words, what is insurance and why do people buy it?`,
+    `How would you explain what a deductible is to someone new to insurance?`,
+    `Why is it important to read the details of a policy carefully?`,
+    `How would you help a customer who was upset about a claim decision?`,
+    `Why is accuracy so important when reviewing a claim?`,
+    `What interests you about the insurance industry?`
+  ],
+  'Banking Intern': [
+    `If a savings account pays 5% interest a year, how much does $1,000 earn in one year?`,
+    `What is the difference between a checking account and a savings account?`,
+    `Why is protecting customer information so important in banking?`,
+    `How would you explain a loan to someone who has never borrowed money?`,
+    `What would you do if you noticed something that looked like fraud?`,
+    `Why do you think banks are regulated so closely?`
+  ],
+  'Risk and Compliance Intern': [
+    `What is the difference between a risk and a problem?`,
+    `Why do companies have rules and compliance teams?`,
+    `If you noticed someone was not following a procedure, what would you do?`,
+    `How would you explain a new regulation to busy colleagues?`,
+    `Why is documentation so important for compliance?`,
+    `How would you decide which risks to look at first?`
+  ],
+  'Financial Planning Intern': [
+    `If someone saves $200 a month, how much will they have after five years, ignoring interest?`,
+    `Why is it important to ask clients about their goals before giving advice?`,
+    `How would you explain the idea of compound interest to a beginner?`,
+    `How would you help a nervous client who was afraid of investing?`,
+    `Why is trust so important in financial planning?`,
+    `What do you think makes a good financial plan?`
+  ],
+  'Audit and Tax Intern': [
+    `If a purchase of $80 has 8% sales tax, what is the total?`,
+    `Why is it important for auditors to be independent?`,
+    `What would you do if you found something that did not look right in a client's records?`,
+    `How would you keep client information confidential?`,
+    `Why does attention to detail matter so much in tax work?`,
+    `How would you handle busy season with many deadlines at once?`
+  ],
+  'Recruiting Intern': [
+    `What do you think makes a candidate stand out on a resume?`,
+    `How would you make candidates feel welcome and comfortable during an interview?`,
+    `Why is it important to avoid bias in hiring?`,
+    `How would you find good candidates for a role that is hard to fill?`,
+    `How would you keep candidates informed while a decision was still being made?`,
+    `Why is confidentiality important when working with applicants?`
+  ],
+  'Brand Management Intern': [
+    `What is a brand, and why does it matter?`,
+    `How would you keep a brand consistent across many channels?`,
+    `What brand do you admire, and what do they do well?`,
+    `How would you find out what customers think about a brand?`,
+    `How would you protect a brand's reputation during a problem?`,
+    `How would you refresh an older brand without losing its loyal customers?`
+  ],
+  'Market Research Intern': [
+    `How would you design a short survey that gives honest answers?`,
+    `What is the difference between qualitative and quantitative research?`,
+    `Why is the size and mix of your sample important?`,
+    `How would you present your results to a team that wanted a quick answer?`,
+    `What would you do if your research disagreed with what the team believed?`,
+    `How would you research a market you knew nothing about?`
+  ],
+  'Digital Marketing Intern': [
+    `How would you tell whether an online ad is working?`,
+    `What is SEO, and why does it matter for a website?`,
+    `How would you grow an email list for a new business?`,
+    `Why is it useful to test two versions of an ad or page?`,
+    `Which numbers would you watch first on a new campaign?`,
+    `How would you keep up with changes in social platforms and search?`
+  ],
+  'E-commerce Intern': [
+    `What makes an online store easy and pleasant to shop in?`,
+    `Why do people leave items in their cart without buying, and what could you do about it?`,
+    `How would you write a product description that sells?`,
+    `How would you handle a customer whose order arrived damaged?`,
+    `Which numbers would you track to understand how an online store is doing?`,
+    `How would you plan a sale for a busy holiday season?`
+  ],
+  'Communications Intern': [
+    `How would you explain a complicated announcement in plain language?`,
+    `Why is it important to know your audience before you write?`,
+    `How would you handle a message that had a mistake after it was sent?`,
+    `What makes an internal email people actually read?`,
+    `How would you keep messages consistent across a whole organization?`,
+    `Which organization communicates well, and what do they do right?`
+  ],
+  'Fundraising Intern': [
+    `Why do people give to a cause, in your opinion?`,
+    `How would you thank a donor so that they feel appreciated?`,
+    `How would you plan a small fundraising event on a tight budget?`,
+    `Why is honesty about how money is used so important?`,
+    `How would you respond if someone said no to a donation request?`,
+    `Which cause would you find easiest to raise money for, and why?`
+  ],
+  'Political Campaign Intern': [
+    `Why do you want to work on a campaign?`,
+    `How would you stay calm and positive during long hours close to an election?`,
+    `How would you respond to a voter who strongly disagreed with the candidate?`,
+    `Why is accuracy so important in what a campaign says?`,
+    `How would you encourage people to volunteer or to vote?`,
+    `How would you handle a task you did not think was important?`
+  ],
+  'Urban Planning Intern': [
+    `What makes a neighborhood a good place to live?`,
+    `How would you balance the needs of drivers, cyclists and pedestrians?`,
+    `Why is it important to listen to residents before a plan is made?`,
+    `How would you find reliable data about a neighborhood?`,
+    `How would you explain a zoning change to people who were worried about it?`,
+    `What city do you think is well planned, and why?`
+  ],
+  'Sustainability Intern': [
+    `In your own words, what does sustainability mean for a company?`,
+    `How would you find ways for an office to reduce its waste?`,
+    `How would you convince coworkers to change a habit?`,
+    `How would you measure whether a green program was working?`,
+    `What are the tradeoffs between cost and being environmentally friendly?`,
+    `What sustainability issue interests you most, and why?`
+  ],
+  'Agriculture Intern': [
+    `What do you think are the biggest challenges farmers face today?`,
+    `How would you plan to keep soil healthy over many seasons?`,
+    `Why is weather data so useful on a farm?`,
+    `How would you stay safe around heavy equipment?`,
+    `How might technology help a farm grow more with fewer resources?`,
+    `What interests you about agriculture?`
+  ],
+  'Logistics Intern': [
+    `A truck carries 20 pallets and you have 130 pallets to ship. How many trips are needed?`,
+    `What could cause a delivery to be late, and how could a team plan for it?`,
+    `How would you keep track of many shipments at once?`,
+    `How would you tell a customer their delivery was delayed?`,
+    `Why is accuracy important when entering shipping information?`,
+    `How might a company lower its shipping costs?`
+  ],
+  'Procurement Intern': [
+    `How would you compare two suppliers who quoted different prices?`,
+    `Why is the cheapest option not always the best?`,
+    `How would you keep a good working relationship with a supplier?`,
+    `What would you do if a supplier missed a deadline?`,
+    `Why are clear contracts and records important in purchasing?`,
+    `How would you make sure purchases follow company policy?`
+  ],
+  'Animation Intern': [
+    `What makes a character's movement feel believable?`,
+    `Why are the principles of animation, like timing and anticipation, important?`,
+    `How would you handle feedback asking you to redo a lot of your work?`,
+    `How would you plan a short animation from an idea to a finished piece?`,
+    `Which animated film or show do you admire, and why?`,
+    `What would you do if you were falling behind on a deadline?`
+  ],
+  'UX Research Intern': [
+    `How would you find out why users were struggling with a feature?`,
+    `What is the difference between asking users what they want and watching what they do?`,
+    `How would you run a short usability test?`,
+    `How would you avoid leading a participant toward an answer?`,
+    `How would you share findings with a team that was excited about its own idea?`,
+    `What would you do if only a few people took part in your study?`
+  ],
+  'Technical Writing Intern': [
+    `How would you learn a complicated product well enough to write about it?`,
+    `What makes instructions clear and easy to follow?`,
+    `How would you check that your instructions really work?`,
+    `How would you get busy engineers to review your writing?`,
+    `Why does it matter who the reader is?`,
+    `How would you decide what to include and what to leave out?`
+  ]
+});
+
+window.AIIC_PRACTICAL.push(
+  `A medicine is 50 mg per 5 mL. How many mL would give a 150 mg dose?`,
+  `If a savings account pays 5% interest a year, how much does $1,000 earn in one year?`,
+  `If someone saves $200 a month, how much will they have after five years, ignoring interest?`,
+  `If a purchase of $80 has 8% sales tax, what is the total?`,
+  `A truck carries 20 pallets and you have 130 pallets to ship. How many trips are needed?`
+);
