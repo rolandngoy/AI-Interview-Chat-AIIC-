@@ -45,14 +45,14 @@
 
       // Body: breathing and a slow sway; a head bob while talking; a small nod while listening.
       const breathe = Math.sin(t / 1500 + s.seed), sway = Math.sin(t / 2600 + s.seed * 1.7);
-      let ty = breathe * 2.2, rot = sway * 0.35;
-      const scale = 1 + breathe * 0.004;
+      let ty = breathe * 1.6, rot = sway * 0.18;
+      const scale = 1 + breathe * 0.0025;
       if (s.speaking) {
-        ty += Math.sin(s.phase * 0.5) * 1.8 - o * 1.2;
-        rot += Math.sin(s.phase * 0.35) * 0.9;
+        ty += Math.sin(s.phase * 0.5) * 1.5 - o * 1.0;
+        rot += Math.sin(s.phase * 0.35) * 0.45;
       } else if (anySpeaking) {
-        rot += Math.sin(t / 900 + s.seed) * 0.45;
-        ty += Math.max(0, Math.sin(t / 1300 + s.seed)) * 1.5;
+        rot += Math.sin(t / 900 + s.seed) * 0.22;
+        ty += Math.max(0, Math.sin(t / 1300 + s.seed)) * 1.2;
       }
       s.fig.style.transform = 'translate3d(0,' + ty.toFixed(2) + 'px,0) rotate(' + rot.toFixed(3) + 'deg) scale(' + scale.toFixed(4) + ')';
     });
@@ -65,6 +65,8 @@
       if (!s) return;
       s.speaking = on;
       s.el.classList.toggle('is-speaking', on);
+      const tag = document.querySelector('[data-tag="' + id + '"]');
+      if (tag) tag.classList.toggle('is-speaking', on);
       if (!on) s.pulse = 0;
     },
     pulse: function (id) { if (seats[id]) seats[id].pulse = 0.5; },
