@@ -535,3 +535,9 @@ button { font-family: inherit; }
 @media (prefers-reduced-motion: reduce) { .iv-bigmic.recording { animation: none; box-shadow: 0 0 0 8px rgba(229,72,77,.4); } }
 .iv-review { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 #ivAudio { display: none; }
+
+/* review buttons: color instead of the default outline */
+#ivPlay { background: var(--accent); color: var(--bg); border: 0; font-weight: 600; }
+#ivPlay:hover { color: var(--bg); }
+#ivRedo { background: #FFB86B; color: var(--bg); border: 0; font-weight: 600; }
+#ivRedo:hover { color: var(--bg); }
