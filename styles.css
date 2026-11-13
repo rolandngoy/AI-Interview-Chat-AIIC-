@@ -501,7 +501,7 @@ button { font-family: inherit; }
 @media (max-width: 640px) { .stage-caption { font-size: 13px; bottom: 6%; padding: 8px 12px; } .stage-sound span { display: none; } .stage-sound { padding: 0 10px; } .tag { font-size: 10px; padding: 3px 8px; } }
 
 /* ---------- interview room: one scene, two animated layers ---------- */
-.stage { position: relative; width: min(100%, calc(62vh * 1.425)); margin: 0 auto; aspect-ratio: 1254 / 880; overflow: hidden; border-radius: 20px; border: 1px solid var(--line); background: #1b4a9c; isolation: isolate; }
+.stage { position: relative; width: min(100%, calc(72vh * 1.278)); margin: 0 auto; aspect-ratio: 1254 / 981; overflow: hidden; border-radius: 20px; border: 1px solid var(--line); background: #1b4a9c; isolation: isolate; }
 .scene { position: absolute; inset: 0; }
 .scene img { display: block; width: 100%; height: 100%; }
 .scene-base { position: absolute; inset: 0; }
