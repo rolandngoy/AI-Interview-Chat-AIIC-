@@ -78,19 +78,22 @@ Accounts and practice history are stored in Firebase so they follow users across
 
 The values in `config.js` are public by design; the Firestore rules are what keep each user's history private.
 
-## AI interviewers (Claude)
+## AI interviewers (OpenAI or Claude)
 
-Two AI interviewers, Makenzie and Roland, react to each answer in character and sometimes ask a follow-up question. The browser calls `/api/interviewer`, a small Azure Function in `api/` that is deployed with the site. The Anthropic key never reaches the browser.
+Two AI interviewers, Makenzie and Roland, react to each answer in character and sometimes ask a follow-up question. The browser calls `/api/interviewer`, a small Azure Function in `api/` that is deployed with the site. The AI key (OpenAI or Anthropic) is stored only in Azure's server settings and never reaches the browser or this repo.
 
 **One-time setup**
 
-1. Create an API key at [console.anthropic.com](https://console.anthropic.com), and set a monthly **spend limit** there.
+1. Create an API key at [platform.openai.com/api-keys](https://platform.openai.com/api-keys) (or [console.anthropic.com](https://console.anthropic.com) for Claude), and set a monthly **budget limit** there. Never put the key in a file in this repo.
 2. In Firebase: **Project settings → Service accounts → Generate new private key.** This downloads a JSON file.
 3. In the Azure portal, open your Static Web App → **Settings → Environment variables** and add:
 
    | Name | Value |
    |---|---|
-   | `ANTHROPIC_API_KEY` | your Anthropic API key |
+   | `OPENAI_API_KEY` | your OpenAI API key. When set, OpenAI is used. |
+   | `OPENAI_MODEL` | optional: defaults to `gpt-4.1-mini` |
+   | `OPENAI_FEEDBACK_MODEL` | optional: model for grades and feedback. Defaults to `OPENAI_MODEL`. |
+   | `ANTHROPIC_API_KEY` | only if you use Claude instead of OpenAI |
    | `FIREBASE_SERVICE_ACCOUNT` | the full contents of the service account JSON |
    | `DAILY_AI_REPLIES` | optional: interviewer replies per user per day (default `60`, about 4 interviews) |
    | `AI_MODEL` | optional: defaults to `claude-opus-5-5`. `claude-haiku-5-5` is much cheaper and faster. |
