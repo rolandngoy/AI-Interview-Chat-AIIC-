@@ -134,7 +134,47 @@
 
   // 15 questions: intro, motivation, 12 mixed (role-specific, field-related and
   // behavioral, shuffled; one is a Python problem for coding roles), then the closing question.
+  // Internship interviews: the candidate may have little or no work experience, so every question is about
+  // interest, knowledge or what they would do, never about past jobs or personal experience.
+  const isIntern = /\bintern(ship)?\b/i.test(role);
+  const INTERN_GENERAL = [
+    'If you were given a task you had never done before and your manager was busy, how would you get started?',
+    'How would you handle getting critical feedback on your first big assignment?',
+    'Imagine you realize you made a mistake that nobody has noticed yet. What would you do?',
+    'If two teammates gave you urgent tasks at the same time, how would you decide what to do first?',
+    'What would you do in your first week to get up to speed quickly?',
+    'If you disagreed with a teammate\'s approach on a group project, how would you handle it?',
+    'How would you ask for help without slowing the team down?',
+    'What does professionalism mean to you in an office or a remote team?',
+    'How would you manage your time if your internship overlapped with classes or other commitments?',
+    'What would you do if you were asked to take on a task that felt outside your skills?',
+    'How would you go about learning a new tool or skill your team uses?',
+    'What kind of mentor or team would help you do your best work and learn the most?',
+    'If you finished all your tasks early, what would you do?',
+    'What would you want your manager to say about you at the end of the internship?'
+  ];
+  function buildInternQuestions() {
+    const coding = window.AIIC_CODE && AIIC_CODE.isCodingRole(role);
+    const MID = TOTAL - 3 - (coding ? 1 : 0);
+    let specific = pick((window.AIIC_ROLE_QUESTIONS || {})[role] || [], 5);
+    if (!specific.length) {
+      specific = [
+        'What skills do you think matter most for an intern in this role, and how would you build them?',
+        'What do you think would be the hardest part of this internship?',
+        'How would you plan your first week to learn as much as possible?'
+      ];
+    }
+    let mid = specific.concat(pick(INTERN_GENERAL, MID - specific.length));
+    mid = pick(mid, MID);
+    if (coding) mid.splice(Math.floor(MID / 2), 0, AIIC_CODE.pick(role));
+    return [
+      'Why are you interested in the ' + role + ' position, and what do you hope to learn from it?',
+      'What do you think makes someone a great intern in this field?'
+    ].concat(mid, [CLOSING]);
+  }
+
   function buildQuestions() {
+    if (isIntern) return buildInternQuestions();
     const coding = window.AIIC_CODE && AIIC_CODE.isCodingRole(role);
     const MID = TOTAL - 3 - (coding ? 1 : 0);
     const behavioralPool = GENERAL.slice(1);
@@ -662,7 +702,7 @@
     await Promise.all(chunks.map(async function (chunk) {
       try {
         const out = await postFeedback({
-          mode: 'answers', role: role,
+          mode: 'answers', role: role, intern: isIntern,
           items: chunk.map((x) => ({
             id: x.i, kind: x.r.kind === 'code' ? 'code' : 'text', followUp: x.r.q.indexOf('Follow-up: ') === 0,
             question: x.r.kind === 'code' ? (x.r.prompt || cleanQ(x.r)) : cleanQ(x.r), answer: x.r.a,
@@ -684,7 +724,7 @@
     if (results.some((r) => r.feedback) && !overallInfo) {
       try {
         const out = await postFeedback({
-          mode: 'overall', role: role,
+          mode: 'overall', role: role, intern: isIntern,
           items: results.map((r) => ({ question: cleanQ(r), grade: AIIC_GRADES.ofResult(r), feedback: r.feedback || (r.tips && r.tips[0]) || '' }))
         });
         if (my === feedbackToken && out.overall) overallInfo = out.overall;
@@ -803,7 +843,7 @@
         method: 'POST', signal: ctl.signal,
         headers: { 'Content-Type': 'application/json', 'X-Firebase-Token': token },
         body: JSON.stringify({
-          interviewer: personaId, role: role, question: q, answer: answer, canFollowUp: canFollowUp,
+          interviewer: personaId, role: role, intern: isIntern, question: q, answer: answer, canFollowUp: canFollowUp,
           // the last few spoken answers (not the one just given), so follow-ups can connect to the whole conversation
           recent: results.slice(-4, -1).filter((r) => r.kind !== 'code').map((r) => ({ q: r.q.replace(/^Follow-up: /, ''), a: r.a }))
         })
@@ -815,6 +855,13 @@
   }
 
   // Used when the AI is unavailable, so interviews are still a back-and-forth conversation.
+  const INTERN_FOLLOW_UPS = [
+    'Can you walk me through how you would approach that, step by step?',
+    'What would you do first, and why?',
+    'What could go wrong there, and how would you handle it?',
+    'How would you check that your approach actually worked?',
+    'What would you want to learn more about before doing that?'
+  ];
   const FOLLOW_UPS = [
     'Can you give me a specific example of that?',
     'What was the result, and how did you know it worked?',
@@ -830,7 +877,7 @@
     if (q === CLOSING) return { reaction: 'Thanks for asking. We will wrap up there.', followUp: null };
     const reaction = pickOne(NEUTRAL);
     const thin = wc < 60 || !hasNumber;
-    const followUp = canFollowUp && (Math.random() < (thin ? 0.75 : 0.3)) ? pickOne(FOLLOW_UPS) : null;
+    const followUp = canFollowUp && (Math.random() < (thin ? 0.75 : 0.3)) ? pickOne(isIntern ? INTERN_FOLLOW_UPS : FOLLOW_UPS) : null;
     return { reaction: reaction, followUp: followUp };
   }
   async function getReply(q, text) {

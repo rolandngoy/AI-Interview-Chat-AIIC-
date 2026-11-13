@@ -37,3 +37,17 @@ assert.strictEqual(parseReply('{"reaction":"","followUp":"x"}', true), null);
   r = await makeHandler({ ...ok, callModel: async () => ({ text: 'garbage' }) })('tok', body, 5); assert.strictEqual(r.status, 502);
   console.log('all api tests passed');
 })().catch((e) => { console.error(e); process.exit(1); });
+
+// internship flag changes the instructions
+(function () {
+  const { validate, buildSystem } = require('../src/lib');
+  const base = { interviewer: 'roland', role: 'Marketing Intern', question: 'q', answer: 'a' };
+  const yes = validate({ ...base, intern: true }).value, no = validate(base).value;
+  assert.strictEqual(yes.intern, true); assert.strictEqual(no.intern, false);
+  assert.ok(buildSystem(yes.persona, yes.role, true).includes('INTERNSHIP') && !buildSystem(no.persona, no.role, false).includes('INTERNSHIP'));
+  const f = require('../src/feedback');
+  assert.ok(f.answersSystem('Marketing Intern', true).includes('INTERNSHIP') && !f.answersSystem('Nurse', false).includes('INTERNSHIP'));
+  assert.ok(f.overallSystem('Marketing Intern', true).includes('internship'));
+  assert.strictEqual(f.validateAnswers({ mode: 'answers', role: 'X Intern', intern: true, items: [{ id: 0, question: 'q', answer: 'a' }] }).value.intern, true);
+  console.log('internship flag tests passed');
+})();
