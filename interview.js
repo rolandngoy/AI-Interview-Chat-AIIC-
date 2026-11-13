@@ -748,10 +748,20 @@
     index++;
     if (index >= questions.length) {
       $('ivForm').classList.add('hidden'); $('ivCodeForm').classList.add('hidden');
-      const bye = 'Thank you, ' + firstName() + '. That is everything from us. Your feedback is ready for you now.';
-      $('ivQuestion').textContent = bye;
-      await speakLine(prevWho, bye);
-      if (myTurn !== turn) return;
+      // Roland thanks the candidate, then Makenzie says goodbye.
+      const goodbye = [
+        ['roland', 'Thank you for coming today.'],
+        ['makenzie', 'We\'ll reach back to you with an answer as soon as possible, have a good rest of your day!']
+      ];
+      for (let i = 0; i < goodbye.length; i++) {
+        setAsker(goodbye[i][0]);
+        $('ivAsker').textContent = PEOPLE[goodbye[i][0]].name + ' says:';
+        $('ivQuestion').textContent = goodbye[i][1];
+        await speakLine(goodbye[i][0], goodbye[i][1]);
+        if (myTurn !== turn) return;
+        await sleep(300);
+        if (myTurn !== turn) return;
+      }
       showSummary();
       return;
     }
