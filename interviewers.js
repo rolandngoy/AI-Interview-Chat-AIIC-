@@ -10,9 +10,9 @@ window.AIIC_INTERVIEWERS = {
     name: 'Makenzie',
     title: 'Senior Interviewer',
     img: 'images/makenzie.jpg',
-    pitch: 1.12,
-    rate: 1.03,
-    voiceHints: ['Microsoft Aria', 'Microsoft Jenny', 'Samantha', 'Ava', 'Allison', 'Susan', 'Google US English', 'Karen'],
+    pitch: 1.24,
+    rate: 1.05,
+    voiceHints: ['Microsoft Jenny', 'Microsoft Aria', 'Ava', 'Allison', 'Zoe', 'Samantha', 'Google US English', 'Microsoft Zira', 'Susan', 'Victoria'],
     greeting: (role) => 'Hi, I\'m Makenzie, a senior interviewer here. Thanks for making the time today. I\'ll be interviewing you for the ' + role + ' role, so let\'s get started.'
   },
   roland: {
