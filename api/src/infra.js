@@ -6,16 +6,21 @@ let ready, anthropic, authAdmin, db;
 
 const useOpenAI = () => !!process.env.OPENAI_API_KEY;
 
-function init() {
-  if (ready) return;
+function initFirebase() {
+  if (authAdmin) return;
   const { initializeApp, cert, getApps } = require('firebase-admin/app');
   const { getAuth } = require('firebase-admin/auth');
   const { getFirestore } = require('firebase-admin/firestore');
-
-  if (!(useOpenAI() || process.env.ANTHROPIC_API_KEY) || !process.env.FIREBASE_SERVICE_ACCOUNT) throw new Error('not configured');
+  if (!process.env.FIREBASE_SERVICE_ACCOUNT) throw new Error('not configured');
   if (!getApps().length) initializeApp({ credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)) });
   authAdmin = getAuth();
   db = getFirestore();
+}
+
+function init() {
+  if (ready) return;
+  if (!(useOpenAI() || process.env.ANTHROPIC_API_KEY)) throw new Error('not configured');
+  initFirebase();
   if (!useOpenAI()) {
     const mod = require('@anthropic-ai/sdk');
     const Anthropic = mod.default || mod;
@@ -53,6 +58,32 @@ async function verifyToken(token) {
   return (await authAdmin.verifyIdToken(token)).uid;
 }
 
+// Returns the decoded Firebase token (uid, email, email_verified, ...). Does not need the Claude key.
+async function verifyTokenClaims(token) {
+  initFirebase();
+  return authAdmin.verifyIdToken(token);
+}
+
+// Every account with its number of saved interviews. Admin use only (the caller checks).
+async function listAllUsers() {
+  initFirebase();
+  const users = [];
+  let pageToken;
+  do {
+    const page = await authAdmin.listUsers(1000, pageToken);
+    users.push.apply(users, page.users);
+    pageToken = page.pageToken;
+  } while (pageToken && users.length < 5000);
+  const counts = {};
+  for (let i = 0; i < users.length; i += 25) {
+    await Promise.all(users.slice(i, i + 25).map(async (u) => {
+      try { counts[u.uid] = (await db.collection('users').doc(u.uid).collection('sessions').count().get()).data().count; }
+      catch (e) { counts[u.uid] = null; }
+    }));
+  }
+  return { users: users, counts: counts };
+}
+
 // Atomically counts one use for this user today in the given bucket; false once they are over the limit.
 async function consumeUsage(uid, day, limit, bucket) {
   init();
@@ -69,4 +100,4 @@ async function consumeUsage(uid, day, limit, bucket) {
 
 function client() { init(); return anthropic; }
 
-module.exports = { verifyToken, consumeUsage, client, useOpenAI, openaiChat };
+module.exports = { verifyToken, verifyTokenClaims, listAllUsers, consumeUsage, client, useOpenAI, openaiChat };

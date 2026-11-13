@@ -1,6 +1,6 @@
 /* =========================================================
    AI Interview Chat — profile menu (top right once signed in)
-   Mounts into #profileMenu. Menu: History, Log out, Delete account.
+   Mounts into #profileMenu. Menu: History, Admin (admin only), Log out, Delete account.
    Needs auth.js (and store.js for deleting history) loaded first.
    ========================================================= */
 (function () {
@@ -46,7 +46,14 @@
   logout.type = 'button'; logout.setAttribute('role', 'menuitem');
   const del = el('button', 'profile-item profile-danger', 'Delete account');
   del.type = 'button'; del.setAttribute('role', 'menuitem');
-  menu.append(head, history, logout, del);
+  menu.append(head, history);
+  // Only a shortcut; the server decides who may actually see the accounts.
+  if ((user.email || '').toLowerCase() === 'rolandngoy@yahoo.com') {
+    const admin = el('a', 'profile-item', 'Admin: all accounts');
+    admin.href = 'admin.html'; admin.setAttribute('role', 'menuitem');
+    menu.appendChild(admin);
+  }
+  menu.append(logout, del);
   mount.append(btn, menu);
   mount.classList.remove('hidden');
 

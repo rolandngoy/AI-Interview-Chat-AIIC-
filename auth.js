@@ -8,7 +8,7 @@
   'use strict';
 
   const KEY = 'aiic_user';
-  const GUARDED = /\/(roles|interview|history)(\.html)?$/;
+  const GUARDED = /\/(roles|interview|history|admin)(\.html)?$/;
   const cfg = (window.AIIC_CONFIG || {}).firebase || {};
   const configured = !!(cfg.apiKey && cfg.apiKey.indexOf('YOUR_') !== 0 && window.firebase);
 
