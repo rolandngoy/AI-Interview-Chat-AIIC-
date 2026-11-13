@@ -1,50 +1,17 @@
-// POST /api/interviewer — the AI interviewer's reaction and optional follow-up question.
-// Secrets live in Azure app settings, never in the site code:
-//   ANTHROPIC_API_KEY          Anthropic API key
-//   FIREBASE_SERVICE_ACCOUNT   service account JSON (verifies sign-in tokens, counts daily usage)
-// Optional:
-//   AI_MODEL                   default claude-opus-5-5 (use claude-haiku-5-5 for lower cost and latency)
+// POST /api/interviewer — the AI interviewer's brief acknowledgement and optional follow-up question.
+// Settings (Azure app settings):
+//   ANTHROPIC_API_KEY, FIREBASE_SERVICE_ACCOUNT   required (see README)
+//   AI_MODEL                   default claude-opus-5-5 (claude-haiku-5-5 is cheaper and faster)
 //   DAILY_AI_REPLIES           per-user daily limit, default 60
 const { app } = require('@azure/functions');
 const { makeHandler } = require('../lib');
-
-let anthropic, authAdmin, db;
-
-function init() {
-  if (anthropic) return;
-  const { initializeApp, cert, getApps } = require('firebase-admin/app');
-  const { getAuth } = require('firebase-admin/auth');
-  const { getFirestore } = require('firebase-admin/firestore');
-  const mod = require('@anthropic-ai/sdk');
-  const Anthropic = mod.default || mod;
-
-  if (!process.env.ANTHROPIC_API_KEY || !process.env.FIREBASE_SERVICE_ACCOUNT) throw new Error('not configured');
-  if (!getApps().length) initializeApp({ credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)) });
-  authAdmin = getAuth();
-  db = getFirestore();
-  anthropic = new Anthropic({ timeout: 25000, maxRetries: 1 });
-}
+const infra = require('../infra');
 
 const deps = {
-  verifyToken: async (token) => { init(); return (await authAdmin.verifyIdToken(token)).uid; },
-
-  // Atomically counts one AI reply for this user today; false once they are over the limit.
-  consumeUsage: async (uid, day, limit) => {
-    init();
-    const { FieldValue } = require('firebase-admin/firestore');
-    const ref = db.collection('aiUsage').doc(uid + '_' + day);
-    return db.runTransaction(async (t) => {
-      const snap = await t.get(ref);
-      const n = snap.exists ? snap.data().count : 0;
-      if (n >= limit) return false;
-      t.set(ref, { uid: uid, day: day, count: n + 1, updatedAt: FieldValue.serverTimestamp() });
-      return true;
-    });
-  },
-
+  verifyToken: infra.verifyToken,
+  consumeUsage: (uid, day, limit) => infra.consumeUsage(uid, day, limit, 'replies'),
   callModel: async (system, user) => {
-    init();
-    const res = await anthropic.messages.create({
+    const res = await infra.client().messages.create({
       model: process.env.AI_MODEL || 'claude-opus-5-5',
       max_tokens: 2000, // thinking tokens count toward this on current models
       output_config: { effort: 'low' },
@@ -52,8 +19,7 @@ const deps = {
       messages: [{ role: 'user', content: user }]
     });
     if (res.stop_reason === 'refusal') return { refused: true };
-    const text = res.content.filter((b) => b.type === 'text').map((b) => b.text).join('');
-    return { text: text };
+    return { text: res.content.filter((b) => b.type === 'text').map((b) => b.text).join('') };
   }
 };
 
@@ -61,7 +27,7 @@ const handle = makeHandler(deps);
 
 app.http('interviewer', {
   methods: ['POST'],
-  authLevel: 'anonymous', // access is enforced by verifying the Firebase ID token below
+  authLevel: 'anonymous', // access is enforced by verifying the Firebase ID token
   route: 'interviewer',
   handler: async (request, context) => {
     let body = null;

@@ -94,11 +94,15 @@ Two AI interviewers, Makenzie and Roland, react to each answer in character and 
    | `FIREBASE_SERVICE_ACCOUNT` | the full contents of the service account JSON |
    | `DAILY_AI_REPLIES` | optional: interviewer replies per user per day (default `60`, about 4 interviews) |
    | `AI_MODEL` | optional: defaults to `claude-opus-5-5`. `claude-haiku-5-5` is much cheaper and faster. |
+   | `AI_FEEDBACK_MODEL` | optional: model for the end-of-interview grades and feedback. Defaults to `AI_MODEL`, then `claude-opus-5-5`. |
+   | `DAILY_AI_FEEDBACK_CALLS` | optional: grading requests per user per day (default `60`, about 6 interviews; one interview uses about 7). |
 
 4. Push to `main`. The workflow deploys the `api/` folder with the site.
 
 If the key is missing, the limit is reached, or the API is down, interviews carry on with the built-in questions.
 
 **Characters:** the faces and voices are in `interviewers.js` and the personalities are in `api/src/personas.js`. Photos are in `images/` (full-size originals are kept locally in `images/originals/`, which git ignores).
+
+**Grades and feedback:** when an interview ends, the browser sends the answers to `/api/feedback` a few at a time (the platform allows about 45 seconds per request) and then once for the overall summary. Each answer gets a grade from A (strong) to F (failing), feedback, one tip and an example of a stronger answer. Without the AI, the results page falls back to automatic scores. `interviewer` and `feedback` are separate Azure Functions in `api/src/functions/`.
 
 **Tests:** `cd api && npm install && npm test`.

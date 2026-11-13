@@ -214,6 +214,7 @@
   let turn = 0;                 // bumped whenever the conversation moves on, so stale async steps stop
   let answering = false, silenceTimer = null, micDenied = false, restarts = 0;
   let mediaRec = null, mediaStream = null, chunks = [], audioUrl = null;
+  let overallInfo = null, feedbackToken = 0, feedbackOff = false;   // the AI's closing summary, and the results-screen state
 
   /* ---------- AI interviewer persona ---------- */
   const PEOPLE = window.AIIC_INTERVIEWERS || {};
@@ -257,7 +258,10 @@
 
   function persist(complete) {
     if (!results.length || !window.AIIC_STORE) return;
-    AIIC_STORE.saveSession(user, { id: sessionId, role: role, date: sessionId, total: questions.length, complete: complete, results: results });
+    AIIC_STORE.saveSession(user, {
+      id: sessionId, role: role, date: sessionId, total: questions.length, complete: complete, results: results,
+      grade: AIIC_GRADES.overall(results), overall: overallInfo || null
+    });
   }
 
   function scoreTile(label, value) {
@@ -581,33 +585,131 @@
     return out;
   }
 
+  /* ---------- results: grades, feedback and better answers (saved for the end of the interview) ---------- */
+  const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  const cleanQ = (r) => r.q.replace(/^(Follow-up|Coding problem): /, '');
+
+  function renderResults() {
+    const G = AIIC_GRADES, og = G.overall(results);
+    $('ivOverallGrade').textContent = og;
+    $('ivOverallGrade').className = 'iv-grade grade-' + og;
+    $('ivOutcome').textContent = 'Grade ' + og + ' · ' + G.LABEL[og] + ' · ' + G.outcome(og);
+    $('ivOverallSummary').textContent = overallInfo ? overallInfo.summary : 'Here is how your answers scored.';
+    const has = overallInfo && (overallInfo.strengths.length || overallInfo.focus.length);
+    $('ivTwoCol').classList.toggle('hidden', !has);
+    const fill = (id, list) => $(id).replaceChildren.apply($(id), (list || []).map((t) => el('li', null, t)));
+    fill('ivStrengths', overallInfo && overallInfo.strengths); fill('ivFocus', overallInfo && overallInfo.focus);
+
+    $('ivHistory').replaceChildren.apply($('ivHistory'), results.map(function (r) {
+      const g = G.ofResult(r);
+      const li = el('li', 'iv-card');
+      const head = el('div', 'iv-card-head');
+      head.append(el('span', 'iv-card-q', (r.q.indexOf('Follow-up: ') === 0 ? 'Follow-up: ' : '') + cleanQ(r)), el('strong', 'iv-chip grade-' + g, g));
+      li.appendChild(head);
+      if (r.feedback) {
+        li.appendChild(el('p', 'iv-fb', r.feedback));
+        if (r.improve) { const p = el('p', 'iv-fb'); p.append(el('strong', null, 'To improve: '), document.createTextNode(r.improve)); li.appendChild(p); }
+        if (r.better) {
+          const box = el('div', 'iv-better');
+          box.appendChild(el('p', 'mono small iv-h', 'A stronger answer'));
+          box.appendChild(el(r.kind === 'code' ? 'pre' : 'p', r.kind === 'code' ? 'iv-better-code' : null, r.better));
+          li.appendChild(box);
+        }
+      } else if (r.tips && r.tips.length) {
+        const ul = el('ul', 'iv-bullets');
+        r.tips.forEach((t) => ul.appendChild(el('li', null, t)));
+        li.appendChild(ul);
+      }
+      const d = el('details', 'iv-said');
+      d.appendChild(el('summary', null, 'What you said'));
+      d.appendChild(el(r.kind === 'code' ? 'pre' : 'p', r.kind === 'code' ? 'iv-better-code' : null, r.a));
+      li.appendChild(d);
+      return li;
+    }));
+  }
+
+  async function postFeedback(payload) {
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 50000);
+    try {
+      const token = await AIIC_AUTH.auth.currentUser.getIdToken();
+      const res = await fetch('/api/feedback', {
+        method: 'POST', signal: ctl.signal,
+        headers: { 'Content-Type': 'application/json', 'X-Firebase-Token': token },
+        body: JSON.stringify(payload)
+      });
+      if (res.status === 429) { const e = new Error('limit'); e.limit = true; throw e; }
+      if (!res.ok) throw new Error('http ' + res.status);
+      return await res.json();
+    } finally { clearTimeout(timer); }
+  }
+
+  // Asks the AI to grade the answers (a few per request, in parallel), then to write the closing summary.
+  async function loadAiFeedback() {
+    const my = ++feedbackToken;
+    $('ivRetryFeedback').classList.add('hidden');
+    if (feedbackOff || !window.AIIC_AUTH || !AIIC_AUTH.configured || !AIIC_AUTH.auth || !AIIC_AUTH.auth.currentUser) {
+      $('ivFeedbackStatus').textContent = 'These are automatic scores. Detailed AI feedback is not available right now.';
+      return;
+    }
+    const todo = results.map((r, i) => ({ r: r, i: i })).filter((x) => !x.r.feedback);
+    if (!todo.length && overallInfo) { $('ivFeedbackStatus').textContent = ''; return; }
+    $('ivFeedbackStatus').textContent = 'Roland and Makenzie are reviewing your answers…';
+
+    const chunks = [];
+    for (let k = 0; k < todo.length; k += 3) chunks.push(todo.slice(k, k + 3));
+    let done = 0, failed = 0, limitHit = false;
+    await Promise.all(chunks.map(async function (chunk) {
+      try {
+        const out = await postFeedback({
+          mode: 'answers', role: role,
+          items: chunk.map((x) => ({
+            id: x.i, kind: x.r.kind === 'code' ? 'code' : 'text', followUp: x.r.q.indexOf('Follow-up: ') === 0,
+            question: x.r.kind === 'code' ? (x.r.prompt || cleanQ(x.r)) : cleanQ(x.r), answer: x.r.a,
+            tests: x.r.kind === 'code' ? x.r.s.tests : undefined
+          }))
+        });
+        if (my !== feedbackToken) return;
+        (out.answers || []).forEach(function (a) {
+          const r = results[a.id];
+          if (r) { r.grade = a.grade; r.feedback = a.feedback; r.improve = a.improve; r.better = a.better; }
+        });
+        done += chunk.length;
+        $('ivFeedbackStatus').textContent = 'Reviewing your answers… ' + Math.min(done, todo.length) + ' of ' + todo.length;
+        renderResults();
+      } catch (e) { failed += chunk.length; if (e && e.limit) limitHit = true; }
+    }));
+    if (my !== feedbackToken) return;
+
+    if (results.some((r) => r.feedback) && !overallInfo) {
+      try {
+        const out = await postFeedback({
+          mode: 'overall', role: role,
+          items: results.map((r) => ({ question: cleanQ(r), grade: AIIC_GRADES.ofResult(r), feedback: r.feedback || (r.tips && r.tips[0]) || '' }))
+        });
+        if (my === feedbackToken && out.overall) overallInfo = out.overall;
+      } catch (e) { if (e && e.limit) limitHit = true; }
+    }
+    if (my !== feedbackToken) return;
+    renderResults();
+    persist(true);
+    if (limitHit) feedbackOff = true;
+    const missing = results.some((r) => !r.feedback);
+    $('ivFeedbackStatus').textContent = !missing ? '' : (limitHit
+      ? 'You have reached today\'s limit for AI feedback, so some answers show automatic scores. It resets tomorrow.'
+      : 'Some answers could not be reviewed by the AI right now, so they show automatic scores.');
+    $('ivRetryFeedback').classList.toggle('hidden', !missing || limitHit);
+  }
+  $('ivRetryFeedback').addEventListener('click', loadAiFeedback);
+
   function showSummary() {
     stopVoice(); stopSpeaking();
     $('ivBar').style.width = '100%';
     $('ivCount').textContent = 'Done';
-    const avg = (k) => {
-      const rs = k === 'overall' ? results : results.filter((r) => r.kind !== 'code');
-      return rs.length ? Math.round(rs.reduce((n, r) => n + r.s[k], 0) / rs.length) : 0;
-    };
-    renderScores($('ivSummaryScores'), { overall: avg('overall'), structure: avg('structure'), clarity: avg('clarity'), impact: avg('impact') });
-    $('ivHistory').replaceChildren.apply($('ivHistory'), results.map((r) => {
-      const li = document.createElement('li');
-      const head = document.createElement('div'); head.className = 'iv-hist-head';
-      const q = document.createElement('span'); q.textContent = r.q;
-      const sc = document.createElement('strong'); sc.className = 'mono'; sc.textContent = r.s.overall;
-      head.append(q, sc);
-      li.appendChild(head);
-      if (r.tips && r.tips.length) {
-        const d = document.createElement('details');
-        const sm = document.createElement('summary'); sm.textContent = 'Coaching tips';
-        const ul = document.createElement('ul');
-        r.tips.forEach((t) => { const tl = document.createElement('li'); tl.textContent = t; ul.appendChild(tl); });
-        d.append(sm, ul); li.appendChild(d);
-      }
-      return li;
-    }));
-    persist(true);
     show('ivSummaryView');
+    renderResults();
+    persist(true);
+    loadAiFeedback();
   }
 
   function start() {
@@ -616,6 +718,7 @@
     results = [];
     followUps = new Set(); followUpCount = 0; pendingFollowUp = null; replyToken++; aiOff = false;
     ++turn; micDenied = false; stopVoice();
+    overallInfo = null; feedbackToken++; feedbackOff = false;
     sessionId = Date.now();
     askers = questions.map((_, i) => (i % 2 === 0 ? 'roland' : 'makenzie'));
     introActive = false;
@@ -699,7 +802,11 @@
       const res = await fetch('/api/interviewer', {
         method: 'POST', signal: ctl.signal,
         headers: { 'Content-Type': 'application/json', 'X-Firebase-Token': token },
-        body: JSON.stringify({ interviewer: personaId, role: role, question: q, answer: answer, canFollowUp: canFollowUp })
+        body: JSON.stringify({
+          interviewer: personaId, role: role, question: q, answer: answer, canFollowUp: canFollowUp,
+          // the last few spoken answers (not the one just given), so follow-ups can connect to the whole conversation
+          recent: results.slice(-4, -1).filter((r) => r.kind !== 'code').map((r) => ({ q: r.q.replace(/^Follow-up: /, ''), a: r.a }))
+        })
       });
       if (res.status === 429 || res.status === 401) { aiOff = true; return null; }
       if (!res.ok) return null;
@@ -862,7 +969,7 @@
     rs.filter((r) => !r.ok).slice(0, 3).forEach((r) => tips.push(r.call + ' should return ' + r.expected + ' but returned ' + r.got + '.'));
     if (!tips.length) tips.push('All tests passed. In a real interview, also explain your approach and its time complexity out loud.');
     else tips.push('In a real interview, talk through your approach and test edge cases such as empty input.');
-    results.push({ q: 'Coding problem: ' + q.title, a: $('ivCode').value, kind: 'code', s: { overall: overall, tests: { passed: passed, total: total } }, tips: tips });
+    results.push({ q: 'Coding problem: ' + q.title, prompt: q.prompt, a: $('ivCode').value, kind: 'code', s: { overall: overall, tests: { passed: passed, total: total } }, tips: tips });
     persist(false);
     const myTurn = ++turn, who = personaId;
     $('ivCodeForm').classList.add('hidden');

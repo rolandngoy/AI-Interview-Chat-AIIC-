@@ -113,9 +113,21 @@
     </section>
 
     <section id="ivSummaryView" class="hidden">
-      <h1 class="login-title">Session complete</h1>
-      <div class="iv-scores" id="ivSummaryScores"></div>
-      <ol class="iv-history" id="ivHistory"></ol>
+      <h1 class="login-title">Your interview results</h1>
+      <div class="iv-overall">
+        <div class="iv-grade" id="ivOverallGrade" aria-label="Overall grade">–</div>
+        <div class="iv-overall-text">
+          <p class="iv-outcome" id="ivOutcome"></p>
+          <p id="ivOverallSummary"></p>
+        </div>
+      </div>
+      <div class="iv-twocol hidden" id="ivTwoCol">
+        <div><h2 class="mono small iv-h">What went well</h2><ul class="iv-bullets" id="ivStrengths"></ul></div>
+        <div><h2 class="mono small iv-h">Focus on next</h2><ul class="iv-bullets" id="ivFocus"></ul></div>
+      </div>
+      <p class="mono small iv-feedback-status" id="ivFeedbackStatus" role="status"></p>
+      <button type="button" class="btn btn-accent btn-sm hidden" id="ivRetryFeedback">Try AI feedback again</button>
+      <ol class="iv-cards" id="ivHistory"></ol>
       <div class="iv-row iv-row-center">
         <button type="button" class="btn btn-accent btn-md" id="ivRetry">Practice again</button>
         <a href="roles.html" class="btn btn-ghost btn-md">Pick another role</a>
@@ -133,6 +145,7 @@
   <script src="profile.js"></script>
   <script src="questions.js"></script>
   <script src="codeproblems.js"></script>
+  <script src="grades.js"></script>
   <script src="interviewers.js"></script>
   <script src="stage.js"></script>
   <script src="interview.js"></script>

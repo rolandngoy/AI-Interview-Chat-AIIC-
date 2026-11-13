@@ -5,7 +5,7 @@
   "description": "AI interviewer API for AI Interview Chat (Azure Static Web Apps managed functions)",
   "main": "src/functions/*.js",
   "scripts": {
-    "test": "node test/lib.test.js"
+    "test": "node test/lib.test.js && node test/feedback.test.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.8.0",

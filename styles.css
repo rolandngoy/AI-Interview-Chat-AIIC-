@@ -541,3 +541,35 @@ button { font-family: inherit; }
 #ivPlay:hover { color: var(--bg); }
 #ivRedo { background: #FFB86B; color: var(--bg); border: 0; font-weight: 600; }
 #ivRedo:hover { color: var(--bg); }
+
+/* ---------- interview results: grades, feedback, better answers ---------- */
+.grade-A { --gc: #6EE7D2; } .grade-B { --gc: #8EA2FF; } .grade-C { --gc: #FFB86B; } .grade-D { --gc: #FF9A5B; } .grade-F { --gc: #FF6B6B; }
+.iv-overall { display: flex; align-items: center; gap: 24px; padding: 24px; border: 1px solid var(--line); border-radius: 20px; background: var(--bg-3); margin-bottom: 18px; }
+.iv-grade { flex-shrink: 0; width: 104px; height: 104px; display: grid; place-items: center; border-radius: 50%; border: 4px solid var(--gc, var(--line)); color: var(--gc, #FFFFFF); font: 700 56px var(--display); }
+.iv-overall-text { display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.iv-outcome { font: 600 18px var(--display); }
+.iv-overall-text p { line-height: 1.55; }
+.iv-twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; text-align: left; }
+.iv-twocol > div { padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--bg-3); }
+.iv-h { color: var(--dimmer); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; font-weight: 500; }
+.iv-bullets { display: flex; flex-direction: column; gap: 8px; padding-left: 18px; list-style: disc; line-height: 1.5; color: #C9CDD4; }
+.iv-feedback-status { color: var(--dimmer); text-align: center; margin: 4px 0 12px; min-height: 1em; }
+#ivRetryFeedback { align-self: center; margin: 0 auto 16px; display: block; }
+.iv-cards { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; text-align: left; }
+.iv-card { padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--bg-3); display: flex; flex-direction: column; gap: 10px; }
+.iv-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
+.iv-card-q { font: 500 17px var(--display); line-height: 1.35; }
+.iv-chip { flex-shrink: 0; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--gc); color: var(--gc); font: 700 18px var(--display); }
+.iv-fb { color: #C9CDD4; line-height: 1.6; }
+.iv-fb strong { color: #FFFFFF; }
+.iv-better { padding: 14px 16px; border-left: 3px solid var(--teal); border-radius: 0 12px 12px 0; background: rgba(110,231,210,.07); }
+.iv-better p { line-height: 1.6; color: #E5E8EE; }
+.iv-better-code { margin: 0; padding: 12px; border-radius: 10px; background: var(--bg); overflow-x: auto; font: 400 13px/1.55 var(--mono); color: #E5E8EE; white-space: pre; }
+.iv-said summary { cursor: pointer; font: 500 13px var(--mono); color: var(--dimmer); }
+.iv-said p { margin-top: 8px; color: var(--muted); line-height: 1.6; white-space: pre-wrap; }
+.iv-said pre { margin-top: 8px; }
+@media (max-width: 640px) { .iv-overall { flex-direction: column; text-align: center; } .iv-overall-text { text-align: center; } .iv-twocol { grid-template-columns: 1fr; } }
+
+.hist-item summary .iv-chip { width: 32px; height: 32px; font-size: 16px; }
+.hist-summary { padding: 14px 18px 4px; }
+.hist-better { padding-left: 12px; border-left: 3px solid var(--teal); color: #E5E8EE; }
