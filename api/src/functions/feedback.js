@@ -1,7 +1,8 @@
 // POST /api/feedback — AI grades (A to F), feedback and better-answer examples for a finished interview.
 // The browser sends a few answers per request (the server has about 45 seconds per call), then one request for the overall summary.
 // Settings (Azure app settings):
-//   AI_FEEDBACK_MODEL          default: AI_MODEL, then claude-opus-5-5
+//   OPENAI_FEEDBACK_MODEL      default: OPENAI_MODEL, then gpt-4.1-mini (used when OPENAI_API_KEY is set)
+//   AI_FEEDBACK_MODEL          Anthropic model, default: AI_MODEL, then claude-opus-5-5
 //   DAILY_AI_FEEDBACK_CALLS    per-user daily limit on these requests, default 60 (about 6 interviews)
 const { app } = require('@azure/functions');
 const { makeFeedbackHandler } = require('../feedback');
@@ -11,6 +12,12 @@ const deps = {
   verifyToken: infra.verifyToken,
   consumeUsage: (uid, day, limit) => infra.consumeUsage(uid, day, limit, 'feedback'),
   callModel: async (system, user, schema) => {
+    if (infra.useOpenAI()) {
+      return infra.openaiChat(system, user, {
+        model: process.env.OPENAI_FEEDBACK_MODEL || process.env.OPENAI_MODEL || 'gpt-4.1-mini',
+        maxTokens: 6000, timeoutMs: 38000, schema: schema, schemaName: 'feedback'
+      });
+    }
     const res = await infra.client().messages.create({
       model: process.env.AI_FEEDBACK_MODEL || process.env.AI_MODEL || 'claude-opus-5-5',
       max_tokens: 6000,
