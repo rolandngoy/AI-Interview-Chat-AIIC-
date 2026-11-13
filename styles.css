@@ -514,3 +514,14 @@ button { font-family: inherit; }
 .tag.is-speaking::before { background: var(--teal); box-shadow: 0 0 8px 2px rgba(110,231,210,.7); }
 .tag-left { left: 2%; }
 .tag-right { right: 2%; }
+
+/* Makenzie's smile already shows teeth: her lower jaw moves and a dark gap shows behind it. */
+.gap { position: absolute; inset: 0; clip-path: var(--gap); background: linear-gradient(180deg, #3d1114, #1a0507); pointer-events: none; }
+.jaw { position: absolute; inset: 0; clip-path: var(--jaw); will-change: transform; pointer-events: none; }
+.jaw img { position: absolute; inset: 0; }
+.iv-answer[readonly] { cursor: default; background: rgba(255,255,255,.03); }
+.iv-hist-head { display: flex; justify-content: space-between; gap: 16px; }
+.iv-history li { flex-direction: column; }
+.iv-history details { margin-top: 8px; color: var(--muted); }
+.iv-history summary { cursor: pointer; font: 500 13px var(--mono); color: var(--dimmer); }
+.iv-history details ul { display: flex; flex-direction: column; gap: 6px; padding: 8px 0 0 18px; list-style: disc; font-size: 14px; line-height: 1.5; }

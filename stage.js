@@ -15,7 +15,7 @@
     caption = document.getElementById('stageCaption');
     document.querySelectorAll('[data-seat]').forEach(function (el) {
       seats[el.dataset.seat] = {
-        el: el, fig: el.querySelector('.figure'), mouth: el.querySelector('.mouth'),
+        el: el, fig: el.querySelector('.figure'), mouth: el.querySelector('.mouth'), jaw: el.querySelector('.jaw'), gap: el.querySelector('.gap'),
         speaking: false, open: 0, phase: Math.random() * 6, pulse: 0, seed: Math.random() * 100
       };
     });
@@ -40,8 +40,12 @@
       s.pulse = Math.max(0, s.pulse - dt * 4);
       s.open += (target - s.open) * Math.min(1, dt * 22);
       const o = s.open;
+      if (s.gap) s.gap.style.opacity = o > 0.04 ? '1' : '0';
+      if (s.jaw) s.jaw.style.transform = 'translateY(' + (o * 0.6).toFixed(3) + '%)';   // lower jaw drops, dark gap shows behind it
+      if (s.mouth) {
       s.mouth.style.opacity = o > 0.05 ? '1' : '0';
       s.mouth.style.transform = 'translate(-50%,-50%) rotate(' + (s.mouth.dataset.tilt || 0) + 'deg) scale(' + (1 + o * 0.1) + ',' + o.toFixed(3) + ')';
+      }
 
       // Body: breathing and a slow sway; a head bob while talking; a small nod while listening.
       const breathe = Math.sin(t / 1500 + s.seed), sway = Math.sin(t / 2600 + s.seed * 1.7);
