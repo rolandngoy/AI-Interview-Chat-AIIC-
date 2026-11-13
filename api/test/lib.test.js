@@ -13,6 +13,7 @@ assert.strictEqual(validate({ interviewer: 'roland', role: 'R', question: 'q', a
 // prompts
 const sys = buildSystem(v.value.persona, 'Nurse');
 assert.ok(sys.includes('Makenzie') && sys.includes('Nurse') && sys.includes('untrusted'));
+assert.ok(/specific detail/.test(sys) && /builds directly on something specific/.test(sys));
 assert.ok(buildUser(v.value).includes('<answer>I did X</answer>') && buildUser(v.value).includes('allowed'));
 
 // parseReply

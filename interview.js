@@ -872,12 +872,40 @@
   ];
   // Between questions the interviewers only acknowledge. All feedback is saved for the end.
   const NEUTRAL = ['Okay, thank you.', 'Got it, thanks.', 'Alright, thank you for that.', 'Mm-hm. Thank you.', 'Understood, thank you.'];
+  // Used when the AI is unavailable. It still picks something the candidate actually said and responds to it.
+  const STOP = new Set(('about above after again also always another because been before being between both build built could did does doing during each even every first from further have having here how however into just like make many more most much need never only other over really same should since some something still such take than that their them then there these they thing this those through time under until very want well were what when where which while will with without would your you and are but for not the was can get got has had its our out use used one two been being work worked working team people things lot kind sort').split(' '));
+  function keyDetail(text) {
+    const sentences = text.split(/(?<=[.!?])\s+/).filter((s) => s.trim());
+    // a number with a unit or a % ("20%", "3 weeks"), then a name or tool in the middle of a sentence ("Excel"), then the longest uncommon word
+    const num = text.match(/\b\d[\d,.]*(\s?%|\s(percent|hours?|days?|weeks?|months?|years?|people|users|customers|patients|clients|students|dollars)\b)/i);
+    if (num) return num[0];
+    for (let i = 0; i < sentences.length; i++) {
+      const words = sentences[i].split(/\s+/).slice(1).map((w) => w.replace(/[^A-Za-z0-9+#.-]/g, '')).filter((w) => /^[A-Z][A-Za-z0-9+#.-]{2,}$/.test(w) && w !== 'I');
+      if (words.length) return words[0];
+    }
+    const counts = {};
+    (text.toLowerCase().match(/[a-z][a-z'-]{4,}/g) || []).forEach((w) => { if (!STOP.has(w)) counts[w] = (counts[w] || 0) + 1; });
+    const ranked = Object.keys(counts).sort((a, b) => (counts[b] - counts[a]) || (b.length - a.length));
+    return ranked[0] || '';
+  }
   function localReply(q, text, canFollowUp) {
-    const wc = wordCount(text), hasNumber = /\d/.test(text);
     if (q === CLOSING) return { reaction: 'Thanks for asking. We will wrap up there.', followUp: null };
-    const reaction = pickOne(NEUTRAL);
+    const wc = wordCount(text), hasNumber = /\d/.test(text);
+    const detail = keyDetail(text);
+    const reaction = detail && wc >= 12
+      ? pickOne(['Okay, thank you. I noted what you said about ' + detail + '.', 'Got it. I see where ' + detail + ' fits in.', 'Alright, thanks. Good to know about ' + detail + '.'])
+      : pickOne(NEUTRAL);
     const thin = wc < 60 || !hasNumber;
-    const followUp = canFollowUp && (Math.random() < (thin ? 0.75 : 0.3)) ? pickOne(isIntern ? INTERN_FOLLOW_UPS : FOLLOW_UPS) : null;
+    let followUp = null;
+    if (canFollowUp && (Math.random() < (thin ? 0.8 : 0.4))) {
+      if (detail && wc >= 12) {
+        followUp = pickOne(isIntern
+          ? ['You brought up ' + detail + '. How would you approach that, step by step?', 'When you mentioned ' + detail + ', what would you do first, and why?', 'You mentioned ' + detail + '. What could go wrong there, and how would you handle it?']
+          : ['You mentioned ' + detail + '. Can you tell me more about that?', 'When you talked about ' + detail + ', what did you personally do?', 'You brought up ' + detail + '. What was the result, and how did you know it worked?']);
+      } else {
+        followUp = pickOne(isIntern ? INTERN_FOLLOW_UPS : FOLLOW_UPS);
+      }
+    }
     return { reaction: reaction, followUp: followUp };
   }
   async function getReply(q, text) {
