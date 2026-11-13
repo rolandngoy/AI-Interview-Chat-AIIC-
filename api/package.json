@@ -1,0 +1,15 @@
+{
+  "name": "aiic-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI interviewer API for AI Interview Chat (Azure Static Web Apps managed functions)",
+  "main": "src/functions/*.js",
+  "scripts": {
+    "test": "node test/lib.test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
+    "@azure/functions": "^4.17.1",
+    "firebase-admin": "^14.5.1"
+  }
+}

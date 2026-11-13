@@ -212,6 +212,45 @@
 
   let questions, index, results, sessionId;
 
+  /* ---------- AI interviewer persona ---------- */
+  const PEOPLE = window.AIIC_INTERVIEWERS || {};
+  const PERSON_IDS = Object.keys(PEOPLE);
+  let personaId = PERSON_IDS[Math.floor(Math.random() * PERSON_IDS.length)];
+  let followUps = new Set(), followUpCount = 0, pendingFollowUp = null, replyToken = 0, aiOff = false;
+  const MAX_FOLLOW_UPS = 4;
+  const persona = () => PEOPLE[personaId];
+
+  function renderPersona() {
+    const p = persona();
+    if (!p) return;
+    $('ivAvatarImg').src = p.img; $('ivReplyImg').src = p.img;
+    $('ivIName').textContent = p.name; $('ivITitle').textContent = p.title;
+    $('ivSwitch').querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.id === personaId));
+  }
+  function buildSwitch() {
+    const box = $('ivSwitch');
+    if (PERSON_IDS.length < 2) { box.classList.add('hidden'); return; }
+    PERSON_IDS.forEach(function (id) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.dataset.id = id; b.className = 'iv-pick';
+      b.setAttribute('aria-label', 'Interview with ' + PEOPLE[id].name);
+      const img = document.createElement('img'); img.src = PEOPLE[id].img; img.alt = '';
+      b.append(img, document.createTextNode(PEOPLE[id].name));
+      b.addEventListener('click', function () { if (id !== personaId) { personaId = id; stopSpeaking(); renderPersona(); } });
+      box.appendChild(b);
+    });
+  }
+  function pickVoice(p) {
+    const voices = speechSynthesis.getVoices().filter((v) => /^en/i.test(v.lang));
+    for (let i = 0; i < p.voiceHints.length; i++) {
+      const v = voices.find((x) => x.name.indexOf(p.voiceHints[i]) !== -1);
+      if (v) return v;
+    }
+    // Otherwise give each interviewer a different installed English voice.
+    return voices.length ? voices[PERSON_IDS.indexOf(p.id) % voices.length] : null;
+  }
+  const setSpeakingUi = (on) => document.querySelectorAll('.iv-avatar').forEach((a) => a.classList.toggle('speaking', on));
+
   function persist(complete) {
     if (!results.length || !window.AIIC_STORE) return;
     AIIC_STORE.saveSession(user, { id: sessionId, role: role, date: sessionId, total: questions.length, complete: complete, results: results });
@@ -236,19 +275,24 @@
   let recognizer = null, listening = false, usedVoice = false, baseText = '';
 
   const questionText = (q) => (typeof q === 'object' ? q.prompt : q);
+  const spokenText = (q) => (index === 0 && persona() ? persona().greeting(role) + ' ' : '') + questionText(q);
   const voiceAllowed = (q) => typeof q !== 'object' && PRACTICAL.indexOf(q) === -1;
 
   function setListenUi(on) {
     $('ivListenLabel').textContent = on ? 'Stop listening' : 'Listen to question';
     $('ivListen').setAttribute('aria-pressed', on);
   }
-  function stopSpeaking() { if (canSpeak) { speechSynthesis.cancel(); setListenUi(false); } }
+  function stopSpeaking() { if (canSpeak) { speechSynthesis.cancel(); setListenUi(false); setSpeakingUi(false); } }
   function speak(text) {
     if (!canSpeak) return;
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'en-US'; u.rate = 0.95;
-    u.onend = u.onerror = function () { setListenUi(false); };
+    const p = persona();
+    u.lang = 'en-US'; u.rate = p ? p.rate : 0.95; u.pitch = p ? p.pitch : 1;
+    const v = p && pickVoice(p);
+    if (v) u.voice = v;
+    u.onstart = function () { setSpeakingUi(true); };
+    u.onend = u.onerror = function () { setListenUi(false); setSpeakingUi(false); };
     setListenUi(true);
     speechSynthesis.speak(u);
   }
@@ -309,7 +353,7 @@
       if (!SpeechRec) $('ivMicStatus').textContent = 'Voice answers are not supported in this browser. Try Chrome, Edge or Safari.';
       else if (!allowed) $('ivMicStatus').textContent = 'This is a hands-on question, so please type your answer.';
     }
-    if (canSpeak && $('ivAutoRead').checked) speak(questionText(q)); else stopSpeaking();
+    if (canSpeak && $('ivAutoRead').checked) speak(spokenText(q)); else stopSpeaking();
   }
 
   function showQuestion() {
@@ -318,8 +362,11 @@
     $('ivQuestion').textContent = isCode ? 'Coding problem: ' + q.prompt : q;
     $('ivForm').classList.toggle('hidden', isCode);
     $('ivCodeForm').classList.toggle('hidden', !isCode);
-    $('ivCount').textContent = 'Question ' + (index + 1) + ' of ' + questions.length;
+    $('ivCount').textContent = (followUps.has(q) ? 'Follow-up · ' : '') + 'Question ' + (index + 1) + ' of ' + questions.length;
     $('ivBar').style.width = (index / questions.length * 100) + '%';
+    const greet = $('ivGreeting');
+    greet.classList.toggle('hidden', !(index === 0 && persona()));
+    if (index === 0 && persona()) greet.textContent = persona().greeting(role);
     show('ivQuestionView');
     setupVoiceForQuestion(q);
     if (isCode) {
@@ -425,36 +472,116 @@
     questions = buildQuestions();
     index = 0;
     results = [];
+    followUps = new Set(); followUpCount = 0; pendingFollowUp = null; replyToken++; aiOff = false;
     sessionId = Date.now();
     showQuestion();
   }
 
   $('ivRole').textContent = role;
+  buildSwitch();
+  renderPersona();
   $('ivAnswer').addEventListener('input', function () {
     const n = this.value.trim().split(/\s+/).filter(Boolean).length;
     $('ivWords').textContent = n + (n === 1 ? ' word' : ' words');
   });
+  /* ---------- the interviewer's spoken reaction and follow-up (calls /api/interviewer) ---------- */
+  // A later question that can be dropped so a follow-up keeps the interview at 15 questions.
+  function removableIndex() {
+    for (let r = questions.length - 2; r >= index + 1; r--) {
+      const q = questions[r];
+      if (typeof q === 'string' && !followUps.has(q)) return r;
+    }
+    return -1;
+  }
+  function canFollowUpNow(q) {
+    return typeof q === 'string' && q !== CLOSING && !followUps.has(q) && followUpCount < MAX_FOLLOW_UPS && removableIndex() !== -1;
+  }
+
+  async function askInterviewer(q, answer, canFollowUp) {
+    if (aiOff || !window.AIIC_AUTH || !AIIC_AUTH.configured || !AIIC_AUTH.auth || !AIIC_AUTH.auth.currentUser) return null;
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 25000);
+    try {
+      const token = await AIIC_AUTH.auth.currentUser.getIdToken();
+      const res = await fetch('/api/interviewer', {
+        method: 'POST', signal: ctl.signal,
+        headers: { 'Content-Type': 'application/json', 'X-Firebase-Token': token },
+        body: JSON.stringify({ interviewer: personaId, role: role, question: q, answer: answer, canFollowUp: canFollowUp })
+      });
+      if (res.status === 429) { aiOff = true; return { limit: true }; }
+      if (res.status === 401) { aiOff = true; return null; }
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (e) { return null; } finally { clearTimeout(timer); }
+  }
+
+  async function runInterviewerReply(q, answer) {
+    const token = ++replyToken;
+    pendingFollowUp = null;
+    $('ivNext').disabled = false;
+    const box = $('ivReply');
+    box.classList.add('hidden');
+    $('ivReplyText').textContent = ''; $('ivReplyFollow').classList.add('hidden');
+    $('ivReplyListen').classList.add('hidden');
+    if (aiOff || !AIIC_AUTH || !AIIC_AUTH.configured) return;
+    const p = persona();
+    box.classList.remove('hidden');
+    $('ivTyping').textContent = p.name + ' is typing…'; $('ivTyping').classList.remove('hidden');
+    $('ivNext').disabled = true;
+
+    const out = await askInterviewer(q, answer, canFollowUpNow(q));
+    if (token !== replyToken) return; // moved on already
+    $('ivTyping').classList.add('hidden');
+    $('ivNext').disabled = false;
+    if (!out || (!out.reaction && !out.limit)) { box.classList.add('hidden'); return; }
+    if (out.limit) {
+      $('ivReplyText').textContent = 'You\'ve reached today\'s limit for live interviewer replies, so the rest of this interview uses the standard questions. It resets tomorrow.';
+      return;
+    }
+    $('ivReplyText').textContent = out.reaction;
+    let spoken = out.reaction;
+    if (out.followUp) {
+      pendingFollowUp = out.followUp;
+      $('ivReplyFollow').textContent = out.followUp;
+      $('ivReplyFollow').classList.remove('hidden');
+      $('ivNext').textContent = 'Answer follow-up';
+      spoken += ' ' + out.followUp;
+    }
+    if (canSpeak) {
+      $('ivReplyListen').classList.remove('hidden');
+      $('ivReplyListen').dataset.text = spoken;
+      if ($('ivAutoRead').checked) speak(spoken);
+    }
+  }
+
+  $('ivReplyListen').addEventListener('click', function () {
+    if (canSpeak && speechSynthesis.speaking) stopSpeaking(); else speak(this.dataset.text || '');
+  });
+
   $('ivForm').addEventListener('submit', function (e) {
     e.preventDefault();
     const text = $('ivAnswer').value.trim();
     if (!text) return;
     const s = score(text, usedVoice);
     stopVoice();
-    results.push({ q: questions[index], a: text, s: s });
+    const asked = questions[index];
+    results.push({ q: (followUps.has(asked) ? 'Follow-up: ' : '') + asked, a: text, s: s });
     persist(false);
     renderScores($('ivScores'), s);
+    $('ivReply').classList.add('hidden');
     $('ivTips').replaceChildren.apply($('ivTips'), s.tips.map((t) => { const li = document.createElement('li'); li.textContent = t; return li; }));
     $('ivNext').textContent = index === questions.length - 1 ? 'See results' : 'Next question';
     show('ivFeedbackView');
     $('ivNext').focus();
+    runInterviewerReply(asked, text);
   });
   $('ivListen').addEventListener('click', function () {
-    if (canSpeak && speechSynthesis.speaking) stopSpeaking(); else speak(questionText(questions[index]));
+    if (canSpeak && speechSynthesis.speaking) stopSpeaking(); else speak(spokenText(questions[index]));
   });
   try { $('ivAutoRead').checked = localStorage.getItem('aiic_autoread') === '1'; } catch (e) {}
   $('ivAutoRead').addEventListener('change', function () {
     try { localStorage.setItem('aiic_autoread', this.checked ? '1' : '0'); } catch (e) {}
-    if (this.checked) speak(questionText(questions[index])); else stopSpeaking();
+    if (this.checked) speak(spokenText(questions[index])); else stopSpeaking();
   });
   $('ivMic').addEventListener('click', function () { if (listening) stopVoice(); else startVoice(); });
   window.addEventListener('pagehide', function () { stopVoice(); stopSpeaking(); });
@@ -497,6 +624,18 @@
   });
 
   $('ivNext').addEventListener('click', function () {
+    replyToken++; stopSpeaking();
+    if (pendingFollowUp) {
+      const r = removableIndex();
+      if (r !== -1) {
+        questions.splice(r, 1);
+        questions.splice(index + 1, 0, pendingFollowUp);
+        followUps.add(pendingFollowUp);
+        followUpCount++;
+      }
+      pendingFollowUp = null;
+    }
+    $('ivReply').classList.add('hidden');
     index++;
     if (index >= questions.length) showSummary(); else showQuestion();
   });

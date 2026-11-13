@@ -77,3 +77,28 @@ Accounts and practice history are stored in Firebase so they follow users across
 5. **Project settings → Your apps → Web (`</>`).** Register an app and copy the config values into `config.js`.
 
 The values in `config.js` are public by design; the Firestore rules are what keep each user's history private.
+
+## AI interviewers (Claude)
+
+Two AI interviewers, Makenzie and Roland, react to each answer in character and sometimes ask a follow-up question. The browser calls `/api/interviewer`, a small Azure Function in `api/` that is deployed with the site. The Anthropic key never reaches the browser.
+
+**One-time setup**
+
+1. Create an API key at [console.anthropic.com](https://console.anthropic.com), and set a monthly **spend limit** there.
+2. In Firebase: **Project settings → Service accounts → Generate new private key.** This downloads a JSON file.
+3. In the Azure portal, open your Static Web App → **Settings → Environment variables** and add:
+
+   | Name | Value |
+   |---|---|
+   | `ANTHROPIC_API_KEY` | your Anthropic API key |
+   | `FIREBASE_SERVICE_ACCOUNT` | the full contents of the service account JSON |
+   | `DAILY_AI_REPLIES` | optional: interviewer replies per user per day (default `60`, about 4 interviews) |
+   | `AI_MODEL` | optional: defaults to `claude-opus-5-5`. `claude-haiku-5-5` is much cheaper and faster. |
+
+4. Push to `main`. The workflow deploys the `api/` folder with the site.
+
+If the key is missing, the limit is reached, or the API is down, interviews carry on with the built-in questions.
+
+**Characters:** the faces and voices are in `interviewers.js` and the personalities are in `api/src/personas.js`. Photos are in `images/` (full-size originals are kept locally in `images/originals/`, which git ignores).
+
+**Tests:** `cd api && npm install && npm test`.

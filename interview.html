@@ -33,6 +33,15 @@
     <p class="mono small iv-count" id="ivCount"></p>
 
     <section id="ivQuestionView">
+      <div class="iv-interviewer">
+        <div class="iv-avatar" id="ivAvatar"><img id="ivAvatarImg" alt=""></div>
+        <div class="iv-who">
+          <strong id="ivIName"></strong>
+          <span class="mono small" id="ivITitle"></span>
+        </div>
+        <div class="iv-switch" id="ivSwitch" role="group" aria-label="Choose your interviewer"></div>
+      </div>
+      <div class="iv-bubble iv-bubble-soft hidden" id="ivGreeting"></div>
       <div class="iv-bubble" id="ivQuestion" aria-live="polite"></div>
       <div class="iv-tools" id="ivTools">
         <button type="button" class="btn btn-ghost btn-sm" id="ivListen" aria-pressed="false">
@@ -74,6 +83,15 @@
     </section>
 
     <section id="ivFeedbackView" class="hidden" aria-live="polite">
+      <div class="iv-reply hidden" id="ivReply">
+        <div class="iv-avatar iv-avatar-sm"><img id="ivReplyImg" alt=""></div>
+        <div class="iv-reply-body">
+          <p class="mono small iv-typing hidden" id="ivTyping"></p>
+          <p id="ivReplyText"></p>
+          <p class="iv-reply-follow hidden" id="ivReplyFollow"></p>
+          <button type="button" class="btn btn-accent btn-sm hidden" id="ivReplyListen">Listen</button>
+        </div>
+      </div>
       <div class="iv-scores" id="ivScores"></div>
       <ul class="iv-tips" id="ivTips"></ul>
       <button type="button" class="btn btn-accent btn-md" id="ivNext">Next question</button>
@@ -100,6 +118,7 @@
   <script src="profile.js"></script>
   <script src="questions.js"></script>
   <script src="codeproblems.js"></script>
+  <script src="interviewers.js"></script>
   <script src="interview.js"></script>
 </body>
 </html>
