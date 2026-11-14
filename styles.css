@@ -688,3 +688,32 @@ body.is-assessment .iv-overall,
 body.is-assessment #ivTwoCol,
 body.is-assessment #ivHistory { display: none !important; }
 @media (max-width: 560px) { .co-list { grid-template-columns: 1fr; } .co-title { font-size: 28px; } }
+
+/* ---------- company dashboard: applicants sidebar ---------- */
+.co-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 28px; align-items: start; }
+.co-side { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 10px; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--bg-3); max-height: calc(100vh - 32px); }
+.co-side.hidden + .co-main { grid-column: 1 / -1; }
+.co-nav-item, .co-side-item { width: 100%; border: 0; border-radius: 12px; font: 500 14px var(--sans); text-align: left; cursor: pointer; color: var(--text); background: color-mix(in srgb, var(--teal) 14%, var(--bg-3)); }
+.co-nav-item { padding: 12px 14px; background: var(--teal); color: var(--bg); font-weight: 600; }
+.co-nav-item:hover { filter: brightness(1.08); }
+.co-side-h { margin-top: 6px; color: var(--dimmer); text-transform: uppercase; letter-spacing: .06em; }
+.co-side-search { min-height: 40px; padding: 8px 12px; font-size: 14px; }
+.co-side-list { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; min-height: 0; }
+.co-side-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+.co-side-item:hover { background: color-mix(in srgb, var(--teal) 28%, var(--bg-3)); }
+.co-side-item.is-active { background: var(--teal); color: var(--bg); }
+.co-side-name { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.co-side-name strong, .co-side-name .small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.co-side-name .small { opacity: .75; }
+.co-side-state { flex-shrink: 0; opacity: .75; }
+.co-side-empty { color: var(--muted); line-height: 1.5; padding: 4px 2px; }
+.co-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; background: #8B93A1; }
+.co-dot-done { background: #4ADE80; }
+.co-dot-progress { background: #FFB86B; }
+.co-app-item { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.co-app-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+@media (max-width: 860px) {
+  .co-layout { grid-template-columns: 1fr; }
+  .co-side { position: static; max-height: none; }
+  .co-side-list { max-height: 240px; }
+}

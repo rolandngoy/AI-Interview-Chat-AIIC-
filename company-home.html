@@ -26,94 +26,112 @@
 
     <p class="login-msg center" id="cLoading">Loading…</p>
 
-    <!-- Signed in, but not with Microsoft or Google -->
-    <section id="cNotCompany" class="hidden co-center">
-      <h1 class="login-title">Company tools</h1>
-      <p class="body-lg center">Company tools need a Microsoft or Google log in. Log out, then use “Sign in with Microsoft” or “Sign in with Google” on the Company page.</p>
-      <button type="button" class="btn btn-teal btn-md" id="cSwitch">Log out and go to Company log in</button>
-    </section>
+    <div class="co-layout">
+      <aside class="co-side hidden" id="cSide" aria-label="Company navigation">
+        <button type="button" class="co-nav-item" id="sAssess">Your assessments</button>
+        <h2 class="co-side-h mono small">Applicants <span id="sCount"></span></h2>
+        <input type="search" class="co-input co-side-search" id="sSearch" placeholder="Search applicants" aria-label="Search applicants">
+        <div class="co-side-list" id="sList"><p class="co-side-empty small">Loading…</p></div>
+      </aside>
+      <div class="co-main">
+      <!-- Signed in, but not with Microsoft or Google -->
+      <section id="cNotCompany" class="hidden co-center">
+        <h1 class="login-title">Company tools</h1>
+        <p class="body-lg center">Company tools need a Microsoft or Google log in. Log out, then use “Sign in with Microsoft” or “Sign in with Google” on the Company page.</p>
+        <button type="button" class="btn btn-teal btn-md" id="cSwitch">Log out and go to Company log in</button>
+      </section>
 
-    <!-- List of pre-assessments -->
-    <section id="cListView" class="hidden">
-      <div class="co-top">
-        <div>
-          <h1 class="login-title co-title" id="cTitle">Your assessments</h1>
-          <p class="co-sub" id="cWelcome">Create a pre-assessment, give each candidate the code, and review their interviews here.</p>
-        </div>
-        <button type="button" class="btn btn-teal btn-md" id="cNew">+ New pre-assessment</button>
-      </div>
-      <p class="co-empty hidden" id="cEmpty">You have no assessments yet. Click “+ New pre-assessment” to create one and get a code for your candidates.</p>
-      <div class="co-list" id="cList"></div>
-    </section>
-
-    <!-- Create or edit a pre-assessment -->
-    <section id="cEditView" class="hidden">
-      <div><button type="button" class="btn btn-ghost btn-sm co-back">← All pre-assessments</button></div>
-      <h1 class="login-title co-title" id="eHeading">New pre-assessment</h1>
-      <form id="eForm" class="co-form" novalidate>
-        <div class="co-grid">
-          <label class="co-field"><span class="mono small">Company name</span>
-            <input class="co-input" name="company" maxlength="120" required placeholder="Contoso Ltd.">
-          </label>
-          <label class="co-field"><span class="mono small">Title</span>
-            <input class="co-input" name="title" maxlength="120" required placeholder="Frontend Developer screening">
-          </label>
-          <label class="co-field"><span class="mono small">Role</span>
-            <input class="co-input" name="role" maxlength="80" required list="eRoles" placeholder="Frontend Developer">
-          </label>
-          <label class="co-field"><span class="mono small">Code for candidates</span>
-            <span class="co-row">
-              <input class="co-input co-code" name="code" maxlength="20" required placeholder="ABCD-1234" autocomplete="off" spellcheck="false">
-              <button type="button" class="btn btn-ghost btn-sm" id="eGen">Generate</button>
-            </span>
-            <span class="small co-hint" id="eCodeHint">4–20 letters, numbers or dashes. Candidates type this on the Pre-assessment page.</span>
-          </label>
-        </div>
-        <datalist id="eRoles"></datalist>
-
-        <h2 class="co-h2">Questions <span class="mono small co-count" id="eCount"></span></h2>
-        <p class="co-sub">The candidate is asked exactly these questions, in this order. Write your own, add some from the practice questions, or both.</p>
-        <ol class="co-qs" id="eQs"></ol>
-
-        <div class="co-add">
-          <label class="co-field"><span class="mono small">Write your own question</span>
-            <textarea class="co-input" id="eOwn" rows="2" maxlength="500" placeholder="Tell me about a time you…"></textarea>
-          </label>
-          <button type="button" class="btn btn-ghost btn-sm" id="eAddOwn">Add question</button>
-        </div>
-
-        <details class="co-bank" id="eBank">
-          <summary>Add from the practice questions</summary>
-          <div class="co-bank-body">
-            <label class="co-field"><span class="mono small">Role</span>
-              <select class="co-input" id="eBankRole"></select>
-            </label>
-            <div class="co-bank-list" id="eBankList"></div>
-            <button type="button" class="btn btn-teal btn-sm" id="eBankAdd">Add selected questions</button>
+      <!-- List of pre-assessments -->
+      <section id="cListView" class="hidden">
+        <div class="co-top">
+          <div>
+            <h1 class="login-title co-title" id="cTitle">Your assessments</h1>
+            <p class="co-sub" id="cWelcome">Create a pre-assessment, give each candidate the code, and review their interviews here.</p>
           </div>
-        </details>
-
-        <h2 class="co-h2">Candidates <span class="mono small co-count" id="eCandCount"></span></h2>
-        <p class="co-sub">Only these emails can use the code. Candidates log in on the Pre-assessment page with their email and the code; they do not need an account. Separate emails with commas or new lines.</p>
-        <textarea class="co-input" name="candidates" rows="4" placeholder="jordan@example.com, sam@example.com"></textarea>
-
-        <p class="login-msg co-msg" id="eMsg" role="alert"></p>
-        <div class="co-actions">
-          <button type="button" class="btn btn-ghost btn-md co-back">Cancel</button>
-          <button type="submit" class="btn btn-teal btn-md" id="eSave">Save pre-assessment</button>
+          <button type="button" class="btn btn-teal btn-md" id="cNew">+ New pre-assessment</button>
         </div>
-      </form>
-    </section>
+        <p class="co-empty hidden" id="cEmpty">You have no assessments yet. Click “+ New pre-assessment” to create one and get a code for your candidates.</p>
+        <div class="co-list" id="cList"></div>
+      </section>
 
-    <!-- Review candidates' sessions -->
-    <section id="cReviewView" class="hidden">
-      <div><button type="button" class="btn btn-ghost btn-sm co-back">← All pre-assessments</button></div>
-      <h1 class="login-title co-title" id="rHeading">Sessions</h1>
-      <p class="co-sub" id="rSub"></p>
-      <div class="iv-scores co-stats" id="rStats"></div>
-      <p class="login-msg center" id="rLoading">Loading sessions…</p>
-      <div class="hist-list" id="rList"></div>
-    </section>
+      <!-- Create or edit a pre-assessment -->
+      <section id="cEditView" class="hidden">
+        <div><button type="button" class="btn btn-ghost btn-sm co-back">← All pre-assessments</button></div>
+        <h1 class="login-title co-title" id="eHeading">New pre-assessment</h1>
+        <form id="eForm" class="co-form" novalidate>
+          <div class="co-grid">
+            <label class="co-field"><span class="mono small">Company name</span>
+              <input class="co-input" name="company" maxlength="120" required placeholder="Contoso Ltd.">
+            </label>
+            <label class="co-field"><span class="mono small">Title</span>
+              <input class="co-input" name="title" maxlength="120" required placeholder="Frontend Developer screening">
+            </label>
+            <label class="co-field"><span class="mono small">Role</span>
+              <input class="co-input" name="role" maxlength="80" required list="eRoles" placeholder="Frontend Developer">
+            </label>
+            <label class="co-field"><span class="mono small">Code for candidates</span>
+              <span class="co-row">
+                <input class="co-input co-code" name="code" maxlength="20" required placeholder="ABCD-1234" autocomplete="off" spellcheck="false">
+                <button type="button" class="btn btn-ghost btn-sm" id="eGen">Generate</button>
+              </span>
+              <span class="small co-hint" id="eCodeHint">4–20 letters, numbers or dashes. Candidates type this on the Pre-assessment page.</span>
+            </label>
+          </div>
+          <datalist id="eRoles"></datalist>
+
+          <h2 class="co-h2">Questions <span class="mono small co-count" id="eCount"></span></h2>
+          <p class="co-sub">The candidate is asked exactly these questions, in this order. Write your own, add some from the practice questions, or both.</p>
+          <ol class="co-qs" id="eQs"></ol>
+
+          <div class="co-add">
+            <label class="co-field"><span class="mono small">Write your own question</span>
+              <textarea class="co-input" id="eOwn" rows="2" maxlength="500" placeholder="Tell me about a time you…"></textarea>
+            </label>
+            <button type="button" class="btn btn-ghost btn-sm" id="eAddOwn">Add question</button>
+          </div>
+
+          <details class="co-bank" id="eBank">
+            <summary>Add from the practice questions</summary>
+            <div class="co-bank-body">
+              <label class="co-field"><span class="mono small">Role</span>
+                <select class="co-input" id="eBankRole"></select>
+              </label>
+              <div class="co-bank-list" id="eBankList"></div>
+              <button type="button" class="btn btn-teal btn-sm" id="eBankAdd">Add selected questions</button>
+            </div>
+          </details>
+
+          <h2 class="co-h2">Candidates <span class="mono small co-count" id="eCandCount"></span></h2>
+          <p class="co-sub">Only these emails can use the code. Candidates log in on the Pre-assessment page with their email and the code; they do not need an account. Separate emails with commas or new lines.</p>
+          <textarea class="co-input" name="candidates" rows="4" placeholder="jordan@example.com, sam@example.com"></textarea>
+
+          <p class="login-msg co-msg" id="eMsg" role="alert"></p>
+          <div class="co-actions">
+            <button type="button" class="btn btn-ghost btn-md co-back">Cancel</button>
+            <button type="submit" class="btn btn-teal btn-md" id="eSave">Save pre-assessment</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Review candidates' sessions -->
+      <section id="cReviewView" class="hidden">
+        <div><button type="button" class="btn btn-ghost btn-sm co-back">← All pre-assessments</button></div>
+        <h1 class="login-title co-title" id="rHeading">Sessions</h1>
+        <p class="co-sub" id="rSub"></p>
+        <div class="iv-scores co-stats" id="rStats"></div>
+        <p class="login-msg center" id="rLoading">Loading sessions…</p>
+        <div class="hist-list" id="rList"></div>
+      </section>
+
+      <!-- One applicant, across all of the company's assessments -->
+      <section id="cApplicantView" class="hidden">
+        <div><button type="button" class="btn btn-ghost btn-sm co-back">← All pre-assessments</button></div>
+        <h1 class="login-title co-title" id="aHeading">Applicant</h1>
+        <p class="co-sub" id="aSub"></p>
+        <div class="hist-list" id="aList"></div>
+      </section>
+      </div>
+    </div>
   </main>
   <script src="config.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>

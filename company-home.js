@@ -35,8 +35,92 @@
   let editing = null;   // the assessment being edited, or null for a new one
   let draftQs = [];     // questions in the editor
 
-  const VIEWS = ['cLoading', 'cNotCompany', 'cListView', 'cEditView', 'cReviewView'];
-  function show(id) { VIEWS.forEach((v) => $(v).classList.toggle('hidden', v !== id)); window.scrollTo(0, 0); }
+  const VIEWS = ['cLoading', 'cNotCompany', 'cListView', 'cEditView', 'cReviewView', 'cApplicantView'];
+  const WITH_SIDEBAR = ['cListView', 'cEditView', 'cReviewView', 'cApplicantView'];
+  function show(id) {
+    VIEWS.forEach((v) => $(v).classList.toggle('hidden', v !== id));
+    $('cSide').classList.toggle('hidden', WITH_SIDEBAR.indexOf(id) === -1);
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- applicants (the sidebar) ---------- */
+  let sessionsByCode = {};   // code -> that assessment's candidate sessions
+  let activeApplicant = null;
+
+  async function loadSessions() {
+    const out = {};
+    await Promise.all(mine.map(async function (a) {
+      try { out[a.code] = await A.sessionsFor(a.code); } catch (e) { out[a.code] = []; }
+    }));
+    sessionsByCode = out;
+  }
+
+  // Everyone the company has added to any assessment (or who somehow has a session), one entry per email.
+  function applicants() {
+    const m = {};
+    mine.forEach(function (a) {
+      const ss = sessionsByCode[a.code] || [];
+      const by = {};
+      ss.forEach((x) => { by[x.email] = x; });
+      a.candidates.concat(ss.map((x) => x.email).filter((e) => a.candidates.indexOf(e) === -1)).forEach(function (email) {
+        const p = m[email] || (m[email] = { email: email, name: '', items: [] });
+        if (by[email] && by[email].name) p.name = by[email].name;
+        p.items.push({ a: a, s: by[email] || null });
+      });
+    });
+    return Object.keys(m).map((k) => m[k]).sort((x, y) => (x.name || x.email).localeCompare(y.name || y.email));
+  }
+  const applicantState = (p) => p.items.some((i) => i.s && i.s.complete) ? 'done' : p.items.some((i) => i.s) ? 'progress' : 'invited';
+  const STATE_LABEL = { done: 'Completed', progress: 'In progress', invited: 'Invited' };
+
+  function renderSide() {
+    const all = applicants();
+    const q = $('sSearch').value.trim().toLowerCase();
+    const shown = all.filter((p) => !q || (p.name + ' ' + p.email).toLowerCase().indexOf(q) !== -1);
+    $('sCount').textContent = all.length ? '(' + all.length + ')' : '';
+    const list = $('sList');
+    list.replaceChildren();
+    if (!shown.length) {
+      list.appendChild(el('p', 'co-side-empty small', all.length ? 'No applicants match.' : 'No applicants yet. Add candidate emails to an assessment and they appear here.'));
+    }
+    shown.forEach(function (p) {
+      const st = applicantState(p);
+      const b = el('button', 'co-side-item' + (activeApplicant === p.email ? ' is-active' : ''));
+      b.type = 'button';
+      b.title = STATE_LABEL[st];
+      const dot = el('span', 'co-dot co-dot-' + st); dot.setAttribute('aria-hidden', 'true');
+      const t = el('span', 'co-side-name');
+      t.append(el('strong', null, p.name || p.email), p.name ? el('span', 'small', p.email) : document.createTextNode(''));
+      b.append(dot, t, el('span', 'co-side-state small', STATE_LABEL[st]));
+      b.addEventListener('click', () => openApplicant(p.email));
+      list.appendChild(b);
+    });
+  }
+  $('sSearch').addEventListener('input', renderSide);
+  $('sAssess').addEventListener('click', function () { activeApplicant = null; renderSide(); renderList(); show('cListView'); });
+
+  function openApplicant(email) {
+    activeApplicant = email;
+    renderSide();
+    const p = applicants().filter((x) => x.email === email)[0];
+    show('cApplicantView');
+    const list = $('aList');
+    list.replaceChildren();
+    if (!p) { $('aHeading').textContent = email; $('aSub').textContent = 'This applicant is no longer on any of your assessments.'; return; }
+    $('aHeading').textContent = p.name || p.email;
+    $('aSub').textContent = (p.name ? p.email + ' · ' : '') + p.items.length + (p.items.length === 1 ? ' assessment' : ' assessments');
+    p.items.forEach(function (i) {
+      const w = el('div', 'co-app-item');
+      const h = el('div', 'co-app-head');
+      const t = el('div');
+      t.append(el('strong', null, i.a.title), el('span', 'co-sub', ' ' + i.a.role + ' · code ' + i.a.code));
+      const go = el('button', 'btn btn-teal btn-sm', 'Open assessment'); go.type = 'button';
+      go.addEventListener('click', () => openReview(i.a));
+      h.append(t, go);
+      w.append(h, candidateRow(i.a, p.email, i.s, async function () { await loadSessions(); renderSide(); openApplicant(p.email); }));
+      list.appendChild(w);
+    });
+  }
 
   /* ---------- list ---------- */
   async function loadList() {
@@ -45,6 +129,8 @@
     catch (e) { mine = []; $('cLoading').textContent = 'Could not load your pre-assessments. Check your connection and refresh.'; return; }
     renderList();
     show('cListView');
+    await loadSessions();   // the applicants in the sidebar
+    renderSide();
   }
 
   function copyBtn(code) {
@@ -256,6 +342,44 @@
     return box;
   }
 
+  // One candidate's row: status, grade, AI summary and every answer. s is their session, or null if they have not started.
+  function candidateRow(a, email, s, onReset) {
+    const d = el('details', 'hist-item');
+    const sum = el('summary');
+    const who = el('span');
+    const status = !s ? 'Not started' : s.complete ? 'Completed ' + fmtDate(s.date) : 'In progress · ' + s.results.length + ' of ' + s.total + ' answered';
+    who.append(el('strong', null, s && s.name ? s.name : email), el('span', 'co-sub', ' ' + (s && s.name ? email + ' · ' : '') + status));
+    sum.appendChild(who);
+    if (s && s.results && s.results.length) {
+      const g = s.grade || G.overall(s.results);
+      sum.appendChild(el('strong', 'iv-chip grade-' + g, g));
+    }
+    d.appendChild(sum);
+    if (!s) {
+      d.appendChild(el('p', 'hist-a hist-summary', 'This candidate has not started yet. Send them the code ' + a.code + ' and ask them to open the Pre-assessment page.'));
+    } else {
+      if (s.overall && s.overall.summary) d.appendChild(el('p', 'hist-a hist-summary', s.overall.summary));
+      const lists = el('div', 'iv-twocol co-twocol');
+      const mkList = (title, items) => { const w = el('div'); w.appendChild(el('h3', 'mono small iv-h', title)); const ul = el('ul', 'iv-bullets'); (items || []).forEach((t) => ul.appendChild(el('li', null, t))); w.appendChild(ul); return w; };
+      if (s.overall && ((s.overall.strengths || []).length || (s.overall.focus || []).length)) {
+        lists.append(mkList('Strengths', s.overall.strengths), mkList('Areas to improve', s.overall.focus));
+        d.appendChild(lists);
+      }
+      (s.results || []).forEach((r) => d.appendChild(answerBox(r)));
+      const actions = el('div', 'co-actions co-actions-left co-pad');
+      const reset = el('button', 'btn btn-ghost btn-sm co-danger', 'Let them retake'); reset.type = 'button';
+      reset.addEventListener('click', async function () {
+        if (!confirm('Delete ' + email + '\'s answers so they can take the pre-assessment again?')) return;
+        reset.disabled = true;
+        try { await A.resetSession(a.code, s.uid); onReset(); }
+        catch (e) { reset.disabled = false; alert('Could not reset it. Please try again.'); }
+      });
+      actions.appendChild(reset);
+      d.appendChild(actions);
+    }
+    return d;
+  }
+
   async function openReview(a) {
     show('cReviewView');
     $('rHeading').textContent = a.title;
@@ -268,6 +392,7 @@
     try { sessions = await A.sessionsFor(a.code); }
     catch (e) { $('rLoading').textContent = 'Could not load sessions. Check your connection and try again.'; return; }
     $('rLoading').classList.add('hidden');
+    sessionsByCode[a.code] = sessions; renderSide();
 
     const byEmail = {};
     sessions.forEach((s) => { byEmail[s.email] = s; });
@@ -284,43 +409,7 @@
     const rank = (e) => { const s = byEmail[e]; return !s ? 0 : s.complete ? 100 + G.POINTS[s.grade || G.overall(s.results)] : 50; };
     emails.sort((x, y) => rank(y) - rank(x));
 
-    emails.forEach(function (email) {
-      const s = byEmail[email];
-      const d = el('details', 'hist-item');
-      const sum = el('summary');
-      const who = el('span');
-      const status = !s ? 'Not started' : s.complete ? 'Completed ' + fmtDate(s.date) : 'In progress · ' + s.results.length + ' of ' + s.total + ' answered';
-      who.append(el('strong', null, s && s.name ? s.name : email), el('span', 'co-sub', ' ' + (s && s.name ? email + ' · ' : '') + status));
-      sum.appendChild(who);
-      if (s && s.results && s.results.length) {
-        const g = s.grade || G.overall(s.results);
-        sum.appendChild(el('strong', 'iv-chip grade-' + g, g));
-      }
-      d.appendChild(sum);
-      if (!s) {
-        d.appendChild(el('p', 'hist-a hist-summary', 'This candidate has not started yet. Send them the code ' + a.code + ' and ask them to open the Pre-assessment page.'));
-      } else {
-        if (s.overall && s.overall.summary) d.appendChild(el('p', 'hist-a hist-summary', s.overall.summary));
-        const lists = el('div', 'iv-twocol co-twocol');
-        const mkList = (title, items) => { const w = el('div'); w.appendChild(el('h3', 'mono small iv-h', title)); const ul = el('ul', 'iv-bullets'); (items || []).forEach((t) => ul.appendChild(el('li', null, t))); w.appendChild(ul); return w; };
-        if (s.overall && ((s.overall.strengths || []).length || (s.overall.focus || []).length)) {
-          lists.append(mkList('Strengths', s.overall.strengths), mkList('Areas to improve', s.overall.focus));
-          d.appendChild(lists);
-        }
-        (s.results || []).forEach((r) => d.appendChild(answerBox(r)));
-        const actions = el('div', 'co-actions co-actions-left co-pad');
-        const reset = el('button', 'btn btn-ghost btn-sm co-danger', 'Let them retake'); reset.type = 'button';
-        reset.addEventListener('click', async function () {
-          if (!confirm('Delete ' + email + '\'s answers so they can take the pre-assessment again?')) return;
-          reset.disabled = true;
-          try { await A.resetSession(a.code, s.uid); openReview(a); }
-          catch (e) { reset.disabled = false; alert('Could not reset it. Please try again.'); }
-        });
-        actions.appendChild(reset);
-        d.appendChild(actions);
-      }
-      $('rList').appendChild(d);
-    });
+    emails.forEach((email) => $('rList').appendChild(candidateRow(a, email, byEmail[email], () => openReview(a))));
     if (!emails.length) $('rList').appendChild(el('p', 'co-empty', 'No candidates yet. Add their emails with Edit.'));
   }
 
