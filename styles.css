@@ -610,3 +610,11 @@ button { font-family: inherit; }
 .admin-table th { font: 500 12px var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--dimmer); }
 .admin-table tbody tr:last-child td { border-bottom: 0; }
 #aSearch { margin-top: 8px; }
+
+/* ---------- landing nav: Start practicing + Company + Pre-assessment ---------- */
+.nav-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.btn-teal { background: var(--teal); color: var(--bg); }
+.btn-teal:hover { color: var(--bg); filter: brightness(1.08); }
+.btn-amber { background: #FFB86B; color: var(--bg); }
+.btn-amber:hover { color: var(--bg); filter: brightness(1.08); }
+@media (max-width: 720px) { .nav { flex-wrap: wrap; } .nav-actions { gap: 8px; } }
