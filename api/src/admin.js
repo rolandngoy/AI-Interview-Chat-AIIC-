@@ -27,13 +27,20 @@ function makeAdminHandler(deps) {
   return async function handle(token, admins) {
     if (!token) return { status: 401, body: { error: 'unauthorized' } };
     let claims;
-    try { claims = await deps.verifyTokenClaims(token); } catch (e) { return { status: 401, body: { error: 'unauthorized' } }; }
-    if (!isAdmin(claims, admins)) return { status: 403, body: { error: 'forbidden' } };
+    try { claims = await deps.verifyTokenClaims(token); } catch (e) {
+      // A bad or expired token is the caller's problem; anything else is a server setup problem worth naming.
+      const code = String((e && e.code) || '');
+      if (code === 'not_configured') return { status: 503, body: { error: 'not_configured', detail: e.why || '' } };
+      if (/^auth\/(argument-error|id-token-|invalid-id-token)/.test(code) || !code) return { status: 401, body: { error: 'unauthorized' } };
+      return { status: 503, body: { error: 'server_error', detail: code } };
+    }
+    if (!isAdmin(claims, admins)) return { status: 403, body: { error: 'forbidden', email: claims && claims.email || '', verified: !!(claims && claims.email_verified) } };
     try {
       const out = await deps.listAllUsers();
       return { status: 200, body: { users: shapeUsers(out.users, out.counts) } };
     } catch (e) {
-      return { status: 503, body: { error: 'unavailable' } };
+      const code = String((e && e.code) || '');
+      return { status: 503, body: { error: code === 'not_configured' ? 'not_configured' : 'server_error', detail: code === 'not_configured' ? (e.why || '') : code } };
     }
   };
 }

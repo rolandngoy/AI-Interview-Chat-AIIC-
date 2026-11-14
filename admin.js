@@ -44,8 +44,24 @@
       const fb = AIIC_AUTH.auth && AIIC_AUTH.auth.currentUser;
       if (!fb) { window.location.replace('login.html'); return; }
       const res = await fetch('/api/accounts-list', { method: 'POST', headers: { 'X-Firebase-Token': await fb.getIdToken(true) } });
-      if (res.status === 403) { $('aRetry').classList.add('hidden'); $('aStatus').textContent = 'This page is only for the site admin. Sign in with the admin Google account.'; return; }
-      if (!res.ok) return fail('Could not load accounts. The server may not be set up yet (see the README).');
+      if (!res.ok) {
+        let info = {}; try { info = await res.json(); } catch (e) {}
+        $('aRetry').classList.remove('hidden'); $('aWrap').classList.add('hidden'); $('aStats').classList.add('hidden');
+        $('aStatus').classList.remove('hidden');
+        if (res.status === 403) {
+          $('aRetry').classList.add('hidden');
+          $('aStatus').textContent = 'This page is only for the site admin. You are signed in as ' + (info.email || 'another account') + (info.email && !info.verified ? ', and that email is not verified. Sign in with Google instead.' : '. Sign in with the admin Google account.');
+        } else if (res.status === 404) {
+          $('aStatus').textContent = 'The accounts service is not running on the server yet. Wait a minute for the latest deploy to finish, then try again.';
+        } else if (info.error === 'not_configured') {
+          $('aStatus').textContent = 'The server is missing its Firebase setup: ' + (info.detail || 'FIREBASE_SERVICE_ACCOUNT') + '. Add it in Azure (see the README).';
+        } else if (info.error === 'server_error') {
+          $('aStatus').textContent = 'The server could not check your sign-in (' + (info.detail || 'unknown') + '). Its Firebase service account may belong to a different project, or lack permission.';
+        } else {
+          $('aStatus').textContent = 'The server rejected your sign-in (' + res.status + '). Log out, log in with Google again, then reload this page.';
+        }
+        return;
+      }
       users = (await res.json()).users || [];
     } catch (e) { return fail('Could not load accounts. Check your connection and try again.'); }
     const week = Date.now() - 7 * 864e5;

@@ -11,8 +11,11 @@ function initFirebase() {
   const { initializeApp, cert, getApps } = require('firebase-admin/app');
   const { getAuth } = require('firebase-admin/auth');
   const { getFirestore } = require('firebase-admin/firestore');
-  if (!process.env.FIREBASE_SERVICE_ACCOUNT) throw new Error('not configured');
-  if (!getApps().length) initializeApp({ credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)) });
+  const notConfigured = (why) => Object.assign(new Error('not configured'), { code: 'not_configured', why: why });
+  if (!process.env.FIREBASE_SERVICE_ACCOUNT) throw notConfigured('FIREBASE_SERVICE_ACCOUNT is not set');
+  try {
+    if (!getApps().length) initializeApp({ credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)) });
+  } catch (e) { throw notConfigured('FIREBASE_SERVICE_ACCOUNT is not valid service-account JSON'); }
   authAdmin = getAuth();
   db = getFirestore();
 }

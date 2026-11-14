@@ -12,7 +12,7 @@ app.http('accountsList', {
   route: 'accounts-list',
   handler: async (request, context) => {
     const out = await handle(request.headers.get('x-firebase-token'), adminEmails(process.env.ADMIN_EMAILS));
-    if (out.status >= 500) context.log('accounts-list unavailable');
+    if (out.status >= 500) context.log('accounts-list unavailable: ' + out.body.error + ' ' + (out.body.detail || ''));
     return { status: out.status, jsonBody: out.body, headers: { 'Cache-Control': 'no-store' } };
   }
 });
