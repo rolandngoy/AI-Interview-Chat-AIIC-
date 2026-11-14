@@ -21,26 +21,20 @@
         </svg>
         <span>AI Interview Chat</span>
       </a>
-      <div class="profile hidden" id="profileMenu"></div>
     </header>
 
     <div><a href="index.html" class="btn btn-ghost btn-sm">← Back to home</a></div>
 
     <section class="co-center">
       <h1 class="login-title">Pre-assessment</h1>
-      <p class="body-lg center">Enter your email and the code the company gave you to start your interview.</p>
+      <p class="body-lg center">Log in with the email the company invited and the code they gave you. No account needed.</p>
 
-      <div class="hidden co-center" id="pSignedOut">
-        <p class="co-sub center">First, log in or create an account with the email the company invited.</p>
-        <a href="login.html?next=pre-assessment.html" class="btn btn-amber btn-md">Log in or sign up</a>
-      </div>
-
-      <form class="login-form hidden" id="pForm" novalidate>
+      <form class="login-form" id="pForm" novalidate>
         <label for="pEmail" class="mono small">Your email</label>
         <input id="pEmail" name="email" type="email" class="role-search" autocomplete="email" required>
         <label for="pCode" class="mono small">Code</label>
         <input id="pCode" name="code" class="role-search co-code" maxlength="20" placeholder="ABCD-1234" autocomplete="off" spellcheck="false" required>
-        <button type="submit" class="btn btn-amber btn-md" id="pGo">Continue</button>
+        <button type="submit" class="btn btn-amber btn-md" id="pGo">Log in</button>
       </form>
       <p class="login-msg" id="pMsg" role="alert"></p>
 
@@ -63,8 +57,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="auth.js"></script>
-  <script src="store.js"></script>
-  <script src="profile.js"></script>
   <script src="assessments.js"></script>
   <script src="pre-assessment.js"></script>
 </body>

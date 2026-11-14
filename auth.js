@@ -21,7 +21,7 @@
   function clearUser() {
     try { localStorage.removeItem(KEY); sessionStorage.removeItem('aiic_role'); } catch (e) {}
   }
-  const toUser = (fb) => ({ uid: fb.uid, name: fb.displayName || '', email: fb.email || '', picture: fb.photoURL || '' });
+  const toUser = (fb) => ({ uid: fb.uid, name: fb.displayName || '', email: fb.email || '', picture: fb.photoURL || '', candidate: !fb.providerData.length });
 
   let auth = null;
   if (configured) { firebase.initializeApp(cfg); auth = firebase.auth(); }
@@ -35,12 +35,16 @@
   const AFTER_LOGIN = NEXT ? NEXT + '.html' : 'roles.html';
 
   if (auth) {
-    auth.onAuthStateChanged(function (fb) {
+    auth.onAuthStateChanged(async function (fb) {
       if (fb) {
         // Keep the name we set at sign-up if Firebase has not caught up yet.
         const prev = getUser();
         const u = toUser(fb);
         if (!u.name && prev && prev.uid === u.uid) u.name = prev.name;
+        // Pre-assessment candidates sign in with a custom token: their email and first name are token claims.
+        if (u.candidate && !u.email) {
+          try { const c = (await fb.getIdTokenResult()).claims; u.email = c.candEmail || ''; u.name = u.name || c.candName || ''; } catch (e) {}
+        }
         setUser(u);
         if (onLoginPage && !busy) window.location.replace(AFTER_LOGIN);
       } else {
@@ -59,7 +63,7 @@
     return auth ? auth.signOut() : Promise.resolve();
   }
 
-  window.AIIC_AUTH = { ready: ready, configured: configured, auth: auth, signOut: signOut, getUser: getUser, suppressRedirect: false };
+  window.AIIC_AUTH = { ready: ready, configured: configured, auth: auth, signOut: signOut, getUser: getUser, setUser: setUser, suppressRedirect: false };
 
   /* ---------- login page ---------- */
   function friendly(err) {

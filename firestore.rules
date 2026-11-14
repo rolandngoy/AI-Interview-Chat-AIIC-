@@ -4,7 +4,10 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     // Companies are the accounts that signed in with Microsoft on the Company page.
     function isCompany() { return signedIn() && request.auth.token.firebase.sign_in_provider == 'microsoft.com'; }
-    function myEmail() { return request.auth.token.email.lower(); }
+    // Pre-assessment candidates sign in with a server-issued custom token (see api/src/candidate.js) that carries
+    // the invited email and the one code they may use. Everyone else has a normal verified-provider email.
+    function myEmail() { return ('candEmail' in request.auth.token ? request.auth.token.candEmail : request.auth.token.email).lower(); }
+    function codeOk(code) { return !('candCode' in request.auth.token) || request.auth.token.candCode == code; }
 
     // Each signed-in user can read and write only their own sessions.
     // The `aiUsage` collection (daily AI limits) has no rule on purpose: only the server can touch it.
@@ -25,7 +28,7 @@ service cloud.firestore {
           && d.questions is list && d.questions.size() >= 1 && d.questions.size() <= 30
           && d.candidates is list && d.candidates.size() <= 300;
       }
-      allow get: if signedIn() && (resource.data.ownerUid == request.auth.uid || myEmail() in resource.data.candidates);
+      allow get: if signedIn() && (resource.data.ownerUid == request.auth.uid || (codeOk(code) && myEmail() in resource.data.candidates));
       allow list: if signedIn() && resource.data.ownerUid == request.auth.uid;
       allow create: if isCompany() && code.matches('^[A-Z0-9-]{4,20}$') && validAssessment(request.resource.data);
       allow update: if isCompany() && resource.data.ownerUid == request.auth.uid && validAssessment(request.resource.data);
@@ -47,8 +50,8 @@ service cloud.firestore {
         function finishStamp(d) {
           return d.complete != true || (resource != null && resource.data.complete == true) || d.finishedAt == request.time;
         }
-        allow read: if signedIn() && (request.auth.uid == uid || parent().ownerUid == request.auth.uid);
-        allow create, update: if signedIn() && request.auth.uid == uid
+        allow read: if signedIn() && ((request.auth.uid == uid && codeOk(code)) || parent().ownerUid == request.auth.uid);
+        allow create, update: if signedIn() && request.auth.uid == uid && codeOk(code)
           && myEmail() in parent().candidates
           && validSession(request.resource.data) && stillOpen() && finishStamp(request.resource.data);
         // The company can delete a candidate's session to let them retake it.

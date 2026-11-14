@@ -8,7 +8,7 @@
 
   const mount = document.getElementById('profileMenu');
   const user = window.AIIC_AUTH && AIIC_AUTH.getUser();
-  if (!mount || !user) return;
+  if (!mount || !user || user.candidate) return; // pre-assessment candidates have no account menu
 
   const el = (tag, cls, text) => {
     const n = document.createElement(tag);

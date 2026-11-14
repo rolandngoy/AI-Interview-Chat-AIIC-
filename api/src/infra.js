@@ -87,9 +87,22 @@ async function listAllUsers() {
   return { users: users, counts: counts };
 }
 
+// The company's pre-assessment (questions and invited emails), or null. Server side only.
+async function getAssessment(code) {
+  initFirebase();
+  const snap = await db.collection('assessments').doc(code).get();
+  return snap.exists ? snap.data() : null;
+}
+
+// A Firebase custom token for a pre-assessment candidate (signed locally with the service account key).
+async function createCandidateToken(uid, claims) {
+  initFirebase();
+  return authAdmin.createCustomToken(uid, claims);
+}
+
 // Atomically counts one use for this user today in the given bucket; false once they are over the limit.
 async function consumeUsage(uid, day, limit, bucket) {
-  init();
+  initFirebase();
   const { FieldValue } = require('firebase-admin/firestore');
   const ref = db.collection('aiUsage').doc(uid + '_' + day + (bucket ? '_' + bucket : ''));
   return db.runTransaction(async (t) => {
@@ -103,4 +116,4 @@ async function consumeUsage(uid, day, limit, bucket) {
 
 function client() { init(); return anthropic; }
 
-module.exports = { verifyToken, verifyTokenClaims, listAllUsers, consumeUsage, client, useOpenAI, openaiChat };
+module.exports = { verifyToken, verifyTokenClaims, listAllUsers, getAssessment, createCandidateToken, consumeUsage, client, useOpenAI, openaiChat };
