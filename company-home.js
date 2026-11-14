@@ -341,7 +341,7 @@
     user = AIIC_AUTH.getUser();
     if (!user) return; // auth.js sends signed-out visitors to the company log in
     if (!A.isCompanyUser()) { show('cNotCompany'); return; }
-    $('cTitle').textContent = 'Welcome' + (user.name ? ', ' + user.name.split(' ')[0] : '');
+    $('cWelcome').textContent = (user.name ? 'Welcome, ' + user.name.split(' ')[0] + '. ' : '') + 'Create a pre-assessment, give each candidate the code, and review their interviews here.';
     loadList();
   });
 })();
