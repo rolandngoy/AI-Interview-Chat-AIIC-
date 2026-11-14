@@ -2,8 +2,9 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
-    // Companies are the accounts that signed in with Microsoft on the Company page.
-    function isCompany() { return signedIn() && request.auth.token.firebase.sign_in_provider == 'microsoft.com'; }
+    // Companies are the accounts that signed in with Microsoft or Google on the Company page.
+    // Email/password accounts (not email-verified) and pre-assessment candidates ('custom') are not companies.
+    function isCompany() { return signedIn() && request.auth.token.firebase.sign_in_provider in ['microsoft.com', 'google.com']; }
     // Pre-assessment candidates sign in with a server-issued custom token (see api/src/candidate.js) that carries
     // the invited email and the one code they may use. Everyone else has a normal verified-provider email.
     function myEmail() { return ('candEmail' in request.auth.token ? request.auth.token.candEmail : request.auth.token.email).lower(); }

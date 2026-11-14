@@ -35,7 +35,7 @@
 
   const isCompanyUser = () => {
     const fb = window.AIIC_AUTH && AIIC_AUTH.auth && AIIC_AUTH.auth.currentUser;
-    return !!fb && fb.providerData.some((p) => p.providerId === 'microsoft.com');
+    return !!fb && fb.providerData.some((p) => p.providerId === 'microsoft.com' || p.providerId === 'google.com');
   };
 
   /* ---------- company side ---------- */

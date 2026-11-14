@@ -1,5 +1,5 @@
 /* =========================================================
-   AI Interview Chat — company dashboard (after a Microsoft log in)
+   AI Interview Chat — company dashboard (after a Microsoft or Google log in)
    - create pre-assessments: a code, the questions, and the candidate emails allowed to use it
    - review each candidate's interview: answers, grades and AI feedback
    ========================================================= */

@@ -78,7 +78,7 @@ Accounts and practice history are stored in Firebase so they follow users across
 
 ### Microsoft sign-in (Company page)
 
-The Company page (`company.html`) logs in with Microsoft. One-time setup:
+The Company page (`company.html`) logs in with Microsoft or Google. Google is already enabled for the site; Microsoft needs this one-time setup:
 
 1. In the [Azure portal](https://portal.azure.com): **Microsoft Entra ID → App registrations → New registration.** Choose "Accounts in any organizational directory and personal Microsoft accounts". Under **Redirect URI** pick *Web* and paste the redirect URL Firebase shows in step 3 below (it looks like `https://YOUR-PROJECT.firebaseapp.com/__/auth/handler`).
 2. In that app, **Certificates & secrets → New client secret.** Copy the secret *value*. Also copy the **Application (client) ID** from the Overview page.
@@ -88,7 +88,7 @@ The client secret goes only into the Firebase console, never into this repo.
 
 ### Company pre-assessments
 
-After a Microsoft log in, `company-home.html` is the company dashboard:
+After a Microsoft or Google log in, `company-home.html` is the company dashboard:
 
 - **New pre-assessment:** company name, title, role, a code (generated, or typed: 4–20 letters, numbers or dashes), the questions, and the candidate emails allowed to use the code. Questions can be written by the company, picked from the practice questions (`questions.js`, by role, plus general behavioral questions), or both. Up to 30 questions and 300 candidates.
 - **Review sessions:** every invited candidate with their status (not started, in progress, completed), overall grade, AI summary, and each answer with its grade and feedback. **Let them retake** deletes a candidate's answers so they can start again.
@@ -97,7 +97,7 @@ Candidates open `pre-assessment.html`, type the invited email and the code, and 
 
 Who can do what is enforced by `firestore.rules`, so **paste the updated rules into Firestore → Rules and publish them** whenever they change:
 
-- Only Microsoft sign-ins can create pre-assessments, and only the company that created one can see, edit or delete it and its sessions.
+- Only Microsoft and Google sign-ins can create pre-assessments (email/password accounts and candidates cannot), and only the company that created one can see, edit or delete it and its sessions.
 - A candidate's token carries their invited email and the one code they may use, so they can only open that pre-assessment and only their own session.
 - A finished session can be updated for 2 hours (so the AI grades can be saved) and is then locked.
 
