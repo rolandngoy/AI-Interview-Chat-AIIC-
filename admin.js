@@ -43,7 +43,7 @@
     try {
       const fb = AIIC_AUTH.auth && AIIC_AUTH.auth.currentUser;
       if (!fb) { window.location.replace('login.html'); return; }
-      const res = await fetch('/api/admin-users', { method: 'POST', headers: { 'X-Firebase-Token': await fb.getIdToken(true) } });
+      const res = await fetch('/api/accounts-list', { method: 'POST', headers: { 'X-Firebase-Token': await fb.getIdToken(true) } });
       if (res.status === 403) { $('aRetry').classList.add('hidden'); $('aStatus').textContent = 'This page is only for the site admin. Sign in with the admin Google account.'; return; }
       if (!res.ok) return fail('Could not load accounts. The server may not be set up yet (see the README).');
       users = (await res.json()).users || [];
