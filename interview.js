@@ -529,9 +529,54 @@
       : 'I did not catch anything. Please record your answer again.';
   }
 
+  /* ---------- time limit (company pre-assessments only) ---------- */
+  const NO_ANSWER = '(No answer was given before time ran out.)';
+  let timerId = null, timerEnd = 0, timerTotal = 0;
+  const limitFor = (i) => (assessment && Array.isArray(assessment.limits) && assessment.limits[i] > 0) ? assessment.limits[i] : 0;
+  const clock = (s) => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  const sayTime = (s) => s < 60 ? s + ' seconds' : (s % 60 === 0 ? (s / 60) + (s === 60 ? ' minute' : ' minutes') : (s / 60) + ' minutes');
+  function clearTimer() {
+    clearInterval(timerId); timerId = null;
+    $('ivTimer').classList.add('hidden'); $('ivTimer').classList.remove('is-low');
+  }
+  // Shown while the interviewer asks, so the candidate knows what is coming; the countdown starts when it is their turn.
+  function previewTimer(sec) {
+    clearTimer();
+    if (!sec) return;
+    $('ivTimerText').textContent = 'Time to answer: ' + clock(sec);
+    $('ivTimerBar').style.width = '100%';
+    $('ivTimer').classList.remove('hidden');
+  }
+  function startTimer(sec, myTurn) {
+    clearTimer();
+    if (!sec) return;
+    timerTotal = sec; timerEnd = Date.now() + sec * 1000;
+    $('ivTimer').classList.remove('hidden');
+    const tick = function () {
+      if (myTurn !== turn) { clearTimer(); return; }
+      const left = Math.max(0, Math.ceil((timerEnd - Date.now()) / 1000));
+      $('ivTimerText').textContent = 'Time left: ' + clock(left);
+      $('ivTimerBar').style.width = (left / timerTotal * 100) + '%';
+      $('ivTimer').classList.toggle('is-low', left <= 10);
+      if (left <= 0) { clearTimer(); onTimeUp(myTurn); }
+    };
+    tick();
+    timerId = setInterval(tick, 250);
+  }
+  // Time is up: stop recording, then send whatever has been said (or a note that nothing was).
+  async function onTimeUp(myTurn) {
+    if (myTurn !== turn || $('ivForm').classList.contains('hidden')) return;
+    if (answering) await finishRecording();
+    if (myTurn !== turn) return;
+    if (!$('ivAnswer').value.trim()) $('ivAnswer').value = NO_ANSWER;
+    $('ivMicStatus').textContent = 'Time is up. Sending your answer…';
+    submitAnswer();
+  }
+
   // The interviewer has finished asking: it is now the candidate's turn.
   function beginAnswering(q) {
     if (typeof q === 'object') { $('ivCode').focus(); return; }
+    startTimer(limitFor(index), turn);
     const voice = voiceAllowed(q) && !!SpeechRec && !micDenied;
     $('ivAnswer').value = '';
     usedVoice = false; restarts = 0;
@@ -563,6 +608,7 @@
     $('ivListen').classList.toggle('hidden', !canSpeak);
     $('ivCount').textContent = (followUps.has(q) ? 'Follow-up · ' : '') + 'Question ' + (index + 1) + ' of ' + questions.length;
     $('ivBar').style.width = (index / questions.length * 100) + '%';
+    previewTimer(isCode ? 0 : limitFor(index));
     show('ivQuestionView');
     if (isCode) {
       $('ivCode').value = q.starter;
@@ -571,7 +617,8 @@
       $('ivPyStatus').textContent = '';
       getRunner();
     }
-    await speakLine(personaId, (prefix || '') + spokenText(q));
+    const lim = isCode ? 0 : limitFor(index);
+    await speakLine(personaId, (prefix || '') + spokenText(q) + (lim ? ' You have ' + sayTime(lim) + ' to answer.' : ''));
     if (myTurn !== turn) return;
     beginAnswering(q);
   }
@@ -983,6 +1030,7 @@
     const text = $('ivAnswer').value.trim();
     if (!text) return;
     const myTurn = ++turn;
+    clearTimer();
     stopVoice();
     const who = personaId;
     const asked = questions[index];

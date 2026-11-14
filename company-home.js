@@ -34,6 +34,17 @@
   let mine = [];        // this company's assessments
   let editing = null;   // the assessment being edited, or null for a new one
   let draftQs = [];     // questions in the editor
+  let draftLimits = []; // seconds allowed for each question in draftQs (0 = no limit)
+
+  const TIMES = [[0, 'No time limit'], [30, '30 seconds'], [60, '1 minute'], [90, '1.5 minutes'], [120, '2 minutes'], [180, '3 minutes'], [300, '5 minutes'], [600, '10 minutes']];
+  const defaultLimit = () => { const n = parseInt($('eDefaultTime').value, 10); return isNaN(n) ? 120 : n; };   // 'mixed' -> 2 minutes for new questions
+  function timeSelect(value, label) {
+    const s = el('select', 'co-input co-q-time'); s.setAttribute('aria-label', label);
+    TIMES.forEach(function (t) { const o = el('option', null, t[1]); o.value = String(t[0]); s.appendChild(o); });
+    if (!TIMES.some((t) => t[0] === value)) { const o = el('option', null, value + ' seconds'); o.value = String(value); s.appendChild(o); }
+    s.value = String(value);
+    return s;
+  }
 
   const VIEWS = ['cLoading', 'cNotCompany', 'cListView', 'cEditView', 'cReviewView', 'cApplicantView'];
   const WITH_SIDEBAR = ['cListView', 'cEditView', 'cReviewView', 'cApplicantView'];
@@ -191,11 +202,15 @@
       const tools = el('div', 'co-q-tools');
       const mk = (label, title, fn, disabled) => { const b = el('button', 'co-icon', label); b.type = 'button'; b.title = title; b.setAttribute('aria-label', title + ' (question ' + (i + 1) + ')'); b.disabled = !!disabled; b.addEventListener('click', fn); return b; };
       tools.append(
-        mk('↑', 'Move up', () => { [draftQs[i - 1], draftQs[i]] = [draftQs[i], draftQs[i - 1]]; renderQs(); }, i === 0),
-        mk('↓', 'Move down', () => { [draftQs[i + 1], draftQs[i]] = [draftQs[i], draftQs[i + 1]]; renderQs(); }, i === draftQs.length - 1),
-        mk('✕', 'Remove', () => { draftQs.splice(i, 1); renderQs(); })
+        mk('↑', 'Move up', () => { [draftQs[i - 1], draftQs[i]] = [draftQs[i], draftQs[i - 1]]; [draftLimits[i - 1], draftLimits[i]] = [draftLimits[i], draftLimits[i - 1]]; renderQs(); }, i === 0),
+        mk('↓', 'Move down', () => { [draftQs[i + 1], draftQs[i]] = [draftQs[i], draftQs[i + 1]]; [draftLimits[i + 1], draftLimits[i]] = [draftLimits[i], draftLimits[i + 1]]; renderQs(); }, i === draftQs.length - 1),
+        mk('✕', 'Remove', () => { draftQs.splice(i, 1); draftLimits.splice(i, 1); renderQs(); })
       );
-      li.append(el('span', 'mono small co-q-n', String(i + 1)), ta, tools);
+      const time = timeSelect(draftLimits[i] || 0, 'Time to answer question ' + (i + 1));
+      time.addEventListener('change', () => { draftLimits[i] = parseInt(time.value, 10) || 0; });
+      const body = el('div', 'co-q-body');
+      body.append(ta, time);
+      li.append(el('span', 'mono small co-q-n', String(i + 1)), body, tools);
       ol.appendChild(li);
     });
     $('eCount').textContent = draftQs.length + ' / ' + MAX_Q;
@@ -206,7 +221,7 @@
     let added = 0;
     list.forEach(function (q) {
       q = String(q || '').trim();
-      if (q && draftQs.length < MAX_Q && draftQs.indexOf(q) === -1) { draftQs.push(q); added++; }
+      if (q && draftQs.length < MAX_Q && draftQs.indexOf(q) === -1) { draftQs.push(q); draftLimits.push(defaultLimit()); added++; }
     });
     renderQs();
     if (draftQs.length >= MAX_Q) $('eMsg').textContent = 'A pre-assessment can have up to ' + MAX_Q + ' questions.';
@@ -253,6 +268,10 @@
     $('eCodeHint').textContent = a ? 'The code cannot be changed after it is created.' : '4–20 letters, numbers or dashes. Candidates type this on the Pre-assessment page.';
     form.elements.candidates.value = a ? a.candidates.join('\n') : '';
     draftQs = a ? a.questions.slice() : [];
+    draftLimits = draftQs.map((_, i) => (a && a.timeLimits && a.timeLimits[i]) || 0);
+    const same = draftLimits.length && draftLimits.every((x) => x === draftLimits[0]);
+    $('eDefaultTime').value = a ? (same ? String(draftLimits[0]) : (draftLimits.length ? 'mixed' : '120')) : '120';
+    if (!a) draftLimits = draftQs.map(() => 120);
     $('eOwn').value = '';
     $('eBank').open = !a;
     renderQs();
@@ -291,7 +310,8 @@
     const f = form.elements;
     const company = f.company.value.trim(), title = f.title.value.trim(), role = f.role.value.trim();
     const code = A.normCode(f.code.value);
-    const questions = draftQs.map((q) => q.trim()).filter(Boolean);
+    const kept = draftQs.map((q, i) => ({ q: q.trim(), t: draftLimits[i] || 0 })).filter((x) => x.q);
+    const questions = kept.map((x) => x.q);
     const emails = A.parseEmails(f.candidates.value);
     if (!company) { msg.textContent = 'Enter your company name.'; f.company.focus(); return; }
     if (!title) { msg.textContent = 'Give the pre-assessment a title.'; f.title.focus(); return; }
@@ -303,7 +323,7 @@
 
     const data = {
       code: code, ownerUid: user.uid, ownerEmail: (user.email || '').toLowerCase(),
-      company: company, title: title, role: role, questions: questions.slice(0, MAX_Q), candidates: emails.good.slice(0, 300),
+      company: company, title: title, role: role, questions: questions.slice(0, MAX_Q), timeLimits: kept.map((x) => x.t).slice(0, MAX_Q), candidates: emails.good.slice(0, 300),
       createdAt: editing ? editing.createdAt : Date.now(), updatedAt: Date.now()
     };
     $('eSave').disabled = true;
@@ -420,6 +440,14 @@
       if (r !== 'General (behavioral)') { const o = el('option'); o.value = r; dl.appendChild(o); }
       const o2 = el('option', null, r); o2.value = r; sel.appendChild(o2);
     });
+  })();
+
+  (function fillTimes() {
+    const sel = $('eDefaultTime');
+    TIMES.forEach(function (t) { const o = el('option', null, t[1]); o.value = String(t[0]); sel.appendChild(o); });
+    const mixed = el('option', null, 'Different for each question'); mixed.value = 'mixed'; sel.appendChild(mixed);
+    sel.value = '120';
+    sel.addEventListener('change', function () { if (sel.value === 'mixed') return; draftLimits = draftQs.map(() => defaultLimit()); renderQs(); });
   })();
 
   $('cSwitch').addEventListener('click', function () {

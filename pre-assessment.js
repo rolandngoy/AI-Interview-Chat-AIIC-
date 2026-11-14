@@ -65,7 +65,9 @@
       found = a;
       $('pCompany').textContent = a.company || '';
       $('pTitle').textContent = a.title;
-      $('pInfo').textContent = a.role + ' · ' + a.questions.length + (a.questions.length === 1 ? ' question' : ' questions');
+      const timed = Array.isArray(a.timeLimits) && a.timeLimits.some((t) => t > 0);
+      $('pInfo').textContent = a.role + ' · ' + a.questions.length + (a.questions.length === 1 ? ' question' : ' questions') + (timed ? ' · timed' : '');
+      $('pTimed').classList.toggle('hidden', !timed);
       $('pRestart').classList.toggle('hidden', !(s && s.results && s.results.length));
       $('pReady').classList.remove('hidden');
       $('pStart').focus();
@@ -83,7 +85,7 @@
     if (!found) return;
     try {
       sessionStorage.setItem('aiic_assessment', JSON.stringify({
-        code: found.code, title: found.title, role: found.role, company: found.company || '', questions: found.questions
+        code: found.code, title: found.title, role: found.role, company: found.company || '', questions: found.questions, limits: Array.isArray(found.timeLimits) ? found.timeLimits : []
       }));
       sessionStorage.setItem('aiic_role', found.role);
     } catch (err) { msg.textContent = 'Your browser blocked storage for this site. Allow it and try again.'; return; }

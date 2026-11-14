@@ -27,6 +27,7 @@ service cloud.firestore {
           && d.company is string && d.company.size() <= 120
           && d.role is string && d.role.size() <= 80
           && d.questions is list && d.questions.size() >= 1 && d.questions.size() <= 30
+          && (!('timeLimits' in d) || (d.timeLimits is list && d.timeLimits.size() <= 30))
           && d.candidates is list && d.candidates.size() <= 300;
       }
       allow get: if signedIn() && (resource.data.ownerUid == request.auth.uid || (codeOk(code) && myEmail() in resource.data.candidates));

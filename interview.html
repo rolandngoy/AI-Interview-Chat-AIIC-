@@ -71,6 +71,10 @@
         </button>
         <label class="iv-auto mono small"><input type="checkbox" id="ivAutoRead"> Interviewers speak aloud</label>
       </div>
+      <div class="iv-timer hidden" id="ivTimer" role="timer" aria-live="off">
+        <span class="mono small" id="ivTimerText"></span>
+        <div class="iv-timer-track"><div class="iv-timer-bar" id="ivTimerBar"></div></div>
+      </div>
       <form id="ivForm" class="hidden">
         <div id="ivVoice" class="iv-voicebox">
           <button type="button" class="iv-bigmic" id="ivMic" aria-pressed="false">

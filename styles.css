@@ -717,3 +717,15 @@ body.is-assessment #ivHistory { display: none !important; }
   .co-side { position: static; max-height: none; }
   .co-side-list { max-height: 240px; }
 }
+
+/* ---------- pre-assessment countdown ---------- */
+.iv-timer { display: flex; align-items: center; gap: 14px; margin: 14px 0 4px; }
+.iv-timer .mono { min-width: 150px; color: var(--teal); font-weight: 600; }
+.iv-timer-track { flex: 1; height: 8px; border-radius: 999px; background: rgba(255,255,255,.1); overflow: hidden; }
+.iv-timer-bar { height: 100%; border-radius: 999px; background: var(--teal); transition: width .25s linear; }
+.iv-timer.is-low .mono { color: #FF7A7A; }
+.iv-timer.is-low .iv-timer-bar { background: #E5484D; }
+.co-q-body { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.co-q-time { min-height: 38px; padding: 6px 12px; max-width: 220px; font-size: 14px; }
+.co-timeset { max-width: 560px; margin-bottom: 8px; }
+.co-timeset .co-input { max-width: 240px; }
