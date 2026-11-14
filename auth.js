@@ -8,7 +8,7 @@
   'use strict';
 
   const KEY = 'aiic_user';
-  const GUARDED = /\/(roles|interview|history|admin)(\.html)?$/;
+  const GUARDED = /\/(roles|interview|history|admin|company-home)(\.html)?$/;
   const cfg = (window.AIIC_CONFIG || {}).firebase || {};
   const configured = !!(cfg.apiKey && cfg.apiKey.indexOf('YOUR_') !== 0 && window.firebase);
 
@@ -42,7 +42,7 @@
         if (onLoginPage && !busy) window.location.replace('roles.html');
       } else {
         clearUser();
-        if (GUARDED.test(window.location.pathname) && !window.AIIC_AUTH.suppressRedirect) window.location.replace('login.html');
+        if (GUARDED.test(window.location.pathname) && !window.AIIC_AUTH.suppressRedirect) window.location.replace(/company-home/.test(window.location.pathname) ? 'company.html' : 'login.html');
       }
       resolveReady();
     });

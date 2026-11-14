@@ -117,6 +117,7 @@
       try {
         // Deleting is a sensitive action, so Firebase needs a fresh sign-in.
         if (pw) await fb.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(fb.email, pw.value));
+        else if (fb.providerData.some((p) => p.providerId === 'microsoft.com')) await fb.reauthenticateWithPopup(new firebase.auth.OAuthProvider('microsoft.com'));
         else await fb.reauthenticateWithPopup(new firebase.auth.GoogleAuthProvider());
 
         if (window.AIIC_STORE && !(await AIIC_STORE.clearHistory(user))) {

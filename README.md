@@ -76,6 +76,16 @@ Accounts and practice history are stored in Firebase so they follow users across
 4. **Build → Firestore Database → Create database.** Then open the **Rules** tab and paste the contents of `firestore.rules`.
 5. **Project settings → Your apps → Web (`</>`).** Register an app and copy the config values into `config.js`.
 
+### Microsoft sign-in (Company page)
+
+The Company page (`company.html`) logs in with Microsoft. One-time setup:
+
+1. In the [Azure portal](https://portal.azure.com): **Microsoft Entra ID → App registrations → New registration.** Choose "Accounts in any organizational directory and personal Microsoft accounts". Under **Redirect URI** pick *Web* and paste the redirect URL Firebase shows in step 3 below (it looks like `https://YOUR-PROJECT.firebaseapp.com/__/auth/handler`).
+2. In that app, **Certificates & secrets → New client secret.** Copy the secret *value*. Also copy the **Application (client) ID** from the Overview page.
+3. In Firebase: **Authentication → Sign-in method → Add new provider → Microsoft.** Paste the client ID and client secret, copy the redirect URL it shows into step 1 if you have not yet, and save.
+
+The client secret goes only into the Firebase console, never into this repo.
+
 The values in `config.js` are public by design; the Firestore rules are what keep each user's history private.
 
 ## AI interviewers (OpenAI or Claude)

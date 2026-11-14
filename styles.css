@@ -618,3 +618,4 @@ button { font-family: inherit; }
 .btn-amber { background: #FFB86B; color: var(--bg); }
 .btn-amber:hover { color: var(--bg); filter: brightness(1.08); }
 @media (max-width: 720px) { .nav { flex-wrap: wrap; } .nav-actions { gap: 8px; } }
+.ms-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
