@@ -26,8 +26,46 @@
 
     <div><a href="index.html" class="btn btn-ghost btn-sm">← Back to home</a></div>
 
-    <h1 class="login-title">Pre-assessment</h1>
-    <p class="body-lg center">The pre-assessment is coming soon.</p>
+    <section class="co-center">
+      <h1 class="login-title">Pre-assessment</h1>
+      <p class="body-lg center">Enter your email and the code the company gave you to start your interview.</p>
+
+      <div class="hidden co-center" id="pSignedOut">
+        <p class="co-sub center">First, log in or create an account with the email the company invited.</p>
+        <a href="login.html?next=pre-assessment.html" class="btn btn-amber btn-md">Log in or sign up</a>
+      </div>
+
+      <form class="login-form hidden" id="pForm" novalidate>
+        <label for="pEmail" class="mono small">Your email</label>
+        <input id="pEmail" name="email" type="email" class="role-search" autocomplete="email" required>
+        <label for="pCode" class="mono small">Code</label>
+        <input id="pCode" name="code" class="role-search co-code" maxlength="20" placeholder="ABCD-1234" autocomplete="off" spellcheck="false" required>
+        <button type="submit" class="btn btn-amber btn-md" id="pGo">Continue</button>
+      </form>
+      <p class="login-msg" id="pMsg" role="alert"></p>
+
+      <div class="co-card co-ready hidden" id="pReady">
+        <p class="mono small co-meta" id="pCompany"></p>
+        <h2 class="co-card-title" id="pTitle"></h2>
+        <p class="co-sub" id="pInfo"></p>
+        <ul class="iv-bullets co-tips">
+          <li>Roland and Makenzie will ask you the company's questions one at a time. Answer by voice or by typing.</li>
+          <li>Find a quiet place. Plan for about 3 minutes per question.</li>
+          <li>When you finish, your answers are sent to the company. Keep the page open until the review is done.</li>
+        </ul>
+        <p class="co-sub hidden" id="pRestart">You started this earlier but did not finish. Starting again replaces your earlier answers.</p>
+        <button type="button" class="btn btn-amber btn-md" id="pStart">Start interview</button>
+      </div>
+    </section>
   </main>
+  <script src="config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="auth.js"></script>
+  <script src="store.js"></script>
+  <script src="profile.js"></script>
+  <script src="assessments.js"></script>
+  <script src="pre-assessment.js"></script>
 </body>
 </html>

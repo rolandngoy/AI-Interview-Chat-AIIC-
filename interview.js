@@ -7,9 +7,14 @@
   'use strict';
 
   let user, role;
-  try { user = JSON.parse(localStorage.getItem('aiic_user')); role = sessionStorage.getItem('aiic_role'); } catch (e) {}
-  if (!user) { window.location.replace('login.html'); return; }
+  // A company pre-assessment (set by pre-assessment.html): the company's own questions, saved for the company to review.
+  let assessment = null;
+  try { user = JSON.parse(localStorage.getItem('aiic_user')); role = sessionStorage.getItem('aiic_role'); assessment = JSON.parse(sessionStorage.getItem('aiic_assessment')); } catch (e) {}
+  if (assessment && !(assessment.code && Array.isArray(assessment.questions) && assessment.questions.length && window.AIIC_ASSESS)) assessment = null;
+  if (assessment) role = assessment.role || assessment.title;
+  if (!user) { window.location.replace(assessment ? 'pre-assessment.html' : 'login.html'); return; }
   if (!role) { window.location.replace('roles.html'); return; }
+  if (assessment) document.body.classList.add('is-assessment');
 
   const GENERAL = [
     'Tell me about yourself and why you are interested in this role.',
@@ -174,6 +179,7 @@
   }
 
   function buildQuestions() {
+    if (assessment) return assessment.questions.slice();
     if (isIntern) return buildInternQuestions();
     const coding = window.AIIC_CODE && AIIC_CODE.isCodingRole(role);
     const MID = TOTAL - 3 - (coding ? 1 : 0);
@@ -297,7 +303,17 @@
   }
 
   function persist(complete) {
-    if (!results.length || !window.AIIC_STORE) return;
+    if (!results.length) return;
+    if (assessment) {
+      AIIC_ASSESS.saveSession(assessment.code, user, {
+        role: role, title: assessment.title, company: assessment.company || '', date: sessionId, total: questions.length,
+        complete: complete, results: results, grade: AIIC_GRADES.overall(results), overall: overallInfo || null
+      }).catch(function () {
+        $('ivFeedbackStatus').textContent = 'Your answers could not be saved. Check your connection and keep this page open.';
+      });
+      return;
+    }
+    if (!window.AIIC_STORE) return;
     AIIC_STORE.saveSession(user, {
       id: sessionId, role: role, date: sessionId, total: questions.length, complete: complete, results: results,
       grade: AIIC_GRADES.overall(results), overall: overallInfo || null
@@ -782,7 +798,7 @@
     const script = [
       ['roland', 'Hello ' + first + ', my name is Roland.'],
       ['makenzie', 'Hi, I\'m Makenzie.'],
-      ['roland', 'We\'re excited to interview you for the ' + role + ' position.']
+      ['roland', 'We\'re excited to interview you for the ' + role + ' position' + (assessment && assessment.company ? ' at ' + assessment.company : '') + '.']
     ];
     for (let i = 0; i < script.length; i++) {
       if (!introActive) return; // skipped
@@ -821,6 +837,7 @@
     return -1;
   }
   function canFollowUpNow(q) {
+    if (assessment) return false; // a pre-assessment asks exactly the company's questions
     return typeof q === 'string' && q !== CLOSING && !followUps.has(q) && followUpCount < MAX_FOLLOW_UPS && removableIndex() !== -1;
   }
   function insertFollowUp(text) {
@@ -1073,8 +1090,14 @@
     const inCode = typeof q === 'object' && !$('ivCodeForm').classList.contains('hidden');
     const draft = inCode ? ($('ivCode').value.trim() !== q.starter.trim()) : (!$('ivTyped').classList.contains('hidden') && $('ivAnswer').value.trim());
     if (!$('ivQuestionView').classList.contains('hidden') && draft && !confirm('Leave the interview? Your current unsent answer will be lost. Answers you already submitted are saved in your history.')) return;
-    window.location.href = 'roles.html';
+    window.location.href = assessment ? 'pre-assessment.html' : 'roles.html';
   });
+
+  if (assessment) {
+    $('ivReturn').textContent = '← Leave pre-assessment';
+    $('ivSummaryTitle').textContent = 'Interview submitted';
+    $('ivSubmitted').textContent = 'Thank you. Your answers have been sent to ' + (assessment.company || 'the company') + '. Please keep this page open until the review below finishes.';
+  }
 
   start();
 })();

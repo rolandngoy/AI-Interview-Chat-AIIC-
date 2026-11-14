@@ -16,7 +16,7 @@ function shapeUsers(list, counts) {
     uid: u.uid,
     name: u.displayName || '',
     email: u.email || '',
-    provider: (u.providerData || []).map((p) => p.providerId === 'google.com' ? 'Google' : p.providerId === 'password' ? 'Email' : p.providerId).join(', '),
+    provider: (u.providerData || []).map((p) => p.providerId === 'google.com' ? 'Google' : p.providerId === 'password' ? 'Email' : p.providerId === 'microsoft.com' ? 'Microsoft (company)' : p.providerId).join(', '),
     created: ms(u.metadata && u.metadata.creationTime),
     lastSignIn: ms(u.metadata && u.metadata.lastSignInTime),
     interviews: counts && counts[u.uid] != null ? counts[u.uid] : null

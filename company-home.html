@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <main class="iv-page container narrow">
+  <main class="iv-page container narrow co-page">
     <header class="iv-head">
       <a href="index.html" class="brand">
         <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
@@ -24,15 +24,107 @@
       <div class="profile hidden" id="profileMenu"></div>
     </header>
 
-    <h1 class="login-title" id="cTitle">Welcome</h1>
-    <p class="body-lg center">Company tools are coming soon.</p>
+    <p class="login-msg center" id="cLoading">Loading…</p>
+
+    <!-- Signed in, but not with Microsoft -->
+    <section id="cNotCompany" class="hidden co-center">
+      <h1 class="login-title">Company tools</h1>
+      <p class="body-lg center">Company tools need a Microsoft log in. Log out, then use “Sign in with Microsoft” on the Company page.</p>
+      <button type="button" class="btn btn-teal btn-md" id="cSwitch">Log out and go to Company log in</button>
+    </section>
+
+    <!-- List of pre-assessments -->
+    <section id="cListView" class="hidden">
+      <div class="co-top">
+        <div>
+          <h1 class="login-title co-title" id="cTitle">Welcome</h1>
+          <p class="co-sub">Create a pre-assessment, give each candidate the code, and review their interviews here.</p>
+        </div>
+        <button type="button" class="btn btn-teal btn-md" id="cNew">+ New pre-assessment</button>
+      </div>
+      <p class="co-empty hidden" id="cEmpty">No pre-assessments yet. Create one to get a code for your candidates.</p>
+      <div class="co-list" id="cList"></div>
+    </section>
+
+    <!-- Create or edit a pre-assessment -->
+    <section id="cEditView" class="hidden">
+      <div><button type="button" class="btn btn-ghost btn-sm co-back">← All pre-assessments</button></div>
+      <h1 class="login-title co-title" id="eHeading">New pre-assessment</h1>
+      <form id="eForm" class="co-form" novalidate>
+        <div class="co-grid">
+          <label class="co-field"><span class="mono small">Company name</span>
+            <input class="co-input" name="company" maxlength="120" required placeholder="Contoso Ltd.">
+          </label>
+          <label class="co-field"><span class="mono small">Title</span>
+            <input class="co-input" name="title" maxlength="120" required placeholder="Frontend Developer screening">
+          </label>
+          <label class="co-field"><span class="mono small">Role</span>
+            <input class="co-input" name="role" maxlength="80" required list="eRoles" placeholder="Frontend Developer">
+          </label>
+          <label class="co-field"><span class="mono small">Code for candidates</span>
+            <span class="co-row">
+              <input class="co-input co-code" name="code" maxlength="20" required placeholder="ABCD-1234" autocomplete="off" spellcheck="false">
+              <button type="button" class="btn btn-ghost btn-sm" id="eGen">Generate</button>
+            </span>
+            <span class="small co-hint" id="eCodeHint">4–20 letters, numbers or dashes. Candidates type this on the Pre-assessment page.</span>
+          </label>
+        </div>
+        <datalist id="eRoles"></datalist>
+
+        <h2 class="co-h2">Questions <span class="mono small co-count" id="eCount"></span></h2>
+        <p class="co-sub">The candidate is asked exactly these questions, in this order. Write your own, add some from the practice questions, or both.</p>
+        <ol class="co-qs" id="eQs"></ol>
+
+        <div class="co-add">
+          <label class="co-field"><span class="mono small">Write your own question</span>
+            <textarea class="co-input" id="eOwn" rows="2" maxlength="500" placeholder="Tell me about a time you…"></textarea>
+          </label>
+          <button type="button" class="btn btn-ghost btn-sm" id="eAddOwn">Add question</button>
+        </div>
+
+        <details class="co-bank" id="eBank">
+          <summary>Add from the practice questions</summary>
+          <div class="co-bank-body">
+            <label class="co-field"><span class="mono small">Role</span>
+              <select class="co-input" id="eBankRole"></select>
+            </label>
+            <div class="co-bank-list" id="eBankList"></div>
+            <button type="button" class="btn btn-teal btn-sm" id="eBankAdd">Add selected questions</button>
+          </div>
+        </details>
+
+        <h2 class="co-h2">Candidates <span class="mono small co-count" id="eCandCount"></span></h2>
+        <p class="co-sub">Only these emails can use the code. Candidates must log in with the same email. Separate emails with commas or new lines.</p>
+        <textarea class="co-input" name="candidates" rows="4" placeholder="jordan@example.com, sam@example.com"></textarea>
+
+        <p class="login-msg co-msg" id="eMsg" role="alert"></p>
+        <div class="co-actions">
+          <button type="button" class="btn btn-ghost btn-md co-back">Cancel</button>
+          <button type="submit" class="btn btn-teal btn-md" id="eSave">Save pre-assessment</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Review candidates' sessions -->
+    <section id="cReviewView" class="hidden">
+      <div><button type="button" class="btn btn-ghost btn-sm co-back">← All pre-assessments</button></div>
+      <h1 class="login-title co-title" id="rHeading">Sessions</h1>
+      <p class="co-sub" id="rSub"></p>
+      <div class="iv-scores co-stats" id="rStats"></div>
+      <p class="login-msg center" id="rLoading">Loading sessions…</p>
+      <div class="hist-list" id="rList"></div>
+    </section>
   </main>
   <script src="config.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="auth.js"></script>
+  <script src="store.js"></script>
   <script src="profile.js"></script>
+  <script src="questions.js"></script>
+  <script src="grades.js"></script>
+  <script src="assessments.js"></script>
   <script src="company-home.js"></script>
 </body>
 </html>

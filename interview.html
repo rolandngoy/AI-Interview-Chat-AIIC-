@@ -113,7 +113,8 @@
     </section>
 
     <section id="ivSummaryView" class="hidden">
-      <h1 class="login-title">Your interview results</h1>
+      <h1 class="login-title" id="ivSummaryTitle">Your interview results</h1>
+      <p class="body-lg center assess-only" id="ivSubmitted"></p>
       <div class="iv-overall">
         <div class="iv-grade" id="ivOverallGrade" aria-label="Overall grade">–</div>
         <div class="iv-overall-text">
@@ -128,13 +129,13 @@
       <p class="mono small iv-feedback-status" id="ivFeedbackStatus" role="status"></p>
       <button type="button" class="btn btn-accent btn-sm hidden" id="ivRetryFeedback">Try AI feedback again</button>
       <ol class="iv-cards" id="ivHistory"></ol>
-      <div class="iv-row iv-row-center">
+      <div class="iv-row iv-row-center practice-only">
         <button type="button" class="btn btn-accent btn-md" id="ivRetry">Practice again</button>
         <a href="roles.html" class="btn btn-ghost btn-md">Pick another role</a>
       </div>
     </section>
 
-    <p class="iv-note small">Scores are calculated in your browser from the structure, clarity and specifics of your answer. They are a practice guide, not an AI evaluation.</p>
+    <p class="iv-note small practice-only">Scores are calculated in your browser from the structure, clarity and specifics of your answer. They are a practice guide, not an AI evaluation.</p>
   </main>
   <script src="config.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -142,6 +143,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="auth.js"></script>
   <script src="store.js"></script>
+  <script src="assessments.js"></script>
   <script src="profile.js"></script>
   <script src="questions.js"></script>
   <script src="codeproblems.js"></script>

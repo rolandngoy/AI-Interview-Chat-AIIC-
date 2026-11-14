@@ -30,6 +30,9 @@
   const ready = new Promise((r) => { resolveReady = r; });
   let busy = false; // set while a login/sign-up form is mid-flight
   const onLoginPage = !!document.getElementById('googleBtn');
+  // login.html?next=pre-assessment.html sends the candidate back to the pre-assessment after logging in.
+  const NEXT = (/[?&]next=(pre-assessment|roles)\.html\b/.exec(window.location.search) || [])[1];
+  const AFTER_LOGIN = NEXT ? NEXT + '.html' : 'roles.html';
 
   if (auth) {
     auth.onAuthStateChanged(function (fb) {
@@ -39,7 +42,7 @@
         const u = toUser(fb);
         if (!u.name && prev && prev.uid === u.uid) u.name = prev.name;
         setUser(u);
-        if (onLoginPage && !busy) window.location.replace('roles.html');
+        if (onLoginPage && !busy) window.location.replace(AFTER_LOGIN);
       } else {
         clearUser();
         if (GUARDED.test(window.location.pathname) && !window.AIIC_AUTH.suppressRedirect) window.location.replace(/company-home/.test(window.location.pathname) ? 'company.html' : 'login.html');
@@ -104,7 +107,7 @@
     async function run(fn) {
       msg.textContent = '';
       busy = true;
-      try { await fn(); window.location.href = 'roles.html'; }
+      try { await fn(); window.location.href = AFTER_LOGIN; }
       catch (err) {
         busy = false;
         if (err && err.code === 'auth/popup-closed-by-user') return;

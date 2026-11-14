@@ -619,3 +619,72 @@ button { font-family: inherit; }
 .btn-amber:hover { color: var(--bg); filter: brightness(1.08); }
 @media (max-width: 720px) { .nav { flex-wrap: wrap; } .nav-actions { gap: 8px; } }
 .ms-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
+
+/* ---------- company dashboard + pre-assessment ---------- */
+.co-center { display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+.co-center .body-lg { margin-top: 0; }
+.co-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+.co-title { text-align: left; font-size: 34px; }
+.co-sub { color: var(--muted); line-height: 1.55; }
+.co-meta { color: var(--dimmer); }
+.co-empty { color: var(--muted); padding: 12px 0; }
+.co-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.co-card { border: 1px solid var(--line); border-radius: 18px; background: var(--bg-3); padding: 22px; display: flex; flex-direction: column; gap: 14px; text-align: left; }
+.co-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.co-card-title { font-family: var(--display); font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.co-codebadge { flex-shrink: 0; padding: 6px 12px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--teal) 55%, transparent); color: var(--teal); font-size: 13px; letter-spacing: .04em; }
+.co-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.co-actions-left { justify-content: flex-start; }
+.co-pad { padding: 14px 18px 18px; }
+.btn.co-danger { background: rgba(229,72,77,.16); color: #FF9A9A; border: 1px solid rgba(229,72,77,.45); }
+.btn.co-danger:hover { background: #E5484D; color: #FFFFFF; border-color: #E5484D; }
+.co-form { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
+.co-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.co-field { display: flex; flex-direction: column; gap: 8px; color: var(--dimmer); text-align: left; }
+.co-row { display: flex; gap: 10px; align-items: center; }
+.co-row .co-input { flex: 1; }
+.co-input { width: 100%; min-height: 48px; padding: 12px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,.18); background: transparent; color: var(--text); font: 400 15px/1.5 var(--sans); }
+.co-input::placeholder { color: var(--dim); }
+.co-input:focus { outline: none; border-color: var(--teal); }
+select.co-input { background: var(--bg-3); }
+textarea.co-input { resize: vertical; }
+.co-code { font-family: var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+.co-hint { color: var(--dim); }
+.co-h2 { font-family: var(--display); font-size: 22px; font-weight: 600; margin-top: 18px; display: flex; align-items: baseline; gap: 10px; }
+.co-count { color: var(--dimmer); font-weight: 400; }
+.co-qs { display: flex; flex-direction: column; gap: 10px; }
+.co-q { display: flex; gap: 10px; align-items: flex-start; }
+.co-q-n { width: 26px; padding-top: 16px; color: var(--dimmer); text-align: right; flex-shrink: 0; }
+.co-q-text { flex: 1; }
+.co-q-tools { display: flex; flex-direction: column; gap: 4px; }
+.co-icon { width: 34px; height: 30px; border-radius: 8px; border: 1px solid rgba(255,255,255,.14); background: transparent; color: #C9CDD4; cursor: pointer; font-size: 13px; }
+.co-icon:hover:not(:disabled) { border-color: var(--teal); color: #FFFFFF; }
+.co-icon:disabled { opacity: .3; cursor: default; }
+.co-add { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.co-add .co-field { width: 100%; }
+.co-bank { border: 1px solid var(--line); border-radius: 16px; background: var(--bg-3); }
+.co-bank summary { padding: 16px 18px; cursor: pointer; color: #C9CDD4; font-weight: 500; }
+.co-bank[open] summary { border-bottom: 1px solid var(--line); }
+.co-bank-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.co-bank-body .co-field { width: 100%; max-width: 420px; }
+.co-bank-list { width: 100%; display: flex; flex-direction: column; gap: 6px; max-height: 360px; overflow-y: auto; }
+.co-check { display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; color: #C9CDD4; line-height: 1.5; cursor: pointer; text-align: left; }
+.co-check:hover { background: rgba(255,255,255,.04); }
+.co-check input { margin-top: 4px; accent-color: var(--teal); width: 16px; height: 16px; flex-shrink: 0; }
+.co-check input:disabled + span { color: var(--dim); }
+.co-msg { max-width: none; color: #FF9A9A; text-align: left; }
+.co-stats { margin: 8px 0 4px; }
+.co-ans-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.co-ans-head .iv-chip { width: 32px; height: 32px; font-size: 16px; }
+.co-twocol { padding: 0 18px 8px; }
+.hist-item summary .co-sub { font-size: 14px; }
+.co-ready { width: 100%; max-width: 520px; }
+.co-tips li { color: var(--muted); }
+/* Candidates taking a company pre-assessment do not see grades; the company reviews them. */
+.assess-only { display: none; }
+body.is-assessment .assess-only { display: block; }
+body.is-assessment .practice-only,
+body.is-assessment .iv-overall,
+body.is-assessment #ivTwoCol,
+body.is-assessment #ivHistory { display: none !important; }
+@media (max-width: 560px) { .co-list { grid-template-columns: 1fr; } .co-title { font-size: 28px; } }

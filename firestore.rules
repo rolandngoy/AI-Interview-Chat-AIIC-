@@ -1,10 +1,59 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    // Companies are the accounts that signed in with Microsoft on the Company page.
+    function isCompany() { return signedIn() && request.auth.token.firebase.sign_in_provider == 'microsoft.com'; }
+    function myEmail() { return request.auth.token.email.lower(); }
+
     // Each signed-in user can read and write only their own sessions.
     // The `aiUsage` collection (daily AI limits) has no rule on purpose: only the server can touch it.
     match /users/{uid}/sessions/{sessionId} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Pre-assessments. The document id is the code the company gave its candidates.
+    // A candidate can open one only when their sign-in email is on its candidate list,
+    // so a wrong code or email simply looks like "not found".
+    match /assessments/{code} {
+      function validAssessment(d) {
+        return d.ownerUid == request.auth.uid
+          && d.code == code
+          && d.title is string && d.title.size() > 0 && d.title.size() <= 120
+          && d.company is string && d.company.size() <= 120
+          && d.role is string && d.role.size() <= 80
+          && d.questions is list && d.questions.size() >= 1 && d.questions.size() <= 30
+          && d.candidates is list && d.candidates.size() <= 300;
+      }
+      allow get: if signedIn() && (resource.data.ownerUid == request.auth.uid || myEmail() in resource.data.candidates);
+      allow list: if signedIn() && resource.data.ownerUid == request.auth.uid;
+      allow create: if isCompany() && code.matches('^[A-Z0-9-]{4,20}$') && validAssessment(request.resource.data);
+      allow update: if isCompany() && resource.data.ownerUid == request.auth.uid && validAssessment(request.resource.data);
+      allow delete: if signedIn() && resource.data.ownerUid == request.auth.uid;
+
+      // One session per candidate (document id = the candidate's uid).
+      match /sessions/{uid} {
+        function parent() { return get(/databases/$(database)/documents/assessments/$(code)).data; }
+        function validSession(d) {
+          return d.uid == uid && d.email == myEmail() && d.code == code
+            && d.results is list && d.results.size() <= 60;
+        }
+        // A finished interview stays open for 2 hours so the AI grades can be saved, then it is locked.
+        function stillOpen() {
+          return resource == null || resource.data.complete != true
+            || (request.resource.data.finishedAt == resource.data.finishedAt
+                && request.time < resource.data.finishedAt + duration.value(2, 'h'));
+        }
+        function finishStamp(d) {
+          return d.complete != true || (resource != null && resource.data.complete == true) || d.finishedAt == request.time;
+        }
+        allow read: if signedIn() && (request.auth.uid == uid || parent().ownerUid == request.auth.uid);
+        allow create, update: if signedIn() && request.auth.uid == uid
+          && myEmail() in parent().candidates
+          && validSession(request.resource.data) && stillOpen() && finishStamp(request.resource.data);
+        // The company can delete a candidate's session to let them retake it.
+        allow delete: if signedIn() && parent().ownerUid == request.auth.uid;
+      }
     }
   }
 }
