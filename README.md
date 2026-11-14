@@ -99,7 +99,7 @@ Two AI interviewers, Makenzie and Roland, react to each answer in character and 
    | `AI_MODEL` | optional: defaults to `claude-opus-5-5`. `claude-haiku-5-5` is much cheaper and faster. |
    | `AI_FEEDBACK_MODEL` | optional: model for the end-of-interview grades and feedback. Defaults to `AI_MODEL`, then `claude-opus-5-5`. |
    | `DAILY_AI_FEEDBACK_CALLS` | optional: grading requests per user per day (default `60`, about 6 interviews; one interview uses about 7). |
-   | `ADMIN_EMAILS` | optional: comma-separated admin emails for `admin.html` (default `rolandngoy@yahoo.com`). The admin must sign in with Google, or a verified email, because the server only accepts verified emails. The admin page needs `FIREBASE_SERVICE_ACCOUNT` but not the Claude key. |
+   | `ADMIN_EMAILS` | optional: comma-separated admin emails for `admin.html` (default `rolandngoy0703@gmail.com`). The admin must sign in with Google, or a verified email, because the server only accepts verified emails. The admin page needs `FIREBASE_SERVICE_ACCOUNT` but not the Claude key. |
 
 4. Push to `main`. The workflow deploys the `api/` folder with the site.
 

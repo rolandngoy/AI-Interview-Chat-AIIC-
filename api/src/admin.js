@@ -1,5 +1,5 @@
 // Pure logic for the admin accounts list, kept separate so it can be tested without Azure or Firebase.
-const DEFAULT_ADMINS = 'rolandngoy@yahoo.com';
+const DEFAULT_ADMINS = 'rolandngoy0703@gmail.com';
 
 function adminEmails(env) {
   return String(env || DEFAULT_ADMINS).split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);

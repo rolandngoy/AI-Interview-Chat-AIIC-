@@ -2,10 +2,10 @@ const assert = require('assert');
 const { adminEmails, isAdmin, shapeUsers, makeAdminHandler } = require('../src/admin');
 
 const admins = adminEmails(undefined);
-assert.deepStrictEqual(admins, ['rolandngoy@yahoo.com']);
+assert.deepStrictEqual(admins, ['rolandngoy0703@gmail.com']);
 assert.deepStrictEqual(adminEmails(' A@x.com, b@y.com '), ['a@x.com', 'b@y.com']);
-assert.ok(isAdmin({ email: 'RolandNgoy@Yahoo.com', email_verified: true }, admins));
-assert.ok(!isAdmin({ email: 'rolandngoy@yahoo.com', email_verified: false }, admins));
+assert.ok(isAdmin({ email: 'RolandNgoy0703@Gmail.com', email_verified: true }, admins));
+assert.ok(!isAdmin({ email: 'rolandngoy0703@gmail.com', email_verified: false }, admins));
 assert.ok(!isAdmin({ email: 'other@yahoo.com', email_verified: true }, admins));
 assert.ok(!isAdmin(null, admins));
 
@@ -24,7 +24,7 @@ assert.strictEqual(shaped[0].provider, 'Google');
   assert.strictEqual((await makeAdminHandler(deps({}))('', admins)).status, 401);
   assert.strictEqual((await makeAdminHandler({ verifyTokenClaims: async () => { throw new Error('x'); } })('t', admins)).status, 401);
   assert.strictEqual((await makeAdminHandler(deps({ email: 'x@y.com', email_verified: true }))('t', admins)).status, 403);
-  const ok = await makeAdminHandler(deps({ email: 'rolandngoy@yahoo.com', email_verified: true }))('t', admins);
+  const ok = await makeAdminHandler(deps({ email: 'rolandngoy0703@gmail.com', email_verified: true }))('t', admins);
   assert.strictEqual(ok.status, 200);
   assert.strictEqual(ok.body.users.length, 2);
   const bad = (code, why) => ({ verifyTokenClaims: async () => { throw Object.assign(new Error('x'), { code: code, why: why }); } });

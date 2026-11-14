@@ -1,5 +1,5 @@
 // POST /api/accounts-list — every account, for the site admin only.
-// Admins: the verified emails in ADMIN_EMAILS (comma-separated), default rolandngoy@yahoo.com.
+// Admins: the verified emails in ADMIN_EMAILS (comma-separated), default rolandngoy0703@gmail.com.
 const { app } = require('@azure/functions');
 const { makeAdminHandler, adminEmails } = require('../admin');
 const infra = require('../infra');

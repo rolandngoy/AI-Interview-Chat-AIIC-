@@ -48,7 +48,7 @@
   del.type = 'button'; del.setAttribute('role', 'menuitem');
   menu.append(head, history);
   // Only a shortcut; the server decides who may actually see the accounts.
-  if ((user.email || '').toLowerCase() === 'rolandngoy@yahoo.com') {
+  if ((user.email || '').toLowerCase() === 'rolandngoy0703@gmail.com') {
     const admin = el('a', 'profile-item', 'Admin: all accounts');
     admin.href = 'admin.html'; admin.setAttribute('role', 'menuitem');
     menu.appendChild(admin);
