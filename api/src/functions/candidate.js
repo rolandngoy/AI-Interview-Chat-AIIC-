@@ -8,6 +8,7 @@ const DAILY_ATTEMPTS = 60; // per network address, so codes and emails cannot be
 
 const handle = makeCandidateHandler({
   throttle: (key) => infra.consumeUsage(key, new Date().toISOString().slice(0, 10), DAILY_ATTEMPTS, 'candlogin'),
+  getInvite: infra.getInvite,
   getAssessment: infra.getAssessment,
   createToken: infra.createCandidateToken
 });

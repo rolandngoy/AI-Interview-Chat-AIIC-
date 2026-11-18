@@ -1,7 +1,8 @@
 /* =========================================================
    AI Interview Chat — company pre-assessments (Cloud Firestore)
-   assessments/{CODE}                 the company's questions and the invited candidate emails
-   assessments/{CODE}/sessions/{uid}  one candidate's interview, readable by the candidate and the company
+   assessments/{id}                   the company's questions and the invited candidate emails (the id is internal)
+   assessments/{id}/sessions/{uid}    one candidate's interview, readable by the candidate and the company
+   candidateCodes/{CODE}              one personal code per invited candidate (company-only; the server checks it at log in)
    Access is enforced by firestore.rules. Needs firebase-app, -auth, -firestore (compat) and auth.js.
    ========================================================= */
 (function () {
@@ -23,7 +24,7 @@
     return { good: good, bad: bad };
   }
 
-  // An easy-to-read random code (no 0/O or 1/I).
+  // An easy-to-read random personal code (no 0/O or 1/I), 40 bits, like ABCD-EFGH.
   function randomCode() {
     const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     const buf = new Uint32Array(8);
@@ -44,16 +45,54 @@
     return snap.docs.map((d) => d.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   }
 
-  // Creates a new assessment. Fails with code 'taken' if another company already uses the code.
-  async function create(data) {
-    const ref = col().doc(data.code);
-    try { await ref.set(data); }
-    catch (e) {
-      if (e && e.code === 'permission-denied') { const err = new Error('taken'); err.code = 'taken'; throw err; }
-      throw e;
+  // Assessments have a random internal id (never shown). Candidates log in with their own personal code instead.
+  const newId = () => col().doc().id;
+  const create = (data) => col().doc(data.code).set(data);
+  const update = (data) => col().doc(data.code).set(data);
+
+  /* ---------- personal candidate codes ---------- */
+  const codesCol = () => db().collection('candidateCodes');
+
+  // { assessmentId: { email: code } } for everything this company has invited.
+  async function listCodes(uid) {
+    const snap = await codesCol().where('ownerUid', '==', uid).get();
+    const out = {};
+    snap.docs.forEach((d) => { const v = d.data(); (out[v.assessmentId] = out[v.assessmentId] || {})[v.email] = d.id; });
+    return out;
+  }
+
+  async function writeInChunks(ops) {
+    for (let i = 0; i < ops.length; i += 400) {
+      const b = db().batch();
+      ops.slice(i, i + 400).forEach((f) => f(b));
+      await b.commit();
     }
   }
-  const update = (data) => col().doc(data.code).set(data);
+
+  // Gives every invited email its own code (keeping the codes they already have) and removes the codes of
+  // emails that were taken off the list. Returns the full { email: code } map. Call after the assessment is saved.
+  async function syncCodes(a, ownerUid, existing) {
+    const have = Object.assign({}, existing || {});
+    const ops = [];
+    Object.keys(have).forEach((email) => {
+      if (a.candidates.indexOf(email) === -1) { const c = have[email]; delete have[email]; ops.push((b) => b.delete(codesCol().doc(c))); }
+    });
+    await writeInChunks(ops);
+    const missing = a.candidates.filter((e) => !have[e]);
+    for (let attempt = 0; missing.length && attempt < 3; attempt++) {
+      const fresh = {};
+      missing.forEach((e) => { fresh[e] = randomCode(); });
+      try {
+        await writeInChunks(missing.map((e) => (b) => b.set(codesCol().doc(fresh[e]), { assessmentId: a.code, email: e, ownerUid: ownerUid })));
+        Object.assign(have, fresh);
+        break;
+      } catch (e) {
+        // A code that is already in use by someone else is refused by the rules; pick new ones and try again.
+        if (!(e && e.code === 'permission-denied') || attempt === 2) throw e;
+      }
+    }
+    return have;
+  }
 
   async function sessionsFor(code) {
     const snap = await col().doc(code).collection('sessions').get();
@@ -62,6 +101,11 @@
   const resetSession = (code, uid) => col().doc(code).collection('sessions').doc(uid).delete();
 
   async function remove(code) {
+    const fb = AIIC_AUTH.auth.currentUser;
+    if (fb) {
+      const codes = await codesCol().where('ownerUid', '==', fb.uid).where('assessmentId', '==', code).get();
+      await writeInChunks(codes.docs.map((d) => (b) => b.delete(d.ref)));
+    }
     const snap = await col().doc(code).collection('sessions').get();
     await Promise.all(snap.docs.map((d) => d.ref.delete()));
     await col().doc(code).delete();
@@ -92,7 +136,7 @@
   }
 
   window.AIIC_ASSESS = {
-    CODE_RE: CODE_RE, normCode: normCode, normEmail: normEmail, parseEmails: parseEmails, randomCode: randomCode,
+    CODE_RE: CODE_RE, normCode: normCode, normEmail: normEmail, parseEmails: parseEmails, randomCode: randomCode, newId: newId, listCodes: listCodes, syncCodes: syncCodes,
     isCompanyUser: isCompanyUser, listMine: listMine, create: create, update: update, remove: remove,
     sessionsFor: sessionsFor, resetSession: resetSession, open: open, saveSession: saveSession
   };

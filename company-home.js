@@ -1,6 +1,6 @@
 /* =========================================================
    AI Interview Chat — company dashboard (after a Microsoft or Google log in)
-   - create pre-assessments: a code, the questions, and the candidate emails allowed to use it
+   - create pre-assessments: the questions and the candidate emails; each candidate gets their own code
    - review each candidate's interview: answers, grades and AI feedback
    ========================================================= */
 (function () {
@@ -32,6 +32,7 @@
 
   let user = null;
   let mine = [];        // this company's assessments
+  let codes = {};       // assessmentId -> { candidate email -> personal code }
   let editing = null;   // the assessment being edited, or null for a new one
   let draftQs = [];     // questions in the editor
   let draftLimits = []; // seconds allowed for each question in draftQs (0 = no limit)
@@ -124,7 +125,7 @@
       const w = el('div', 'co-app-item');
       const h = el('div', 'co-app-head');
       const t = el('div');
-      t.append(el('strong', null, i.a.title), el('span', 'co-sub', ' ' + i.a.role + ' · code ' + i.a.code));
+      t.append(el('strong', null, i.a.title), el('span', 'co-sub', ' ' + i.a.role));
       const go = el('button', 'btn btn-teal btn-sm', 'Open assessment'); go.type = 'button';
       go.addEventListener('click', () => openReview(i.a));
       h.append(t, go);
@@ -138,11 +139,14 @@
     show('cLoading');
     try { mine = await A.listMine(user.uid); }
     catch (e) { mine = []; $('cLoading').textContent = 'Could not load your pre-assessments. Check your connection and refresh.'; return; }
+    try { codes = await A.listCodes(user.uid); } catch (e) { codes = {}; }
     renderList();
     show('cListView');
     await loadSessions();   // the applicants in the sidebar
     renderSide();
   }
+
+  const codeFor = (a, email) => (codes[a.code] || {})[email] || '';
 
   function copyBtn(code) {
     const b = el('button', 'btn btn-ghost btn-sm', 'Copy code');
@@ -164,7 +168,7 @@
       const head = el('div', 'co-card-head');
       const t = el('div');
       t.append(el('h2', 'co-card-title', a.title), el('p', 'co-sub', a.role + (a.company ? ' · ' + a.company : '')));
-      head.append(t, el('span', 'co-codebadge mono', a.code));
+      head.append(t);
       const meta = el('p', 'mono small co-meta',
         a.questions.length + (a.questions.length === 1 ? ' question' : ' questions') + ' · ' +
         a.candidates.length + (a.candidates.length === 1 ? ' candidate' : ' candidates') +
@@ -176,12 +180,12 @@
       edit.addEventListener('click', () => openEditor(a));
       const del = el('button', 'btn btn-ghost btn-sm co-danger', 'Delete'); del.type = 'button';
       del.addEventListener('click', async function () {
-        if (!confirm('Delete "' + a.title + '" (code ' + a.code + ') and all of its candidates\' sessions? This cannot be undone.')) return;
+        if (!confirm('Delete "' + a.title + '" and all of its candidates\' sessions? This cannot be undone.')) return;
         del.disabled = true;
         try { await A.remove(a.code); loadList(); }
         catch (e) { del.disabled = false; alert('Could not delete it. Please try again.'); }
       });
-      actions.append(review, edit, copyBtn(a.code), del);
+      actions.append(review, edit, del);
       card.append(head, meta, actions);
       list.appendChild(card);
     });
@@ -262,10 +266,6 @@
     form.elements.company.value = a ? a.company : (last ? last.company : '');
     form.elements.title.value = a ? a.title : '';
     form.elements.role.value = a ? a.role : '';
-    form.elements.code.value = a ? a.code : A.randomCode();
-    form.elements.code.readOnly = !!a;
-    $('eGen').classList.toggle('hidden', !!a);
-    $('eCodeHint').textContent = a ? 'The code cannot be changed after it is created.' : '4–20 letters, numbers or dashes. Candidates type this on the Pre-assessment page.';
     form.elements.candidates.value = a ? a.candidates.join('\n') : '';
     draftQs = a ? a.questions.slice() : [];
     draftLimits = draftQs.map((_, i) => (a && a.timeLimits && a.timeLimits[i]) || 0);
@@ -281,11 +281,6 @@
   }
 
   $('cNew').addEventListener('click', () => openEditor(null));
-  $('eGen').addEventListener('click', () => { form.elements.code.value = A.randomCode(); });
-  form.elements.code.addEventListener('input', function () {
-    const c = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
-    if (c !== this.value) this.value = c;
-  });
   form.elements.role.addEventListener('change', function () { if (BANK[this.value.trim()]) pickBankRole(this.value.trim()); });
   form.elements.candidates.addEventListener('input', updateCandCount);
   $('eBankRole').addEventListener('change', renderBank);
@@ -309,33 +304,30 @@
     msg.textContent = '';
     const f = form.elements;
     const company = f.company.value.trim(), title = f.title.value.trim(), role = f.role.value.trim();
-    const code = A.normCode(f.code.value);
     const kept = draftQs.map((q, i) => ({ q: q.trim(), t: draftLimits[i] || 0 })).filter((x) => x.q);
     const questions = kept.map((x) => x.q);
     const emails = A.parseEmails(f.candidates.value);
     if (!company) { msg.textContent = 'Enter your company name.'; f.company.focus(); return; }
     if (!title) { msg.textContent = 'Give the pre-assessment a title.'; f.title.focus(); return; }
     if (!role) { msg.textContent = 'Enter the role you are hiring for.'; f.role.focus(); return; }
-    if (!A.CODE_RE.test(code)) { msg.textContent = 'The code must be 4–20 letters, numbers or dashes.'; f.code.focus(); return; }
     if (!questions.length) { msg.textContent = 'Add at least one question.'; return; }
     if (emails.bad.length) { msg.textContent = 'These do not look like emails: ' + emails.bad.slice(0, 5).join(', '); f.candidates.focus(); return; }
     if (!emails.good.length) { msg.textContent = 'Add at least one candidate email.'; f.candidates.focus(); return; }
 
     const data = {
-      code: code, ownerUid: user.uid, ownerEmail: (user.email || '').toLowerCase(),
+      code: editing ? editing.code : A.newId(), ownerUid: user.uid, ownerEmail: (user.email || '').toLowerCase(),
       company: company, title: title, role: role, questions: questions.slice(0, MAX_Q), timeLimits: kept.map((x) => x.t).slice(0, MAX_Q), candidates: emails.good.slice(0, 300),
       createdAt: editing ? editing.createdAt : Date.now(), updatedAt: Date.now()
     };
     $('eSave').disabled = true;
     try {
       if (editing) await A.update(data);
-      else {
-        if (mine.some((a) => a.code === code)) { msg.textContent = 'You already use this code. Pick another one.'; return; }
-        await A.create(data);
-      }
+      else await A.create(data);
+      // Every candidate gets their own personal code.
+      await A.syncCodes(data, user.uid, codes[data.code]);
       await loadList();
     } catch (err) {
-      msg.textContent = err && err.code === 'taken' ? 'That code is already taken. Click Generate for a new one.' : 'Could not save. Check your connection and try again.';
+      msg.textContent = 'Could not save. Check your connection and try again.';
     } finally { $('eSave').disabled = false; }
   });
 
@@ -375,8 +367,14 @@
       sum.appendChild(el('strong', 'iv-chip grade-' + g, g));
     }
     d.appendChild(sum);
+    // This candidate's own code, to send to them.
+    const myCode = codeFor(a, email);
+    const codeLine = el('div', 'co-actions co-actions-left co-pad');
+    if (myCode) codeLine.append(el('span', 'co-codebadge mono', myCode), copyBtn(myCode));
+    else codeLine.appendChild(el('span', 'small co-hint', 'No code yet. Click Edit, then Save, to create one.'));
+    d.appendChild(codeLine);
     if (!s) {
-      d.appendChild(el('p', 'hist-a hist-summary', 'This candidate has not started yet. Send them the code ' + a.code + ' and ask them to open the Pre-assessment page.'));
+      d.appendChild(el('p', 'hist-a hist-summary', 'This candidate has not started yet. Send them their code and ask them to open the Pre-assessment page.'));
     } else {
       if (s.overall && s.overall.summary) d.appendChild(el('p', 'hist-a hist-summary', s.overall.summary));
       const lists = el('div', 'iv-twocol co-twocol');
@@ -403,7 +401,7 @@
   async function openReview(a) {
     show('cReviewView');
     $('rHeading').textContent = a.title;
-    $('rSub').textContent = a.role + ' · code ' + a.code + ' · ' + a.questions.length + ' questions';
+    $('rSub').textContent = a.role + ' · ' + a.questions.length + ' questions';
     $('rList').replaceChildren();
     $('rStats').replaceChildren();
     $('rLoading').classList.remove('hidden');

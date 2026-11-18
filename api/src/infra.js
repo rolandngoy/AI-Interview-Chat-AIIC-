@@ -87,6 +87,13 @@ async function listAllUsers() {
   return { users: users, counts: counts };
 }
 
+// The record behind a candidate's personal code ({ assessmentId, email }), or null. Server side only.
+async function getInvite(code) {
+  initFirebase();
+  const snap = await db.collection('candidateCodes').doc(code).get();
+  return snap.exists ? snap.data() : null;
+}
+
 // The company's pre-assessment (questions and invited emails), or null. Server side only.
 async function getAssessment(code) {
   initFirebase();
@@ -116,4 +123,4 @@ async function consumeUsage(uid, day, limit, bucket) {
 
 function client() { init(); return anthropic; }
 
-module.exports = { verifyToken, verifyTokenClaims, listAllUsers, getAssessment, createCandidateToken, consumeUsage, client, useOpenAI, openaiChat };
+module.exports = { verifyToken, verifyTokenClaims, listAllUsers, getAssessment, getInvite, createCandidateToken, consumeUsage, client, useOpenAI, openaiChat };

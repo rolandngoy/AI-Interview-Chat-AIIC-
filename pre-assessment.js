@@ -1,6 +1,6 @@
 /* =========================================================
    AI Interview Chat — candidate pre-assessment
-   The candidate logs in with the email the company invited and the company's code. No account is created:
+   The candidate logs in with the email the company invited and their own personal code. No account is created:
    the server (/api/candidate-login) checks the email against the company's list and signs them in with a
    one-assessment token. firestore.rules then limit that sign-in to this one pre-assessment.
    ========================================================= */
@@ -42,7 +42,8 @@
     const claims = (await cred.user.getIdTokenResult()).claims;
     // Remember who this is for the interview page (the token carries the email and a guessed first name).
     AIIC_AUTH.setUser({ uid: cred.user.uid, name: claims.candName || '', email: claims.candEmail || email, picture: '', candidate: true });
-    return cred.user;
+    // The token names the pre-assessment this personal code belongs to.
+    return { user: cred.user, assessmentId: claims.candCode };
   }
 
   form.addEventListener('submit', async function (e) {
@@ -52,11 +53,11 @@
     const email = A.normEmail(form.elements.email.value);
     const code = A.normCode(form.elements.code.value);
     if (!email) { msg.textContent = 'Enter your email.'; return; }
-    if (!A.CODE_RE.test(code)) { msg.textContent = 'Enter the code from the company (4–20 letters, numbers or dashes).'; return; }
+    if (!A.CODE_RE.test(code)) { msg.textContent = 'Enter your personal code from the company (4–20 letters, numbers or dashes).'; return; }
     $('pGo').disabled = true;
     try {
-      const fbUser = await logIn(email, code);
-      const out = await A.open(code, fbUser.uid);
+      const login = await logIn(email, code);
+      const out = await A.open(login.assessmentId, login.user.uid);
       const a = out.assessment, s = out.session;
       if (s && s.complete) {
         msg.textContent = 'You already completed this pre-assessment on ' + new Date(s.date).toLocaleDateString() + '. ' + (a.company || 'The company') + ' has your answers.';

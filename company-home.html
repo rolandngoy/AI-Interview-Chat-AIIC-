@@ -46,11 +46,11 @@
         <div class="co-top">
           <div>
             <h1 class="login-title co-title" id="cTitle">Your assessments</h1>
-            <p class="co-sub" id="cWelcome">Create a pre-assessment, give each candidate the code, and review their interviews here.</p>
+            <p class="co-sub" id="cWelcome">Create a pre-assessment, add your candidates (each gets their own code), and review their interviews here.</p>
           </div>
           <button type="button" class="btn btn-teal btn-md" id="cNew">+ New pre-assessment</button>
         </div>
-        <p class="co-empty hidden" id="cEmpty">You have no assessments yet. Click “+ New pre-assessment” to create one and get a code for your candidates.</p>
+        <p class="co-empty hidden" id="cEmpty">You have no assessments yet. Click “+ New pre-assessment” to create one. Each candidate you add gets their own code.</p>
         <div class="co-list" id="cList"></div>
       </section>
 
@@ -68,13 +68,6 @@
             </label>
             <label class="co-field"><span class="mono small">Role</span>
               <input class="co-input" name="role" maxlength="80" required list="eRoles" placeholder="Frontend Developer">
-            </label>
-            <label class="co-field"><span class="mono small">Code for candidates</span>
-              <span class="co-row">
-                <input class="co-input co-code" name="code" maxlength="20" required placeholder="ABCD-1234" autocomplete="off" spellcheck="false">
-                <button type="button" class="btn btn-ghost btn-sm" id="eGen">Generate</button>
-              </span>
-              <span class="small co-hint" id="eCodeHint">4–20 letters, numbers or dashes. Candidates type this on the Pre-assessment page.</span>
             </label>
           </div>
           <datalist id="eRoles"></datalist>
@@ -108,7 +101,7 @@
           </details>
 
           <h2 class="co-h2">Candidates <span class="mono small co-count" id="eCandCount"></span></h2>
-          <p class="co-sub">Only these emails can use the code. Candidates log in on the Pre-assessment page with their email and the code; they do not need an account. Separate emails with commas or new lines.</p>
+          <p class="co-sub">Each email gets its own personal code when you save (you will see it next to the candidate). Candidates log in on the Pre-assessment page with their email and their code; they do not need an account. Separate emails with commas or new lines.</p>
           <textarea class="co-input" name="candidates" rows="4" placeholder="jordan@example.com, sam@example.com"></textarea>
 
           <p class="login-msg co-msg" id="eMsg" role="alert"></p>

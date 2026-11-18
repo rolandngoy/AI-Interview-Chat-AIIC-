@@ -16,7 +16,18 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
 
-    // Pre-assessments. The document id is the code the company gave its candidates.
+    // Personal candidate codes: one per invited email. Only the company that made one can see it;
+    // candidates never read this collection (the server checks the code when they log in).
+    match /candidateCodes/{c} {
+      allow read: if signedIn() && resource.data.ownerUid == request.auth.uid;
+      allow create: if isCompany() && c.matches('^[A-Z0-9-]{4,20}$')
+        && request.resource.data.keys().hasOnly(['assessmentId', 'email', 'ownerUid'])
+        && request.resource.data.ownerUid == request.auth.uid
+        && get(/databases/$(database)/documents/assessments/$(request.resource.data.assessmentId)).data.ownerUid == request.auth.uid;
+      allow delete: if signedIn() && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // Pre-assessments. The document id is a random internal id (candidates never see it; they use their personal code).
     // A candidate can open one only when their sign-in email is on its candidate list,
     // so a wrong code or email simply looks like "not found".
     match /assessments/{code} {
@@ -32,7 +43,7 @@ service cloud.firestore {
       }
       allow get: if signedIn() && (resource.data.ownerUid == request.auth.uid || (codeOk(code) && myEmail() in resource.data.candidates));
       allow list: if signedIn() && resource.data.ownerUid == request.auth.uid;
-      allow create: if isCompany() && code.matches('^[A-Z0-9-]{4,20}$') && validAssessment(request.resource.data);
+      allow create: if isCompany() && code.matches('^[A-Za-z0-9-]{4,40}$') && validAssessment(request.resource.data);
       allow update: if isCompany() && resource.data.ownerUid == request.auth.uid && validAssessment(request.resource.data);
       allow delete: if signedIn() && resource.data.ownerUid == request.auth.uid;
 

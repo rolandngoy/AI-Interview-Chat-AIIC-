@@ -1,7 +1,7 @@
 // Pure logic for the pre-assessment candidate log in, kept separate so it can be tested without Azure or Firebase.
-// A candidate gives an email and the company's code. If the company invited that email, the server signs them in
-// with a Firebase custom token (no account to create). The token carries the email and code so firestore.rules can
-// limit the candidate to exactly that one pre-assessment.
+// A candidate gives an email and their own personal code (the company makes one per invited candidate). If the code
+// belongs to that email, the server signs them in with a Firebase custom token (no account to create). The token
+// carries the email and the assessment id so firestore.rules can limit the candidate to exactly that one pre-assessment.
 const crypto = require('crypto');
 
 const CODE_RE = /^[A-Z0-9-]{4,20}$/;
@@ -31,7 +31,8 @@ function validateLogin(body) {
 /**
  * deps:
  *   throttle(key) -> Promise<boolean>          (false when this caller has tried too many times today)
- *   getAssessment(code) -> Promise<object|null>
+ *   getInvite(code) -> Promise<{assessmentId, email}|null>   (the personal code's record)
+ *   getAssessment(assessmentId) -> Promise<object|null>
  *   createToken(uid, claims) -> Promise<string>
  */
 function makeCandidateHandler(deps) {
@@ -40,12 +41,13 @@ function makeCandidateHandler(deps) {
     if (!v) return { status: 400, body: { error: 'bad_request' } };
     try {
       if (!(await deps.throttle(callerKey))) return { status: 429, body: { error: 'limit' } };
-      const a = await deps.getAssessment(v.code);
+      const inv = await deps.getInvite(v.code);
+      const a = inv && normEmail(inv.email) === v.email && inv.assessmentId ? await deps.getAssessment(inv.assessmentId) : null;
       const invited = a && Array.isArray(a.candidates) && a.candidates.map(normEmail).includes(v.email);
-      // A wrong code and an email that was not invited look exactly the same.
+      // A wrong code, someone else's code and an email that was not invited all look exactly the same.
       if (!invited) return { status: 404, body: { error: 'not_found' } };
-      const uid = candidateUid(v.code, v.email);
-      const token = await deps.createToken(uid, { candEmail: v.email, candCode: v.code, candName: guessFirstName(v.email) });
+      const uid = candidateUid(inv.assessmentId, v.email);
+      const token = await deps.createToken(uid, { candEmail: v.email, candCode: inv.assessmentId, candName: guessFirstName(v.email) });
       return { status: 200, body: { token: token } };
     } catch (e) {
       if (e && e.code === 'not_configured') return { status: 503, body: { error: 'not_configured' } };
