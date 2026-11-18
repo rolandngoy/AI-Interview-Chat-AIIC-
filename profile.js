@@ -41,7 +41,7 @@
   head.append(el('strong', null, user.name || 'Signed in'), el('span', 'small', user.email || ''));
 
   const history = el('a', 'profile-item', 'History');
-  history.href = 'history.html'; history.setAttribute('role', 'menuitem');
+  history.href = '/history'; history.setAttribute('role', 'menuitem');
   const logout = el('button', 'profile-item', 'Log out');
   logout.type = 'button'; logout.setAttribute('role', 'menuitem');
   const del = el('button', 'profile-item profile-danger', 'Delete account');
@@ -50,7 +50,7 @@
   // Only a shortcut; the server decides who may actually see the accounts.
   if ((user.email || '').toLowerCase() === 'rolandngoy0703@gmail.com') {
     const admin = el('a', 'profile-item', 'Admin: all accounts');
-    admin.href = 'admin.html'; admin.setAttribute('role', 'menuitem');
+    admin.href = '/admin'; admin.setAttribute('role', 'menuitem');
     menu.appendChild(admin);
   }
   menu.append(logout, del);
@@ -66,7 +66,7 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
 
   logout.addEventListener('click', function () {
-    AIIC_AUTH.signOut().then(() => { window.location.href = 'index.html'; });
+    AIIC_AUTH.signOut().then(() => { window.location.href = '/'; });
   });
 
   /* ---------- delete account ---------- */
@@ -125,7 +125,7 @@
         }
         await fb.delete();
         try { localStorage.removeItem('aiic_user'); sessionStorage.removeItem('aiic_role'); } catch (e) {}
-        window.location.href = 'index.html';
+        window.location.href = '/';
       } catch (err) {
         AIIC_AUTH.suppressRedirect = false;
         confirmBtn.disabled = cancel.disabled = false;

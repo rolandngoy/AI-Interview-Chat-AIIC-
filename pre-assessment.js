@@ -19,7 +19,7 @@
     return;
   }
 
-  // A code that came in the link (pre-assessment.html?code=ABCD-1234) fills the box.
+  // A code that came in the link (pre-assessment?code=ABCD-1234) fills the box.
   const linkCode = new URLSearchParams(window.location.search).get('code');
   if (linkCode) form.elements.code.value = A.normCode(linkCode).replace(/[^A-Z0-9-]/g, '');
   form.elements.email.focus();
@@ -89,6 +89,6 @@
       }));
       sessionStorage.setItem('aiic_role', found.role);
     } catch (err) { msg.textContent = 'Your browser blocked storage for this site. Allow it and try again.'; return; }
-    window.location.href = 'interview.html';
+    window.location.href = '/interview';
   });
 })();

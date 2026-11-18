@@ -451,7 +451,7 @@
   })();
 
   $('cSwitch').addEventListener('click', function () {
-    AIIC_AUTH.signOut().then(() => { window.location.href = 'company.html'; });
+    AIIC_AUTH.signOut().then(() => { window.location.href = '/company'; });
   });
 
   AIIC_AUTH.ready.then(function () {

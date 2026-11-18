@@ -16,7 +16,7 @@
   }
 
   // Already signed in (with Microsoft or Google earlier): go straight to the company page.
-  AIIC_AUTH.ready.then(function () { if (AIIC_AUTH.getUser()) window.location.replace('company-home.html'); });
+  AIIC_AUTH.ready.then(function () { if (AIIC_AUTH.getUser()) window.location.replace('/company-home'); });
 
   function friendly(err) {
     switch (err && err.code) {
@@ -35,7 +35,7 @@
     try {
       provider.setCustomParameters({ prompt: 'select_account' });
       await auth.signInWithPopup(provider);
-      window.location.href = 'company-home.html';
+      window.location.href = '/company-home';
     } catch (err) {
       btn.disabled = gbtn.disabled = false;
       const c = err && err.code;

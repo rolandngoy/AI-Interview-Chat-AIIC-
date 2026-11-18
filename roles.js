@@ -21,7 +21,7 @@
 
   let user = null;
   try { user = JSON.parse(localStorage.getItem('aiic_user')); } catch (e) {}
-  if (!user) { window.location.replace('login.html'); return; }
+  if (!user) { window.location.replace('/login'); return; }
 
   const hi = document.getElementById('roleHello');
   if (hi) hi.textContent = 'Hi ' + String(user.name || user.email || '').split(' ')[0] + ' — ';
@@ -42,7 +42,7 @@
 
   function choose(role) {
     try { sessionStorage.setItem('aiic_role', role); sessionStorage.removeItem('aiic_assessment'); } catch (e) {}
-    window.location.href = 'interview.html';
+    window.location.href = '/interview';
   }
 
   Object.keys(ROLES).forEach(function (cat) {

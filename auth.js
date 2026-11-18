@@ -30,9 +30,9 @@
   const ready = new Promise((r) => { resolveReady = r; });
   let busy = false; // set while a login/sign-up form is mid-flight
   const onLoginPage = !!document.getElementById('googleBtn');
-  // login.html?next=pre-assessment.html sends the candidate back to the pre-assessment after logging in.
-  const NEXT = (/[?&]next=(pre-assessment|roles)\.html\b/.exec(window.location.search) || [])[1];
-  const AFTER_LOGIN = NEXT ? NEXT + '.html' : 'roles.html';
+  // login?next=pre-assessment sends the candidate back to the pre-assessment after logging in.
+  const NEXT = (/[?&]next=(pre-assessment|roles)\b/.exec(window.location.search) || [])[1];
+  const AFTER_LOGIN = NEXT ? '/' + NEXT : '/roles';
 
   if (auth) {
     auth.onAuthStateChanged(async function (fb) {
@@ -49,7 +49,7 @@
         if (onLoginPage && !busy) window.location.replace(AFTER_LOGIN);
       } else {
         clearUser();
-        if (GUARDED.test(window.location.pathname) && !window.AIIC_AUTH.suppressRedirect) window.location.replace(/company-home/.test(window.location.pathname) ? 'company.html' : 'login.html');
+        if (GUARDED.test(window.location.pathname) && !window.AIIC_AUTH.suppressRedirect) window.location.replace(/company-home/.test(window.location.pathname) ? '/company' : '/login');
       }
       resolveReady();
     });
@@ -157,8 +157,8 @@
     if (!cta) return;
     const user = getUser();
     if (!user) return;
-    cta.setAttribute('href', 'roles.html');
-    document.querySelectorAll('a[href="login.html"]').forEach(function (a) { a.setAttribute('href', 'roles.html'); });
+    cta.setAttribute('href', '/roles');
+    document.querySelectorAll('a[href="/login"]').forEach(function (a) { a.setAttribute('href', '/roles'); });
   }
 
   initLoginPage();

@@ -42,7 +42,7 @@
     $('aStatus').textContent = 'Loading accounts…'; $('aStatus').classList.remove('hidden');
     try {
       const fb = AIIC_AUTH.auth && AIIC_AUTH.auth.currentUser;
-      if (!fb) { window.location.replace('login.html'); return; }
+      if (!fb) { window.location.replace('/login'); return; }
       const res = await fetch('/api/accounts-list', { method: 'POST', headers: { 'X-Firebase-Token': await fb.getIdToken(true) } });
       if (!res.ok) {
         let info = {}; try { info = await res.json(); } catch (e) {}
@@ -77,7 +77,7 @@
   $('aSearch').addEventListener('input', render);
   $('aRetry').addEventListener('click', load);
   AIIC_AUTH.ready.then(function () {
-    if (!AIIC_AUTH.getUser()) { window.location.replace('login.html'); return; }
+    if (!AIIC_AUTH.getUser()) { window.location.replace('/login'); return; }
     load();
   });
 })();

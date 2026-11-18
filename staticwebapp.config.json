@@ -3,6 +3,59 @@
     "apiRuntime": "node:20"
   },
   "routes": [
-    { "route": "/api/*", "methods": ["POST"], "allowedRoles": ["anonymous"] }
+    {
+      "route": "/index.html",
+      "redirect": "/",
+      "statusCode": 301
+    },
+    {
+      "route": "/admin.html",
+      "redirect": "/admin",
+      "statusCode": 301
+    },
+    {
+      "route": "/company.html",
+      "redirect": "/company",
+      "statusCode": 301
+    },
+    {
+      "route": "/company-home.html",
+      "redirect": "/company-home",
+      "statusCode": 301
+    },
+    {
+      "route": "/history.html",
+      "redirect": "/history",
+      "statusCode": 301
+    },
+    {
+      "route": "/interview.html",
+      "redirect": "/interview",
+      "statusCode": 301
+    },
+    {
+      "route": "/login.html",
+      "redirect": "/login",
+      "statusCode": 301
+    },
+    {
+      "route": "/pre-assessment.html",
+      "redirect": "/pre-assessment",
+      "statusCode": 301
+    },
+    {
+      "route": "/roles.html",
+      "redirect": "/roles",
+      "statusCode": 301
+    },
+    {
+      "route": "/api/*",
+      "methods": [
+        "POST"
+      ],
+      "allowedRoles": [
+        "anonymous"
+      ]
+    }
   ]
 }

@@ -12,8 +12,8 @@
   try { user = JSON.parse(localStorage.getItem('aiic_user')); role = sessionStorage.getItem('aiic_role'); assessment = JSON.parse(sessionStorage.getItem('aiic_assessment')); } catch (e) {}
   if (assessment && !(assessment.code && Array.isArray(assessment.questions) && assessment.questions.length && window.AIIC_ASSESS)) assessment = null;
   if (assessment) role = assessment.role || assessment.title;
-  if (!user) { window.location.replace(assessment ? 'pre-assessment.html' : 'login.html'); return; }
-  if (!role) { window.location.replace('roles.html'); return; }
+  if (!user) { window.location.replace(assessment ? '/pre-assessment' : '/login'); return; }
+  if (!role) { window.location.replace('/roles'); return; }
   if (assessment) document.body.classList.add('is-assessment');
 
   const GENERAL = [
@@ -1138,7 +1138,7 @@
     const inCode = typeof q === 'object' && !$('ivCodeForm').classList.contains('hidden');
     const draft = inCode ? ($('ivCode').value.trim() !== q.starter.trim()) : (!$('ivTyped').classList.contains('hidden') && $('ivAnswer').value.trim());
     if (!$('ivQuestionView').classList.contains('hidden') && draft && !confirm('Leave the interview? Your current unsent answer will be lost. Answers you already submitted are saved in your history.')) return;
-    window.location.href = assessment ? 'pre-assessment.html' : 'roles.html';
+    window.location.href = assessment ? '/pre-assessment' : '/roles';
   });
 
   if (assessment) {

@@ -5,7 +5,7 @@
   'use strict';
 
   const user = AIIC_STORE.getUser();
-  if (!user) { window.location.replace('login.html'); return; }
+  if (!user) { window.location.replace('/login'); return; }
 
   const $ = (id) => document.getElementById(id);
 
