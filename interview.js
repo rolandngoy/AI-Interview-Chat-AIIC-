@@ -256,7 +256,7 @@
   const views = ['ivQuestionView', 'ivSummaryView'];
   function show(id) { views.forEach((v) => $(v).classList.toggle('hidden', v !== id)); }
 
-  let questions, index, results, sessionId;
+  let questions, index, results, sessionId, resuming = false;
   let turn = 0;                 // bumped whenever the conversation moves on, so stale async steps stop
   let answering = false, silenceTimer = null, micDenied = false, restarts = 0;
   let mediaRec = null, mediaStream = null, chunks = [], audioUrl = null;
@@ -302,8 +302,33 @@
     });
   }
 
+  /* ---------- resume after a refresh ---------- */
+  // The interview's place is kept in this browser after every question and answer, so refreshing the page
+  // (or coming back within a day) continues where the candidate stopped instead of starting over.
+  const PROGRESS_KEY = 'aiic_progress';
+  const PROGRESS_MAX_AGE = 24 * 60 * 60 * 1000;
+  const progressId = () => (assessment ? 'a|' + assessment.code : 'p|' + role) + '|' + (user.uid || user.email || '');
+  function clearProgress() { try { localStorage.removeItem(PROGRESS_KEY); } catch (e) {} }
+  function saveProgress(answered) {
+    try {
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify({
+        id: progressId(), ts: Date.now(), sessionId: sessionId, questions: questions, askers: askers, index: index,
+        answered: !!answered, results: results, followUps: Array.from(followUps), followUpCount: followUpCount
+      }));
+    } catch (e) {}
+  }
+  function loadProgress() {
+    try {
+      const p = JSON.parse(localStorage.getItem(PROGRESS_KEY));
+      if (!p || p.id !== progressId() || Date.now() - p.ts > PROGRESS_MAX_AGE) return null;
+      if (!Array.isArray(p.questions) || !p.questions.length || !Array.isArray(p.results) || !Array.isArray(p.askers)) return null;
+      return p;
+    } catch (e) { return null; }
+  }
+
   function persist(complete) {
     if (!results.length) return;
+    if (!complete) saveProgress(true);
     if (assessment) {
       AIIC_ASSESS.saveSession(assessment.code, user, {
         role: role, title: assessment.title, company: assessment.company || '', date: sessionId, total: questions.length,
@@ -598,6 +623,7 @@
   async function showQuestion(prefix) {
     const myTurn = ++turn;
     const q = questions[index];
+    saveProgress(false);
     AIIC_STAGE.startOverlay(false);
     setAsker(askers[index] || 'roland');
     const isCode = typeof q === 'object';
@@ -810,13 +836,16 @@
     $('ivBar').style.width = '100%';
     $('ivCount').textContent = 'Done';
     show('ivSummaryView');
+    clearProgress();
     renderResults();
     persist(true);
     loadAiFeedback();
   }
 
-  function start() {
-    questions = buildQuestions();
+  function start(fresh) {
+    const saved = fresh === true ? null : loadProgress();
+    if (fresh === true) clearProgress();
+    questions = saved ? saved.questions : buildQuestions();
     index = 0;
     results = [];
     followUps = new Set(); followUpCount = 0; pendingFollowUp = null; replyToken++; aiOff = false;
@@ -824,6 +853,17 @@
     overallInfo = null; feedbackToken++; feedbackOff = false;
     sessionId = Date.now();
     askers = questions.map((_, i) => (i % 2 === 0 ? 'roland' : 'makenzie'));
+    resuming = false;
+    if (saved) {
+      sessionId = saved.sessionId || sessionId;
+      askers = saved.askers;
+      results = saved.results;
+      followUps = new Set(saved.followUps || []);
+      followUpCount = saved.followUpCount || 0;
+      // If the answer was already sent when the page closed, carry on with the next question.
+      index = Math.max(0, saved.index) + (saved.answered ? 1 : 0);
+      resuming = true;
+    }
     introActive = false;
     stopSpeaking();
     AIIC_STAGE.setCaption('', '');
@@ -831,13 +871,22 @@
     $('stageStart').classList.remove('is-intro');
     AIIC_STAGE.startOverlay(true);
     show('none');
-    $('ivCount').textContent = 'Ready when you are';
-    $('ivBar').style.width = '0%';
+    $('ivCount').textContent = resuming ? 'Welcome back' : 'Ready when you are';
+    $('ivBar').style.width = resuming ? (Math.min(index, questions.length) / questions.length * 100) + '%' : '0%';
+    $('ivBegin').textContent = resuming ? 'Continue your interview' : $('ivBegin').dataset.label;
   }
 
   // Roland and Makenzie introduce themselves, then Roland asks the first question.
   async function runIntro() {
     if (introActive) return;
+    if (resuming) { // picking up after a refresh: no introduction again
+      resuming = false;
+      $('ivBegin').classList.add('hidden');
+      $('stageStart').classList.add('is-intro');
+      if (index >= questions.length) { showSummary(); return; }
+      await showQuestion('Welcome back. ');
+      return;
+    }
     introActive = true;
     $('ivBegin').classList.add('hidden');
     $('stageStart').classList.add('is-intro');
@@ -868,6 +917,7 @@
   if ('speechSynthesis' in window) { try { speechSynthesis.getVoices(); } catch (e) {} }
   $('ivRole').textContent = role;
   setAsker('roland');
+  $('ivBegin').dataset.label = $('ivBegin').textContent;
   $('ivBegin').addEventListener('click', runIntro);
   $('ivSkipIntro').addEventListener('click', function () { if (!introActive) { introActive = true; } skipIntro(); });
   $('ivAnswer').addEventListener('input', function () {
@@ -1131,13 +1181,14 @@
     } else if (e.key !== 'Shift') { tabEscapes = false; }
   });
 
-  $('ivRetry').addEventListener('click', start);
+  $('ivRetry').addEventListener('click', function () { start(true); });
 
   $('ivReturn').addEventListener('click', function () {
     const q = questions[index];
     const inCode = typeof q === 'object' && !$('ivCodeForm').classList.contains('hidden');
     const draft = inCode ? ($('ivCode').value.trim() !== q.starter.trim()) : (!$('ivTyped').classList.contains('hidden') && $('ivAnswer').value.trim());
     if (!$('ivQuestionView').classList.contains('hidden') && draft && !confirm('Leave the interview? Your current unsent answer will be lost. Answers you already submitted are saved in your history.')) return;
+    if (!assessment) clearProgress();
     window.location.href = assessment ? '/pre-assessment' : '/roles';
   });
 

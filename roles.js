@@ -41,7 +41,7 @@
   const otherInput = document.getElementById('otherInput');
 
   function choose(role) {
-    try { sessionStorage.setItem('aiic_role', role); sessionStorage.removeItem('aiic_assessment'); } catch (e) {}
+    try { sessionStorage.setItem('aiic_role', role); sessionStorage.removeItem('aiic_assessment'); localStorage.removeItem('aiic_progress'); } catch (e) {}
     window.location.href = '/interview';
   }
 
