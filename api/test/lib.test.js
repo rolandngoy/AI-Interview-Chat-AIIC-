@@ -33,7 +33,8 @@ assert.ok(/real conversation/.test(buildConverseSystem(cv.value)) && /Makenzie/.
 assert.ok(buildConverseUser(cv.value).includes('<candidate>Not really having a good day.</candidate>'));
 assert.deepStrictEqual(parseConverse('{"react":"Oh no.","ask":"Can we help?","type":"chat"}', cv.value), { react: 'Oh no.', ask: 'Can we help?', type: 'chat' });
 assert.strictEqual(parseConverse('{"react":"Hm.","ask":"Why?","type":"followUp"}', cv.value), null); // follow-up not allowed this turn
-assert.strictEqual(parseConverse('{"react":"Hm.","ask":"Why?","type":"next"}', { ...cv.value, nextTopic: '' }), null);
+assert.deepStrictEqual(parseConverse('{"react":"Hm.","ask":"Why?","type":"next"}', { ...cv.value, nextTopic: '' }), { react: 'Hm.', ask: 'Why?', type: 'next' }); // the AI picks the question itself
+assert.ok(/NOT read from a list/.test(buildConverseSystem({ ...cv.value, topics: ['Teamwork'] })) && /<area>Teamwork<\/area>/.test(buildConverseSystem({ ...cv.value, topics: ['Teamwork'] })));
 assert.strictEqual(parseConverse('{"react":"","ask":"Why?","type":"next"}', cv.value), null);
 
 (async () => {

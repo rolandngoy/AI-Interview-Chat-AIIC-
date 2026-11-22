@@ -83,7 +83,7 @@ function validateConverse(body) {
     ok: true,
     value: {
       persona: persona, role: role, intern: body.intern === true, question: question, answer: answer, history: history,
-      nextTopic: clip(body.nextTopic, 400), nextIsClosing: body.nextIsClosing === true,
+      nextTopic: clip(body.nextTopic, 400), topics: (Array.isArray(body.topics) ? body.topics : []).slice(0, 3).map((t) => clip(t, 300)).filter(Boolean), nextIsClosing: body.nextIsClosing === true,
       nextSpeaker: other && body.nextInterviewer !== body.interviewer ? other : null,
       canFollowUp: body.canFollowUp === true, canChat: body.canChat === true,
       remaining: Math.max(0, Math.min(40, parseInt(body.remaining, 10) || 0))
@@ -93,6 +93,7 @@ function validateConverse(body) {
 
 function buildConverseSystem(v) {
   const p = v.persona;
+  const topics = v.topics && v.topics.length ? v.topics : (v.nextTopic ? [v.nextTopic] : []);
   return [
     'You are ' + p.name + ', a ' + p.title + ' in a live, spoken mock job interview for a candidate applying to be a ' + v.role + '. A second interviewer sits in with you. This is a practice interview on a website that helps people prepare.',
     'Your manner: ' + p.style,
@@ -102,8 +103,8 @@ function buildConverseSystem(v) {
     '"react": one or two short spoken sentences from you reacting to what they just said. Specific to their words, natural and warm. Do not score, grade, praise lavishly or coach: all feedback is saved for the end. Never ask a question in "react".',
     '"ask": the one question that comes next, spoken right after "react".',
     '"type" decides what "ask" is:',
-    '- "next": move on to the planned next topic. ' + (v.nextTopic ? 'The planned next topic is: <topic>' + v.nextTopic + '</topic>. Ask about that same topic, but word it in your own natural way, connected to the conversation so far where that fits (do not paste it word for word if a smoother way exists, and do not change the topic).' : 'There is no planned topic, so do not use this type.') + (v.nextSpeaker ? ' The question will be asked by your co-interviewer ' + v.nextSpeaker.name + ', not you, so write "ask" as ' + v.nextSpeaker.name + ' speaking, and keep "react" as yours.' : ''),
-    '- "followUp": ' + (v.canFollowUp ? 'ask ONE question that builds directly on something specific they said, in your wording ("You mentioned...", "When you said..."). Use it when their answer was vague, interesting, or opens something worth exploring. Prefer it over "next" when it would really happen in a real conversation. Do not use it twice in a row or when the answer was complete and clear.' : 'NOT allowed this turn.'),
+    '- "next": ask whatever question a real interviewer would naturally ask next, given everything said so far. It should grow out of the conversation: pick up a thread from what they just said or earlier, or turn to a new area when the current thread is finished. You decide the question yourself; it is NOT read from a list.' + (topics.length ? ' For where the interview should eventually go, here are some areas still to cover. Treat them as loose inspiration only and ask about one only when it fits the flow, worded entirely in your own way: ' + topics.map((t) => '<area>' + t + '</area>').join(' ') : '') + (v.nextSpeaker ? ' The question will be asked by your co-interviewer ' + v.nextSpeaker.name + ', not you, so write "ask" as ' + v.nextSpeaker.name + ' speaking, and keep "react" as yours.' : ''),
+    '- "followUp": ' + (v.canFollowUp ? 'ask ONE question that builds directly on something specific they said, in your wording ("You mentioned...", "When you said..."). Use it when their answer was vague, interesting, or opens something worth exploring. In a real conversation most turns follow what was just said, so prefer it whenever their answer gives you something to dig into. Do not use it more than twice in a row, and do not use it when the answer was complete and clear.' : 'NOT allowed this turn.'),
     '- "chat": ' + (v.canChat ? 'a caring or friendly question that is not an interview question, only when the candidate said something personal or emotional that a decent interviewer would respond to (a bad day, feeling unwell, nerves, a technical problem). Never use it for ordinary answers.' : 'NOT allowed this turn.'),
     v.remaining <= 2 ? 'The interview is nearly over, so do not open new topics: prefer "next".' : '',
     'Style: natural spoken English, first person, contractions are fine, no markdown, no emojis, no stage directions, no lists. "react" under 40 words, "ask" under 45 words, a single question only. Do not repeat a question already asked in the conversation.',
@@ -134,7 +135,6 @@ function parseConverse(text, v) {
   if (!react || !ask || !type) return null;
   if (type === 'followUp' && !v.canFollowUp) return null;
   if (type === 'chat' && !v.canChat) return null;
-  if (type === 'next' && !v.nextTopic) return null;
   return { react: react, ask: ask, type: type };
 }
 

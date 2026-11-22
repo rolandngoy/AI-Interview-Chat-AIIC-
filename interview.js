@@ -275,7 +275,7 @@
   const PERSON_IDS = Object.keys(PEOPLE);
   let personaId = 'roland';
   let followUps = new Set(), followUpCount = 0, pendingFollowUp = null, replyToken = 0, aiOff = false;
-  const MAX_FOLLOW_UPS = 5;
+  const MAX_FOLLOW_UPS = 8;
   const persona = () => PEOPLE[personaId];
 
   // Roland asks the 1st, 3rd, 5th... question and Makenzie the 2nd, 4th... A follow-up is asked by
@@ -1049,7 +1049,8 @@
   // The conversational AI interviewer: reacts to what the candidate really said (including personal things like
   // "I'm having a bad day"), then asks the next question in its own words. Returns null to use the scripted reply.
   async function getConversation(asked, text, who) {
-    if (assessment || asked === CLOSING || aiOff) return null;
+    if (assessment || asked === CLOSING) return null;
+    if (aiOff) { aiNote('The AI interviewer is off for this interview (daily limit reached or signed out), so these questions are prepared ones.'); return null; }
     if (!window.AIIC_AUTH || !AIIC_AUTH.configured || !AIIC_AUTH.auth || !AIIC_AUTH.auth.currentUser) { aiNote('You are not signed in with an account, so the AI interviewer is off.'); return null; }
     const next = questions[index + 1];
     if (typeof next !== 'string') return null; // the end, or a coding problem: handled by the normal flow
@@ -1063,7 +1064,7 @@
         body: JSON.stringify({
           mode: 'converse', interviewer: who, nextInterviewer: askers[index + 1] || who, role: role, intern: isIntern,
           question: currentSay || questionText(asked), answer: text, history: transcript.slice(-12, -2),
-          nextTopic: next, nextIsClosing: next === CLOSING,
+          nextTopic: next, nextIsClosing: next === CLOSING, topics: questions.slice(index + 1).filter((q) => typeof q === 'string' && !isChat(q) && q !== CLOSING).slice(0, 3),
           canFollowUp: canFollowUpNow(asked), canChat: chatCount < MAX_CHAT,
           remaining: questions.slice(index + 1).filter((q) => !isChat(q)).length
         })
@@ -1084,19 +1085,22 @@
   // Speaks the AI's reaction, then asks its question. Returns false when the reply cannot be used.
   async function playConversation(c, who, asked, myTurn) {
     let kind = c.type;
+    // A follow-up or check-in the interview has no room for becomes the next question instead.
     if (kind === 'followUp' && !(canFollowUpNow(asked) && removableIndex() !== -1)) kind = 'next';
     if (kind === 'chat' && chatCount >= MAX_CHAT) kind = 'next';
-    if (kind !== c.type) return false; // the AI chose something that is not allowed now: use the planned flow
     $('ivAsker').textContent = PEOPLE[who].name + ' says:';
     $('ivQuestion').textContent = c.react;
     say(who, c.react);
     await speakLine(who, c.react);
     if (myTurn !== turn) return true;
+    if (kind === 'next' && questions[index + 1] === CLOSING) { await advance(who); return true; } // time to wrap up
     if (kind === 'followUp') {
       insertFollowUp(c.ask);
     } else if (kind === 'chat') {
       questions.splice(index + 1, 0, c.ask); askers.splice(index + 1, 0, who);
       chatQs.add(c.ask); chatCount++;
+    } else {
+      questions[index + 1] = c.ask; // the AI chose this question itself, so what is graded is what was really asked
     }
     index++;
     await showQuestion('', c.ask);
