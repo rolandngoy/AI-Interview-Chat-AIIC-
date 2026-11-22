@@ -107,7 +107,7 @@ The values in `config.js` are public by design; the Firestore rules are what kee
 
 ## AI interviewers (OpenAI or Claude)
 
-Two AI interviewers, Makenzie and Roland, react to each answer in character and sometimes ask a follow-up question. The browser calls `/api/interviewer`, a small Azure Function in `api/` that is deployed with the site. The AI key (OpenAI or Anthropic) is stored only in Azure's server settings and never reaches the browser or this repo.
+Two AI interviewers, Makenzie and Roland, hold a real conversation in practice interviews. Roland opens with small talk ("How are you doing today?"), and after every answer the AI replies to what the candidate actually said, including personal things ("I'm not having a good day" gets a caring reply, and up to 3 short check-ins), then asks the next question in its own words, or a follow-up when the answer calls for one. A planned list of topics still guides the interview so it covers the role and ends at 15 questions; only real interview questions are graded, small talk is not. If the AI is unavailable, the interview falls back to the planned questions with simple reactions. Company pre-assessments are not changed: they still ask exactly the company's questions. The browser calls `/api/interviewer`, a small Azure Function in `api/` that is deployed with the site. The AI key (OpenAI or Anthropic) is stored only in Azure's server settings and never reaches the browser or this repo.
 
 **One-time setup**
 

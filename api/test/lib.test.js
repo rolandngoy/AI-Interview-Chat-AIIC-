@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { validate, buildSystem, buildUser, parseReply, makeHandler } = require('../src/lib');
+const { validateConverse, buildConverseSystem, buildConverseUser, parseConverse, validate, buildSystem, buildUser, parseReply, makeHandler } = require('../src/lib');
 
 // validate
 assert.strictEqual(validate(null).ok, false);
@@ -23,6 +23,19 @@ assert.deepStrictEqual(parseReply('Sure! ```json\n{"reaction":"Good.","followUp"
 assert.strictEqual(parseReply('no json here', true), null);
 assert.strictEqual(parseReply('{"reaction":"","followUp":"x"}', true), null);
 
+// conversation mode
+const cb = { mode: 'converse', interviewer: 'roland', nextInterviewer: 'makenzie', role: 'Nurse', question: 'How are you doing today?', answer: 'Not really having a good day.', history: [{ who: 'interviewer', text: 'Hello' }, { who: 'bad', text: 'x' }], nextTopic: 'Tell me about yourself.', canFollowUp: false, canChat: true, remaining: 12 };
+const cv = validateConverse(cb);
+assert.ok(cv.ok && cv.value.nextSpeaker.name === 'Makenzie' && cv.value.history[1].who === 'interviewer' && cv.value.canChat && !cv.value.canFollowUp);
+assert.strictEqual(validateConverse({ ...cb, answer: '' }).ok, false);
+assert.strictEqual(validateConverse({ ...cb, nextInterviewer: 'roland' }).value.nextSpeaker, null);
+assert.ok(/real conversation/.test(buildConverseSystem(cv.value)) && /Makenzie/.test(buildConverseSystem(cv.value)) && /untrusted/.test(buildConverseSystem(cv.value)));
+assert.ok(buildConverseUser(cv.value).includes('<candidate>Not really having a good day.</candidate>'));
+assert.deepStrictEqual(parseConverse('{"react":"Oh no.","ask":"Can we help?","type":"chat"}', cv.value), { react: 'Oh no.', ask: 'Can we help?', type: 'chat' });
+assert.strictEqual(parseConverse('{"react":"Hm.","ask":"Why?","type":"followUp"}', cv.value), null); // follow-up not allowed this turn
+assert.strictEqual(parseConverse('{"react":"Hm.","ask":"Why?","type":"next"}', { ...cv.value, nextTopic: '' }), null);
+assert.strictEqual(parseConverse('{"react":"","ask":"Why?","type":"next"}', cv.value), null);
+
 (async () => {
   const ok = { verifyToken: async () => 'u1', consumeUsage: async () => true, callModel: async () => ({ text: '{"reaction":"Thanks.","followUp":"Tell me more?"}' }) };
   const body = { interviewer: 'roland', role: 'Nurse', question: 'q', answer: 'a', canFollowUp: true };
@@ -36,6 +49,10 @@ assert.strictEqual(parseReply('{"reaction":"","followUp":"x"}', true), null);
   r = await makeHandler({ ...ok, callModel: async () => { throw new Error('api'); } })('tok', body, 5); assert.strictEqual(r.status, 503);
   r = await makeHandler({ ...ok, callModel: async () => ({ refused: true }) })('tok', body, 5); assert.deepStrictEqual([r.status, r.body.reaction], [200, '']);
   r = await makeHandler({ ...ok, callModel: async () => ({ text: 'garbage' }) })('tok', body, 5); assert.strictEqual(r.status, 502);
+  const cok = { ...ok, callModel: async () => ({ text: '{"react":"Oh no, sorry to hear that.","ask":"Is there anything we can do to help?","type":"chat"}' }) };
+  r = await makeHandler(cok)('tok', cb, 5); assert.deepStrictEqual([r.status, r.body.type], [200, 'chat']);
+  r = await makeHandler(cok)('tok', { ...cb, answer: '' }, 5); assert.strictEqual(r.status, 400);
+  r = await makeHandler({ ...ok, callModel: async () => ({ text: 'garbage' }) })('tok', cb, 5); assert.strictEqual(r.status, 502);
   console.log('all api tests passed');
 })().catch((e) => { console.error(e); process.exit(1); });
 

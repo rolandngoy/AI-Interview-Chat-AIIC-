@@ -257,6 +257,14 @@
   function show(id) { views.forEach((v) => $(v).classList.toggle('hidden', v !== id)); }
 
   let questions, index, results, sessionId, resuming = false;
+  // Practice interviews are a conversation: Roland opens with small talk, and the AI replies to what was actually said.
+  const GREETING = 'How are you doing today?';
+  const MAX_CHAT = 3;
+  let chatQs = new Set(), chatCount = 0, transcript = [], currentSay = '';
+  const isChat = (q) => typeof q === 'string' && chatQs.has(q);
+  const gradedTotal = () => questions.filter((q) => !isChat(q)).length;
+  const gradedNo = () => questions.slice(0, index + 1).filter((q) => !isChat(q)).length;
+  const say = (who, text) => { const t = String(text || '').trim(); if (t && !(transcript.length && transcript[transcript.length - 1].text === t)) transcript.push({ who: who, text: t }); };
   let turn = 0;                 // bumped whenever the conversation moves on, so stale async steps stop
   let answering = false, silenceTimer = null, micDenied = false, restarts = 0;
   let mediaRec = null, mediaStream = null, chunks = [], audioUrl = null;
@@ -313,7 +321,8 @@
     try {
       localStorage.setItem(PROGRESS_KEY, JSON.stringify({
         id: progressId(), ts: Date.now(), sessionId: sessionId, questions: questions, askers: askers, index: index,
-        answered: !!answered, results: results, followUps: Array.from(followUps), followUpCount: followUpCount
+        answered: !!answered, results: results, followUps: Array.from(followUps), followUpCount: followUpCount,
+        chat: Array.from(chatQs), chatCount: chatCount, transcript: transcript.slice(-12)
       }));
     } catch (e) {}
   }
@@ -331,7 +340,7 @@
     if (!complete) saveProgress(true);
     if (assessment) {
       AIIC_ASSESS.saveSession(assessment.code, user, {
-        role: role, title: assessment.title, company: assessment.company || '', date: sessionId, total: questions.length,
+        role: role, title: assessment.title, company: assessment.company || '', date: sessionId, total: gradedTotal(),
         complete: complete, results: results, grade: AIIC_GRADES.overall(results), overall: overallInfo || null
       }).catch(function () {
         $('ivFeedbackStatus').textContent = 'Your answers could not be saved. Check your connection and keep this page open.';
@@ -340,7 +349,7 @@
     }
     if (!window.AIIC_STORE) return;
     AIIC_STORE.saveSession(user, {
-      id: sessionId, role: role, date: sessionId, total: questions.length, complete: complete, results: results,
+      id: sessionId, role: role, date: sessionId, total: gradedTotal(), complete: complete, results: results,
       grade: AIIC_GRADES.overall(results), overall: overallInfo || null
     });
   }
@@ -620,7 +629,7 @@
   }
 
   // Shows a question and has its interviewer ask it out loud. `prefix` is a spoken lead-in like "Sure!".
-  async function showQuestion(prefix) {
+  async function showQuestion(prefix, spoken) {
     const myTurn = ++turn;
     const q = questions[index];
     saveProgress(false);
@@ -628,12 +637,14 @@
     setAsker(askers[index] || 'roland');
     const isCode = typeof q === 'object';
     stopVoice();
-    $('ivQuestion').textContent = isCode ? 'Coding problem: ' + q.prompt : q;
+    currentSay = spoken || '';
+    say(personaId, spoken || questionText(q));
+    $('ivQuestion').textContent = spoken || (isCode ? 'Coding problem: ' + q.prompt : q);
     $('ivForm').classList.add('hidden');                 // no answering while the question is being asked
     $('ivCodeForm').classList.toggle('hidden', !isCode);
     $('ivListen').classList.toggle('hidden', !canSpeak);
-    $('ivCount').textContent = (followUps.has(q) ? 'Follow-up · ' : '') + 'Question ' + (index + 1) + ' of ' + questions.length;
-    $('ivBar').style.width = (index / questions.length * 100) + '%';
+    $('ivCount').textContent = isChat(q) ? 'Getting to know you' : (followUps.has(q) ? 'Follow-up · ' : '') + 'Question ' + gradedNo() + ' of ' + gradedTotal();
+    $('ivBar').style.width = ((gradedNo() - 1) / gradedTotal() * 100) + '%';
     previewTimer(isCode ? 0 : limitFor(index));
     show('ivQuestionView');
     if (isCode) {
@@ -644,7 +655,7 @@
       getRunner();
     }
     const lim = isCode ? 0 : limitFor(index);
-    await speakLine(personaId, (prefix || '') + spokenText(q) + (lim ? ' You have ' + sayTime(lim) + ' to answer.' : ''));
+    await speakLine(personaId, spoken ? spoken : (prefix || '') + spokenText(q) + (lim ? ' You have ' + sayTime(lim) + ' to answer.' : ''));
     if (myTurn !== turn) return;
     beginAnswering(q);
   }
@@ -845,7 +856,9 @@
   function start(fresh) {
     const saved = fresh === true ? null : loadProgress();
     if (fresh === true) clearProgress();
-    questions = saved ? saved.questions : buildQuestions();
+    chatQs = new Set(); chatCount = 0; transcript = []; currentSay = '';
+    questions = saved ? saved.questions : (assessment ? buildQuestions() : [GREETING].concat(buildQuestions()));
+    if (!saved && !assessment) chatQs.add(GREETING);
     index = 0;
     results = [];
     followUps = new Set(); followUpCount = 0; pendingFollowUp = null; replyToken++; aiOff = false;
@@ -860,6 +873,7 @@
       results = saved.results;
       followUps = new Set(saved.followUps || []);
       followUpCount = saved.followUpCount || 0;
+      chatQs = new Set(saved.chat || []); chatCount = saved.chatCount || 0; transcript = Array.isArray(saved.transcript) ? saved.transcript : [];
       // If the answer was already sent when the page closed, carry on with the next question.
       index = Math.max(0, saved.index) + (saved.answered ? 1 : 0);
       resuming = true;
@@ -872,7 +886,7 @@
     AIIC_STAGE.startOverlay(true);
     show('none');
     $('ivCount').textContent = resuming ? 'Welcome back' : 'Ready when you are';
-    $('ivBar').style.width = resuming ? (Math.min(index, questions.length) / questions.length * 100) + '%' : '0%';
+    $('ivBar').style.width = resuming ? (results.length / gradedTotal() * 100) + '%' : '0%';
     $('ivBegin').textContent = resuming ? 'Continue your interview' : $('ivBegin').dataset.label;
   }
 
@@ -929,12 +943,13 @@
   function removableIndex() {
     for (let r = questions.length - 2; r >= index + 1; r--) {
       const q = questions[r];
-      if (typeof q === 'string' && !followUps.has(q)) return r;
+      if (typeof q === 'string' && !followUps.has(q) && !isChat(q)) return r;
     }
     return -1;
   }
   function canFollowUpNow(q) {
     if (assessment) return false; // a pre-assessment asks exactly the company's questions
+    if (isChat(q)) return false;
     return typeof q === 'string' && q !== CLOSING && !followUps.has(q) && followUpCount < MAX_FOLLOW_UPS && removableIndex() !== -1;
   }
   function insertFollowUp(text) {
@@ -1022,6 +1037,56 @@
     }
     return { reaction: reaction, followUp: followUp };
   }
+  // The conversational AI interviewer: reacts to what the candidate really said (including personal things like
+  // "I'm having a bad day"), then asks the next question in its own words. Returns null to use the scripted reply.
+  async function getConversation(asked, text, who) {
+    if (assessment || asked === CLOSING || aiOff || !window.AIIC_AUTH || !AIIC_AUTH.configured || !AIIC_AUTH.auth || !AIIC_AUTH.auth.currentUser) return null;
+    const next = questions[index + 1];
+    if (typeof next !== 'string') return null; // the end, or a coding problem: handled by the normal flow
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 25000);
+    try {
+      const token = await AIIC_AUTH.auth.currentUser.getIdToken();
+      const res = await fetch('/api/interviewer', {
+        method: 'POST', signal: ctl.signal,
+        headers: { 'Content-Type': 'application/json', 'X-Firebase-Token': token },
+        body: JSON.stringify({
+          mode: 'converse', interviewer: who, nextInterviewer: askers[index + 1] || who, role: role, intern: isIntern,
+          question: currentSay || questionText(asked), answer: text, history: transcript.slice(-12, -2),
+          nextTopic: next, nextIsClosing: next === CLOSING,
+          canFollowUp: canFollowUpNow(asked), canChat: chatCount < MAX_CHAT,
+          remaining: questions.slice(index + 1).filter((q) => !isChat(q)).length
+        })
+      });
+      if (res.status === 429 || res.status === 401) { aiOff = true; return null; }
+      if (!res.ok) return null;
+      const out = await res.json();
+      return out && out.react && out.ask ? out : null;
+    } catch (e) { return null; } finally { clearTimeout(timer); }
+  }
+
+  // Speaks the AI's reaction, then asks its question. Returns false when the reply cannot be used.
+  async function playConversation(c, who, asked, myTurn) {
+    let kind = c.type;
+    if (kind === 'followUp' && !(canFollowUpNow(asked) && removableIndex() !== -1)) kind = 'next';
+    if (kind === 'chat' && chatCount >= MAX_CHAT) kind = 'next';
+    if (kind !== c.type) return false; // the AI chose something that is not allowed now: use the planned flow
+    $('ivAsker').textContent = PEOPLE[who].name + ' says:';
+    $('ivQuestion').textContent = c.react;
+    say(who, c.react);
+    await speakLine(who, c.react);
+    if (myTurn !== turn) return true;
+    if (kind === 'followUp') {
+      insertFollowUp(c.ask);
+    } else if (kind === 'chat') {
+      questions.splice(index + 1, 0, c.ask); askers.splice(index + 1, 0, who);
+      chatQs.add(c.ask); chatCount++;
+    }
+    index++;
+    await showQuestion('', c.ask);
+    return true;
+  }
+
   async function getReply(q, text) {
     const canFollowUp = canFollowUpNow(q);
     const out = await askInterviewer(q, text, canFollowUp);
@@ -1084,12 +1149,20 @@
     stopVoice();
     const who = personaId;
     const asked = questions[index];
-    const s = score(text, usedVoice);
-    results.push({ q: (followUps.has(asked) ? 'Follow-up: ' : '') + asked, a: text, s: s, tips: s.tips });
-    persist(false);
+    say('candidate', text);
+    if (isChat(asked)) { saveProgress(true); } // small talk is part of the conversation, not a graded answer
+    else {
+      const s = score(text, usedVoice);
+      results.push({ q: (followUps.has(asked) ? 'Follow-up: ' : '') + asked, a: text, s: s, tips: s.tips });
+      persist(false);
+    }
     $('ivForm').classList.add('hidden');
     $('ivAsker').textContent = PEOPLE[who].name + ' is thinking…';
 
+    const convo = await getConversation(asked, text, who);
+    if (myTurn !== turn) return;
+    if (convo && await playConversation(convo, who, asked, myTurn)) return;
+    if (myTurn !== turn) return;
     const reply = await getReply(asked, text);
     if (myTurn !== turn) return;
     $('ivAsker').textContent = PEOPLE[who].name + ' says:';
@@ -1106,7 +1179,7 @@
   $('ivForm').addEventListener('submit', function (e) { e.preventDefault(); submitAnswer(); });
 
   $('ivListen').addEventListener('click', function () {
-    if (line) stopSpeaking(); else speak(spokenText(questions[index]));
+    if (line) stopSpeaking(); else speak(currentSay || spokenText(questions[index]));
   });
   function syncSoundBtn() {
     const on = $('ivAutoRead').checked;
