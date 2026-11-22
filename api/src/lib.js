@@ -165,7 +165,7 @@ function makeHandler(deps) {
         const co = await deps.callModel(buildConverseSystem(v.value), buildConverseUser(v.value));
         if (co.refused) return { status: 200, body: { react: '', ask: '', type: 'next' } };
         const reply = parseConverse(co.text, v.value);
-        if (!reply) return { status: 502, body: { error: 'bad_model_output' } };
+        if (!reply) return { status: 502, body: { error: 'bad_model_output', detail: String(co.text || '').slice(0, 60) } };
         return { status: 200, body: reply };
       }
       const out = await deps.callModel(buildSystem(v.value.persona, v.value.role, v.value.intern), buildUser(v.value));
@@ -174,7 +174,8 @@ function makeHandler(deps) {
       if (!reply) return { status: 502, body: { error: 'bad_model_output' } };
       return { status: 200, body: reply };
     } catch (e) {
-      return { status: 503, body: { error: 'unavailable' } };
+      // `detail` is only the short error text (for example "not configured" or "openai 401"); it never includes keys.
+      return { status: 503, body: { error: 'unavailable', detail: String((e && e.message) || '').slice(0, 60) } };
     }
   };
 }

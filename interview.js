@@ -1037,10 +1037,20 @@
     }
     return { reaction: reaction, followUp: followUp };
   }
+  // Tells the candidate (and us) when the AI conversation is not being used, instead of failing silently.
+  function aiNote(text) {
+    const n = $('ivAiNote');
+    if (!n) return;
+    n.textContent = text || '';
+    n.classList.toggle('hidden', !text);
+    if (text) console.warn('[interviewer] ' + text);
+  }
+
   // The conversational AI interviewer: reacts to what the candidate really said (including personal things like
   // "I'm having a bad day"), then asks the next question in its own words. Returns null to use the scripted reply.
   async function getConversation(asked, text, who) {
-    if (assessment || asked === CLOSING || aiOff || !window.AIIC_AUTH || !AIIC_AUTH.configured || !AIIC_AUTH.auth || !AIIC_AUTH.auth.currentUser) return null;
+    if (assessment || asked === CLOSING || aiOff) return null;
+    if (!window.AIIC_AUTH || !AIIC_AUTH.configured || !AIIC_AUTH.auth || !AIIC_AUTH.auth.currentUser) { aiNote('You are not signed in with an account, so the AI interviewer is off.'); return null; }
     const next = questions[index + 1];
     if (typeof next !== 'string') return null; // the end, or a coding problem: handled by the normal flow
     const ctl = new AbortController();
@@ -1058,11 +1068,17 @@
           remaining: questions.slice(index + 1).filter((q) => !isChat(q)).length
         })
       });
-      if (res.status === 429 || res.status === 401) { aiOff = true; return null; }
-      if (!res.ok) return null;
+      if (res.status === 429 || res.status === 401) { aiOff = true; aiNote('The AI interviewer is off (' + (res.status === 429 ? 'daily limit reached' : 'not signed in') + '), so these questions are prepared ones.'); return null; }
+      if (!res.ok) {
+        let d = {}; try { d = await res.json(); } catch (e) {}
+        aiNote('The AI interviewer did not answer (' + res.status + ' ' + (d.error || '') + (d.detail ? ': ' + d.detail : '') + '), so this question is a prepared one.');
+        return null;
+      }
       const out = await res.json();
-      return out && out.react && out.ask ? out : null;
-    } catch (e) { return null; } finally { clearTimeout(timer); }
+      if (!(out && out.react && out.ask)) { aiNote('The AI interviewer sent an empty reply, so this question is a prepared one.'); return null; }
+      aiNote('');
+      return out;
+    } catch (e) { aiNote('Could not reach the AI interviewer (' + (e && e.name === 'AbortError' ? 'timed out' : 'network') + '), so this question is a prepared one.'); return null; } finally { clearTimeout(timer); }
   }
 
   // Speaks the AI's reaction, then asks its question. Returns false when the reply cannot be used.
