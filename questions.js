@@ -478,6 +478,16 @@ window.AIIC_ROLE_QUESTIONS = {
     `How do you adapt treatment for different ages and conditions?`,
     `How do you work with doctors and other providers on a care plan?`
   ],
+  'Physical Therapy Aide': [
+    `How do you prepare the treatment area and equipment before a patient arrives?`,
+    `How do you help a patient feel comfortable and safe during their exercises?`,
+    `Tell me about a time you helped someone who was nervous or in pain.`,
+    `What would you do if a patient told you an exercise hurt?`,
+    `How do you follow a therapist's instructions exactly while still noticing when something looks wrong?`,
+    `How do you keep equipment clean and follow infection control and safety rules?`,
+    `How do you handle a busy clinic where several patients need help at the same time?`,
+    `How do you protect patient privacy while documenting and communicating with the care team?`
+  ],
   'Medical Assistant': [
     `How do you prepare a patient and the room for a visit?`,
     `How do you stay calm and accurate when the clinic is busy?`,
@@ -1915,6 +1925,15 @@ Object.assign(window.AIIC_ROLE_QUESTIONS, {
     `How would you explain an exercise so that a patient could do it correctly at home?`,
     `What would you do if a patient said an exercise hurt?`,
     `Why does teamwork with doctors and other providers matter?`
+  ],
+  'Physical Therapy Aide Intern': [
+    `What does a physical therapy aide do, and how is that different from a physical therapist?`,
+    `How would you help a patient feel comfortable and safe during their exercises?`,
+    `What would you do if a patient said an exercise hurt?`,
+    `Why is it important to follow the therapist's instructions exactly?`,
+    `How would you get the treatment area and equipment ready before a patient arrives?`,
+    `Why do cleaning equipment and following safety rules matter in a clinic?`,
+    `How would you keep a patient's information private?`
   ],
   'Public Health Intern': [
     `What is the difference between public health and medicine?`,
