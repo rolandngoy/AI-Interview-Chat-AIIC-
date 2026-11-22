@@ -620,6 +620,142 @@ window.AIIC_ROLE_QUESTIONS = {
     `Tell me about a mistake in a filing or negotiation and what you did about it.`,
     `How do you approach legal research on an unfamiliar issue?`
   ],
+  'Corporate Lawyer': [
+    `How do you approach drafting and negotiating a contract for a client?`,
+    `Tell me about a deal or transaction you worked on and your part in it.`,
+    `How do you spot and explain legal risk to a business leader who is not a lawyer?`,
+    `How do you manage due diligence when there are many documents and a tight closing date?`,
+    `Tell me about a time a negotiation stalled. What did you do?`,
+    `How do you balance protecting your client with keeping a deal moving?`
+  ],
+  'Criminal Defense Attorney': [
+    `How do you build trust with a client who is frightened or does not trust the system?`,
+    `Walk me through how you would prepare a case for trial.`,
+    `How do you decide whether to recommend a plea agreement?`,
+    `Tell me about a time evidence or a witness changed your strategy.`,
+    `How do you handle representing someone when the facts are against them?`,
+    `How do you manage a heavy caseload without letting any client down?`
+  ],
+  'Prosecutor': [
+    `How do you decide whether to bring, reduce or dismiss a charge?`,
+    `How do you balance seeking a conviction with your duty to see that justice is done?`,
+    `Walk me through how you would prepare a witness for trial.`,
+    `Tell me about a time you had to deal with evidence that weakened your case.`,
+    `How do you treat victims and their families fairly while staying objective?`,
+    `How do you manage a large caseload and tight court deadlines?`
+  ],
+  'Public Defender': [
+    `Why do you want to represent people who cannot afford a lawyer?`,
+    `How do you give each client full attention with a very large caseload?`,
+    `Tell me about a time you worked hard for a client others had given up on.`,
+    `How do you explain the court process to a client who has never been through it?`,
+    `How do you handle a client who does not follow your advice?`,
+    `How do you keep going when outcomes are hard?`
+  ],
+  'Immigration Lawyer': [
+    `How do you explain a complicated immigration process to a client who is anxious and may not speak English well?`,
+    `How do you keep up with frequent changes in immigration law and policy?`,
+    `Tell me about a time a case had a deadline that could not be missed. How did you manage it?`,
+    `How do you gather and organize evidence for an application or hearing?`,
+    `How do you handle a client's hopes when the case is unlikely to succeed?`,
+    `How do you work with interpreters and community organizations?`
+  ],
+  'Family Law Attorney': [
+    `How do you help a client who is in the middle of a painful divorce or custody dispute?`,
+    `How do you decide when to push for settlement and when to go to court?`,
+    `Tell me about a time you had to deliver difficult news to a client.`,
+    `How do you keep your own emotions in check when a case is very personal?`,
+    `How do you work with the other side when they are angry or uncooperative?`,
+    `How do you keep the best interests of a child in focus?`
+  ],
+  'Intellectual Property Attorney': [
+    `How do you explain the difference between patents, trademarks and copyrights to a client?`,
+    `Walk me through how you would protect a new product or brand for a startup.`,
+    `How do you do a search to check whether an idea or name is already protected?`,
+    `Tell me about a time you worked with a technical expert to understand an invention.`,
+    `How do you handle a client who has received a cease-and-desist letter?`,
+    `How do you keep up with fast-changing technology and the law around it?`
+  ],
+  'Employment / Labor Lawyer': [
+    `How do you advise a company on handling a complaint of harassment or discrimination?`,
+    `How do you stay objective when both the employer and employee have good arguments?`,
+    `Walk me through how you would investigate a workplace complaint.`,
+    `Tell me about a time you had to explain a complex labor law to a non-lawyer.`,
+    `How do you approach negotiating a severance or settlement?`,
+    `How do you keep up with changing employment regulations?`
+  ],
+  'Real Estate Attorney': [
+    `Walk me through the steps in a commercial or residential closing.`,
+    `How do you review a title report and what problems do you look for?`,
+    `Tell me about a time a deal nearly fell apart. What did you do?`,
+    `How do you explain a lease or purchase contract to a client with no legal background?`,
+    `How do you manage several closings with different deadlines at once?`,
+    `How do you handle a dispute between a landlord and a tenant?`
+  ],
+  'Tax Attorney': [
+    `How do you explain a complex tax issue to a client in plain language?`,
+    `Walk me through how you would respond to an IRS audit or notice.`,
+    `How do you keep up with changes in tax law?`,
+    `Tell me about a time you found a tax-saving approach that was also fully compliant.`,
+    `How do you work with accountants and financial advisors on a client's matter?`,
+    `How do you handle a client who wants to take an aggressive tax position?`
+  ],
+  'Personal Injury Lawyer': [
+    `How do you evaluate whether a case is worth taking?`,
+    `How do you support a client who has been seriously hurt while managing their expectations?`,
+    `Walk me through how you would build a case against an insurance company.`,
+    `How do you decide when to settle and when to go to trial?`,
+    `Tell me about a time you had to work with medical records and experts.`,
+    `How do you manage the cost and time of a case that may last years?`
+  ],
+  'Environmental Lawyer': [
+    `How do you approach a case that involves both complex science and complex regulations?`,
+    `Tell me about a time you worked with scientists or engineers to understand a technical issue.`,
+    `How do you balance the interests of a company with environmental protection?`,
+    `How do you keep up with changing environmental regulations?`,
+    `Walk me through how you would prepare for a hearing before a regulatory agency.`,
+    `How do you explain a regulation's impact to a client in plain language?`
+  ],
+  'Estate Planning Attorney': [
+    `How do you talk with a client about sensitive subjects like illness and death?`,
+    `Walk me through how you would create an estate plan for a family with a business.`,
+    `How do you explain wills, trusts and powers of attorney to someone new to them?`,
+    `Tell me about a time family members disagreed about a plan. How did you handle it?`,
+    `How do you make sure a client's documents stay up to date?`,
+    `How do you protect confidential family information?`
+  ],
+  'In-House Counsel': [
+    `How do you work with business teams who want fast answers rather than a long legal analysis?`,
+    `How do you decide which legal risks are worth escalating to leadership?`,
+    `Tell me about a time you said no to a business request. How did you explain it?`,
+    `How do you decide when to handle something yourself and when to hire outside counsel?`,
+    `How do you manage many different kinds of requests at once?`,
+    `How do you build trust with people across the company?`
+  ],
+  'Patent Attorney': [
+    `How do you learn a new technology well enough to write a patent application for it?`,
+    `Walk me through how you would draft the claims for a new invention.`,
+    `How do you work with inventors who find it hard to explain their idea?`,
+    `How do you search to see whether an invention is new?`,
+    `Tell me about a time you had to respond to a patent examiner's rejection.`,
+    `How do you balance broad protection with a claim that will be granted?`
+  ],
+  'Legal Assistant': [
+    `How do you organize documents and files so nothing gets lost?`,
+    `How do you handle several attorneys giving you urgent tasks at the same time?`,
+    `Why is confidentiality so important in a law office, and how do you protect it?`,
+    `Tell me about a time you caught an error before it went out.`,
+    `How do you keep track of court deadlines and filing dates?`,
+    `How do you deal with a stressed or upset client on the phone?`
+  ],
+  'Judicial Law Clerk': [
+    `How do you approach researching and writing a legal memo for a judge?`,
+    `How do you stay neutral when you have a personal opinion about a case?`,
+    `How do you manage a stack of motions and deadlines?`,
+    `Tell me about a time you had to explain a complicated legal issue clearly and briefly.`,
+    `How do you handle confidential information about pending cases?`,
+    `How do you check your work for accuracy before it goes to the judge?`
+  ],
   'Paralegal': [
     `How do you prepare and organize documents for a case or filing?`,
     `How do you keep confidential information secure?`,
@@ -1706,6 +1842,126 @@ Object.assign(window.AIIC_ROLE_QUESTIONS, {
     `How would you organize the documents for a case?`,
     `Why is attention to detail so important in legal work?`,
     `How would you handle a deadline that moved up unexpectedly?`
+  ],
+  'Corporate Law Intern': [
+    `What does a corporate lawyer do for a business client?`,
+    `How would you review a long contract to find the key terms?`,
+    `Why does attention to detail matter so much in a contract?`,
+    `How would you research a legal question you had never seen before?`,
+    `What would you do if you did not understand an assignment from an attorney?`,
+    `Why is confidentiality important when working on a deal?`
+  ],
+  'Criminal Law Intern': [
+    `Why is it important that everyone has a fair trial, whatever they are accused of?`,
+    `How would you stay objective when reading difficult case files?`,
+    `How would you organize evidence and documents for a case?`,
+    `What would you do if you found a mistake in a document that was about to be filed?`,
+    `How would you stay calm while dealing with sensitive and upsetting material?`,
+    `Why does confidentiality matter in a criminal case?`
+  ],
+  'Prosecutor\'s Office Intern': [
+    `What is the role of a prosecutor, and how is it different from a defense attorney?`,
+    `Why is it important for a prosecutor to be fair and not only to win?`,
+    `How would you handle reading disturbing case files?`,
+    `How would you help prepare documents for a trial?`,
+    `What would you do if you realized a document contained a mistake?`,
+    `Why does confidentiality matter in this office?`
+  ],
+  'Public Defender Intern': [
+    `Why do you think everyone has the right to a lawyer, even if they cannot pay?`,
+    `How would you speak with a client who is scared or upset?`,
+    `How would you stay organized with a very large number of cases?`,
+    `How would you research a legal question when you cannot find a direct answer?`,
+    `What would you do if a client was not telling you the whole story?`,
+    `Why is confidentiality so important with clients?`
+  ],
+  'Immigration Law Intern': [
+    `Why do you want to work on immigration law?`,
+    `How would you help a client who is anxious and does not speak English well?`,
+    `Why do deadlines matter so much in immigration cases?`,
+    `How would you organize documents and evidence for an application?`,
+    `How would you handle a client who asks for a promise about the outcome?`,
+    `Why do you think cultural understanding matters in this work?`
+  ],
+  'Family Law Intern': [
+    `Why is it important to stay calm and kind when families are in conflict?`,
+    `How would you handle a client who is very emotional?`,
+    `Why does confidentiality matter in family cases?`,
+    `How would you organize the documents for a divorce case?`,
+    `What would you do if you disagreed with a client's decision?`,
+    `What would you do to take care of your own well-being doing this work?`
+  ],
+  'Intellectual Property Law Intern': [
+    `What is the difference between a patent, a trademark and a copyright, in your own words?`,
+    `How would you check whether a new brand name was already taken?`,
+    `How would you learn a new technology so you could understand an invention?`,
+    `Why is it important to keep an invention confidential before a patent is filed?`,
+    `How would you research a legal question you had never seen before?`,
+    `What would you do if you did not understand a technical explanation?`
+  ],
+  'Judicial Intern': [
+    `Why is it important that a judge and their staff stay neutral?`,
+    `How would you write a short, clear summary of a long case?`,
+    `How would you handle information that must stay confidential?`,
+    `How would you check your work so it is accurate?`,
+    `What would you do if you were asked to finish something very quickly?`,
+    `What do you hope to learn by watching court proceedings?`
+  ],
+  'Civil Rights Law Intern': [
+    `Why are you interested in civil rights law?`,
+    `How would you speak with a person who has experienced discrimination?`,
+    `How would you research the law on an issue that is changing?`,
+    `How would you organize facts and documents for a case?`,
+    `How would you stay motivated when cases take a long time?`,
+    `Why does confidentiality matter with clients?`
+  ],
+  'Environmental Law Intern': [
+    `Why are you interested in environmental law?`,
+    `How would you learn enough science to understand an environmental case?`,
+    `How would you read and summarize a long government regulation?`,
+    `How would you research a legal question you had never seen before?`,
+    `What would you do if you could not find the answer in your research?`,
+    `Why is it important to explain legal issues in plain language?`
+  ],
+  'Employment Law Intern': [
+    `What do you think are the most common problems that employees and employers bring to a lawyer?`,
+    `How would you stay neutral when two sides each have a point?`,
+    `Why does confidentiality matter in workplace cases?`,
+    `How would you organize the documents in a case?`,
+    `How would you research a legal question you had never seen before?`,
+    `What would you do if you were unsure how to handle a sensitive situation?`
+  ],
+  'Legal Aid Intern': [
+    `Why do you want to help people who cannot afford a lawyer?`,
+    `How would you speak with someone who is stressed and does not understand the legal process?`,
+    `How would you explain a legal term to a client without using legal jargon?`,
+    `How would you manage many cases at the same time?`,
+    `Why is it important to treat every client with respect?`,
+    `How would you handle a client who is upset with you?`
+  ],
+  'Paralegal Intern': [
+    `What do you think a paralegal does day to day?`,
+    `How would you organize documents so they are easy to find?`,
+    `Why is attention to detail so important in legal work?`,
+    `How would you handle two attorneys asking you for something at the same time?`,
+    `Why is confidentiality important in a law office?`,
+    `What would you do if you realized you made a mistake in a document?`
+  ],
+  'In-House Legal Intern': [
+    `How do you think working inside a company is different from working at a law firm?`,
+    `How would you keep information about the company confidential?`,
+    `How would you handle a request from a business team that needed a quick answer?`,
+    `How would you research a legal question about a contract?`,
+    `What would you do if you did not understand a business term?`,
+    `How would you manage several small tasks from different people?`
+  ],
+  'Patent Law Intern': [
+    `What do you think a patent protects, in your own words?`,
+    `How would you learn about a technology you had never studied?`,
+    `Why must an invention be kept confidential before a patent is filed?`,
+    `How would you search to see whether an idea is already known?`,
+    `How would you explain a technical idea in plain language?`,
+    `What would you do if you did not understand an inventor's explanation?`
   ],
   'Government and Policy Intern': [
     `How would you explain a complex policy to someone with no background in it?`,

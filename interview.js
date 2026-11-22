@@ -114,7 +114,7 @@
 
   const CATEGORY_MATCH = [
     ['health', /nurse|nursing|physician|doctor|pharmac|therapist|physical therap|pathologist|veterinar|paramedic|\bemt\b|\bmedical|dentist|dental|radiologic|(?<!school )counselor|healthcare/],
-    ['eng', /mechanical|electrical|civil|chemical|biomedical|industrial|environmental|aerospace|manufacturing|biologist|chemist|quality control|surveyor|research scientist|lab technician|(?<!solutions )architect|lawyer|attorney|paralegal/],
+    ['eng', /mechanical|electrical|civil|chemical|biomedical|industrial|environmental|aerospace|manufacturing|biologist|chemist|quality control|surveyor|research scientist|lab technician|(?<!solutions )architect|lawyer|attorney|paralegal|\blaw\b|legal|prosecutor|public defender|judicial|counsel\b|patent/],
     ['creative', /video|journalist|copywriter|photograph|game designer|animat|technical writer|illustrator|art director|interior design|fashion|podcast|translator|interpreter/],
     ['trades', /retail|store|server|chef|cook|hotel|barista|electrician|plumber|warehouse|driver|construction|bartender|flight attendant|cashier|hair|stylist|trainer|mechanic|hvac|welder|carpenter|security guard|truck|landscap/],
     ['public', /teacher|teaching|professor|lecturer|school|social worker|policy|nonprofit|librarian|police|firefighter|military|instructional|early childhood|tutor|case manager|fundrais/],
