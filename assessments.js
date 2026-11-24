@@ -71,7 +71,7 @@
 
   // Gives every invited email its own code (keeping the codes they already have) and removes the codes of
   // emails that were taken off the list. Returns the full { email: code } map. Call after the assessment is saved.
-  async function syncCodes(a, ownerUid, existing) {
+  async function syncCodes(a, ownerUid, existing, preset) {
     const have = Object.assign({}, existing || {});
     const ops = [];
     Object.keys(have).forEach((email) => {
@@ -81,7 +81,7 @@
     const missing = a.candidates.filter((e) => !have[e]);
     for (let attempt = 0; missing.length && attempt < 3; attempt++) {
       const fresh = {};
-      missing.forEach((e) => { fresh[e] = randomCode(); });
+      missing.forEach((e) => { fresh[e] = (attempt === 0 && preset && preset[e]) || randomCode(); });
       try {
         await writeInChunks(missing.map((e) => (b) => b.set(codesCol().doc(fresh[e]), { assessmentId: a.code, email: e, ownerUid: ownerUid })));
         Object.assign(have, fresh);

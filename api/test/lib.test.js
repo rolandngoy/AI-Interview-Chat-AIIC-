@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { validateConverse, buildConverseSystem, buildConverseUser, parseConverse, validate, buildSystem, buildUser, parseReply, makeHandler } = require('../src/lib');
+const { validateGenerate, buildGenerateSystem, parseGenerate, validateConverse, buildConverseSystem, buildConverseUser, parseConverse, validate, buildSystem, buildUser, parseReply, makeHandler } = require('../src/lib');
 
 // validate
 assert.strictEqual(validate(null).ok, false);
@@ -37,6 +37,15 @@ assert.deepStrictEqual(parseConverse('{"react":"Hm.","ask":"Why?","type":"next"}
 assert.ok(/NOT read from a list/.test(buildConverseSystem({ ...cv.value, topics: ['Teamwork'] })) && /<area>Teamwork<\/area>/.test(buildConverseSystem({ ...cv.value, topics: ['Teamwork'] })));
 assert.strictEqual(parseConverse('{"react":"","ask":"Why?","type":"next"}', cv.value), null);
 
+// generate mode
+assert.strictEqual(validateGenerate({ role: '', description: '' }).ok, false);
+assert.strictEqual(validateGenerate({ role: 'Nurse', count: 99 }).value.count, 15);
+assert.strictEqual(validateGenerate({ description: 'x', count: 1 }).value.count, 3);
+assert.ok(/untrusted/.test(buildGenerateSystem({ count: 8 })));
+assert.deepStrictEqual(parseGenerate('{"questions":["A?","a?","B?"]}', { count: 8 }), ['A?', 'B?']);
+assert.strictEqual(parseGenerate('{"questions":[]}', { count: 8 }), null);
+assert.strictEqual(parseGenerate('nope', { count: 8 }), null);
+
 (async () => {
   const ok = { verifyToken: async () => 'u1', consumeUsage: async () => true, callModel: async () => ({ text: '{"reaction":"Thanks.","followUp":"Tell me more?"}' }) };
   const body = { interviewer: 'roland', role: 'Nurse', question: 'q', answer: 'a', canFollowUp: true };
@@ -54,6 +63,9 @@ assert.strictEqual(parseConverse('{"react":"","ask":"Why?","type":"next"}', cv.v
   r = await makeHandler(cok)('tok', cb, 5); assert.deepStrictEqual([r.status, r.body.type], [200, 'chat']);
   r = await makeHandler(cok)('tok', { ...cb, answer: '' }, 5); assert.strictEqual(r.status, 400);
   r = await makeHandler({ ...ok, callModel: async () => ({ text: 'garbage' }) })('tok', cb, 5); assert.strictEqual(r.status, 502);
+  const gok = { ...ok, callModel: async () => ({ text: '{"questions":["Why this role?","Tell me about a challenge."]}' }) };
+  r = await makeHandler(gok)('tok', { mode: 'generate', role: 'Nurse', count: 5 }, 5); assert.deepStrictEqual([r.status, r.body.questions.length], [200, 2]);
+  r = await makeHandler(gok)('tok', { mode: 'generate' }, 5); assert.strictEqual(r.status, 400);
   console.log('all api tests passed');
 })().catch((e) => { console.error(e); process.exit(1); });
 

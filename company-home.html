@@ -10,54 +10,188 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <main class="iv-page container narrow co-page">
-    <header class="iv-head">
-      <a href="/" class="brand">
-        <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-          <circle cx="16" cy="16" r="14" stroke="var(--accent)" stroke-width="1.5" opacity=".5"/>
-          <circle cx="16" cy="16" r="8.5" stroke="var(--accent)" stroke-width="1.5"/>
-          <circle cx="16" cy="16" r="3" fill="var(--accent)"/>
-        </svg>
-        <span>AI Interview Chat</span>
-      </a>
+<body class="co-app">
+  <header class="ca-top">
+    <a href="/" class="ca-brand" aria-label="AI Interview Chat home">
+      <svg width="34" height="34" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <circle cx="16" cy="16" r="14" stroke="#8EA2FF" stroke-width="1.6" opacity=".55"/>
+        <circle cx="16" cy="16" r="8.5" stroke="#8EA2FF" stroke-width="1.6"/>
+        <circle cx="16" cy="16" r="3" fill="#8EA2FF"/>
+      </svg>
+      <span>AI Interview Chat</span>
+    </a>
+    <nav class="ca-topnav hidden" id="caTopNav" aria-label="Company sections">
+      <button type="button" class="ca-tab" data-nav="dash"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Dashboard</button>
+      <button type="button" class="ca-tab" data-nav="interviews"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Interviews</button>
+      <button type="button" class="ca-tab" data-nav="participants"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5M16 4.8a3.4 3.4 0 0 1 0 6.4M18 14.8c2 .6 3.3 2.4 3.6 5.2"/></svg>Participants</button>
+      <button type="button" class="ca-tab is-soon" disabled title="Coming soon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Analytics</button>
+      <button type="button" class="ca-tab is-soon" disabled title="Coming soon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5h0a1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</button>
+    </nav>
+    <div class="ca-user hidden" id="caUser">
+      <div class="ca-user-text"><strong id="caUserName"></strong><span>Company Admin</span></div>
       <div class="profile hidden" id="profileMenu"></div>
-    </header>
+    </div>
+  </header>
 
-    <p class="login-msg center" id="cLoading">Loading…</p>
+  <p class="login-msg center ca-loading" id="cLoading">Loading…</p>
 
-    <div class="co-layout">
-      <aside class="co-side hidden" id="cSide" aria-label="Company navigation">
-        <button type="button" class="co-nav-item" id="sAssess">Your assessments</button>
-        <h2 class="co-side-h mono small">Applicants <span id="sCount"></span></h2>
-        <input type="search" class="co-input co-side-search" id="sSearch" placeholder="Search applicants" aria-label="Search applicants">
-        <div class="co-side-list" id="sList"><p class="co-side-empty small">Loading…</p></div>
-      </aside>
-      <div class="co-main">
-      <!-- Signed in, but not with Microsoft or Google -->
-      <section id="cNotCompany" class="hidden co-center">
-        <h1 class="login-title">Company tools</h1>
-        <p class="body-lg center">Company tools need a Microsoft or Google log in. Log out, then use “Sign in with Microsoft” or “Sign in with Google” on the Company page.</p>
-        <button type="button" class="btn btn-teal btn-md" id="cSwitch">Log out and go to Company log in</button>
-      </section>
+  <!-- Signed in, but not with Microsoft or Google -->
+  <section id="cNotCompany" class="hidden co-center ca-center">
+    <h1 class="login-title">Company tools</h1>
+    <p class="body-lg center">Company tools need a Microsoft or Google log in. Log out, then use “Sign in with Microsoft” or “Sign in with Google” on the Company page.</p>
+    <button type="button" class="btn btn-teal btn-md" id="cSwitch">Log out and go to Company log in</button>
+  </section>
 
-      <!-- List of pre-assessments -->
-      <section id="cListView" class="hidden">
-        <div class="co-top">
+  <div class="ca-shell hidden" id="caShell">
+    <aside class="ca-side" aria-label="Company navigation">
+      <div class="ca-company">
+        <div class="ca-company-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16M14 9h5a1 1 0 0 1 1 1v11M8 8h2M8 12h2M8 16h2M17 13h1M17 17h1M3 21h18"/></svg></div>
+        <div><strong id="caCompany">Your company</strong><span>Company Account</span></div>
+      </div>
+      <nav class="ca-sidenav">
+        <button type="button" class="ca-nav" data-nav="dash"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Overview</button>
+        <button type="button" class="ca-nav" data-nav="create" id="cNew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Create Interview</button>
+        <button type="button" class="ca-nav" data-nav="interviews"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5M3 17.5l9 5 9-5" transform="translate(0 -1.5)"/></svg>My Interviews</button>
+        <button type="button" class="ca-nav" data-nav="participants"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5M16 4.8a3.4 3.4 0 0 1 0 6.4M18 14.8c2 .6 3.3 2.4 3.6 5.2"/></svg>Participants</button>
+        <button type="button" class="ca-nav" data-nav="results"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Results &amp; Reviews</button>
+        <button type="button" class="ca-nav is-soon" disabled title="Coming soon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>Company Settings<em>Soon</em></button>
+      </nav>
+      <div class="ca-assistant">
+        <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><rect x="12" y="20" width="40" height="30" rx="12" fill="#EEF0FF"/><rect x="18" y="26" width="28" height="16" rx="8" fill="#232A57"/><circle cx="26" cy="34" r="3.2" fill="#6EE7D2"/><circle cx="38" cy="34" r="3.2" fill="#6EE7D2"/><path d="M32 20v-6" stroke="#EEF0FF" stroke-width="3" stroke-linecap="round"/><circle cx="32" cy="12" r="3" fill="#8EA2FF"/><rect x="6" y="30" width="5" height="10" rx="2.5" fill="#B9C0FF"/><rect x="53" y="30" width="5" height="10" rx="2.5" fill="#B9C0FF"/></svg>
+        <strong>AI Interview Assistant</strong>
+        <span>Create, run, and analyze interviews with AI.</span>
+      </div>
+    </aside>
+
+    <main class="ca-main">
+      <!-- Overview -->
+      <section id="cDashView" class="hidden">
+        <div class="ca-welcome">
           <div>
-            <h1 class="login-title co-title" id="cTitle">Your assessments</h1>
-            <p class="co-sub" id="cWelcome">Create a pre-assessment, add your candidates (each gets their own code), and review their interviews here.</p>
+            <h1 class="ca-h1">Welcome back, <span id="dName">there</span> <span aria-hidden="true">👋</span></h1>
+            <p class="ca-sub">Company Administrator — Manage interviews, candidates, and results in one place.</p>
           </div>
-          <button type="button" class="btn btn-teal btn-md" id="cNew">+ New pre-assessment</button>
+          <label class="ca-range"><span class="sr-only">Time range</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+            <select id="dRange" aria-label="Time range">
+              <option value="7">Last 7 Days</option>
+              <option value="30" selected>Last 30 Days</option>
+              <option value="90">Last 90 Days</option>
+              <option value="0">All time</option>
+            </select>
+          </label>
         </div>
-        <p class="co-empty hidden" id="cEmpty">You have no assessments yet. Click “+ New pre-assessment” to create one. Each candidate you add gets their own code.</p>
-        <div class="co-list" id="cList"></div>
+
+        <div class="ca-stats" id="dStats"></div>
+
+        <div class="ca-row2">
+          <section class="ca-card ca-interviews">
+            <div class="ca-card-head">
+              <h2 class="ca-h2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5M3 17.5l9 5 9-5" transform="translate(0 -1.5)"/></svg>Your Interviews</h2>
+              <button type="button" class="ca-link" id="dViewAll">View All →</button>
+            </div>
+            <p class="ca-empty hidden" id="cEmpty">You have no interviews yet. Create one to get started. Each participant you add gets their own code.</p>
+            <div class="ca-icards" id="dInterviews"></div>
+          </section>
+
+          <section class="ca-card ca-create">
+            <h2 class="ca-h2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20L16 8M14 4l1.2 2.8L18 8l-2.8 1.2L14 12l-1.2-2.8L10 8l2.8-1.2zM19 13l.7 1.6L21.3 15l-1.6.7L19 17.3l-.7-1.6L16.7 15l1.6-.7z"/></svg>Create Custom Interview</h2>
+            <p class="ca-sub">Build your own interview with AI or from scratch.</p>
+            <div class="ca-create-opts">
+              <button type="button" class="ca-opt is-ai" id="dCreateAI">
+                <strong><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8zM19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>Create with AI</strong>
+                <span>Generate questions from a role, skills, or job description</span>
+              </button>
+              <button type="button" class="ca-opt" id="dCreateManual">
+                <strong><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l5 5v13H6zM14 3v5h5M9 13h7M9 17h7"/></svg>Create Manually</strong>
+                <span>Write and organize your own custom questions</span>
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <div class="ca-row3">
+          <section class="ca-card ca-send">
+            <h2 class="ca-h2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3L3 10.5l7 2.5 2.5 7z M21 3L10 13"/></svg>Send Interview to Participant</h2>
+            <p class="ca-sub">Enter the applicant's email and create a unique participant code.</p>
+            <form id="dSend" class="ca-form" novalidate>
+              <label class="ca-field"><span>Interview <b>*</b></span>
+                <select id="dSendInterview" class="ca-input" required></select>
+              </label>
+              <label class="ca-field"><span>Applicant Email <b>*</b></span>
+                <span class="ca-inwrap"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+                <input id="dSendEmail" class="ca-input ca-input-ic" type="email" autocomplete="off" placeholder="jordan.miles@email.com"></span>
+              </label>
+              <label class="ca-field"><span>Participant Code <b>*</b></span>
+                <span class="ca-row-in">
+                  <span class="ca-inwrap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/></svg>
+                  <input id="dSendCode" class="ca-input ca-input-ic ca-mono" readonly aria-label="Participant code"></span>
+                  <button type="button" class="ca-iconbtn" id="dSendNewCode" title="Make a different code" aria-label="Make a different code"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.5-4M4 4v4h4M4 13a8 8 0 0 0 14.5 4M20 20v-4h-4"/></svg></button>
+                </span>
+              </label>
+              <p class="ca-note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span>Give the applicant their code. They log in at the Pre-assessment page with this email and code to start the interview.</span></p>
+              <p class="ca-msg" id="dSendMsg" role="status"></p>
+              <button type="submit" class="ca-primary ca-block" id="dSendGo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3L3 10.5l7 2.5 2.5 7z M21 3L10 13"/></svg>Create Invitation</button>
+            </form>
+          </section>
+
+          <section class="ca-card ca-results">
+            <div class="ca-card-head ca-results-head">
+              <div>
+                <h2 class="ca-h2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Participant Results</h2>
+                <p class="ca-sub">Track interview completion, scores, and review responses.</p>
+              </div>
+              <div class="ca-tools">
+                <label class="ca-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" id="dSearch" placeholder="Search participants..." aria-label="Search participants"></label>
+                <label class="ca-filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+                  <select id="dFilter" aria-label="Filter by status"><option value="">Filter</option><option value="done">Completed</option><option value="progress">In Progress</option><option value="invited">Invited</option></select>
+                </label>
+              </div>
+            </div>
+            <div class="ca-tablewrap" id="dTable"></div>
+            <button type="button" class="ca-link ca-viewall hidden" id="dTableAll">View all participants →</button>
+          </section>
+        </div>
       </section>
 
-      <!-- Create or edit a pre-assessment -->
+      <!-- My interviews -->
+      <section id="cListView" class="hidden">
+        <div class="ca-welcome">
+          <div>
+            <h1 class="ca-h1">My Interviews</h1>
+            <p class="ca-sub">Every interview you have created. Open one to see its participants and results.</p>
+          </div>
+          <button type="button" class="ca-primary" id="cNew2">+ Create Interview</button>
+        </div>
+        <div class="ca-icards ca-icards-wide" id="cList"></div>
+      </section>
+
+      <!-- Participants / Results -->
+      <section id="cPartView" class="hidden">
+        <div class="ca-welcome">
+          <div>
+            <h1 class="ca-h1" id="pTitle">Participants</h1>
+            <p class="ca-sub" id="pSub">Everyone you have invited, across all of your interviews.</p>
+          </div>
+        </div>
+        <section class="ca-card ca-results">
+          <div class="ca-card-head ca-results-head">
+            <div></div>
+            <div class="ca-tools">
+              <label class="ca-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" id="pSearch" placeholder="Search participants..." aria-label="Search participants"></label>
+              <label class="ca-filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+                <select id="pFilter" aria-label="Filter by status"><option value="">Filter</option><option value="done">Completed</option><option value="progress">In Progress</option><option value="invited">Invited</option></select>
+              </label>
+            </div>
+          </div>
+          <div class="ca-tablewrap" id="pTable"></div>
+        </section>
+      </section>
+
+<!-- Create or edit a pre-assessment -->
       <section id="cEditView" class="hidden">
-        <div><button type="button" class="btn btn-ghost btn-sm co-back">← All pre-assessments</button></div>
-        <h1 class="login-title co-title" id="eHeading">New pre-assessment</h1>
+        <div><button type="button" class="btn btn-ghost btn-sm co-back">← Back</button></div>
+        <h1 class="login-title co-title" id="eHeading">New interview</h1>
         <form id="eForm" class="co-form" novalidate>
           <div class="co-grid">
             <label class="co-field"><span class="mono small">Company name</span>
@@ -71,6 +205,20 @@
             </label>
           </div>
           <datalist id="eRoles"></datalist>
+
+          <details class="co-bank co-ai" id="eAi">
+            <summary>Generate questions with AI</summary>
+            <div class="co-bank-body">
+              <label class="co-field"><span class="mono small">Role, skills, or job description</span>
+                <textarea class="co-input" id="eAiText" rows="4" maxlength="3000" placeholder="Example: Customer Success Manager for a B2B software company. Needs strong communication, onboarding experience, and comfort with data."></textarea>
+              </label>
+              <label class="co-field"><span class="mono small">How many questions</span>
+                <select class="co-input" id="eAiCount"><option>5</option><option selected>8</option><option>10</option><option>12</option><option>15</option></select>
+              </label>
+              <p class="login-msg co-msg" id="eAiMsg" role="status"></p>
+              <button type="button" class="btn btn-teal btn-sm" id="eAiGo">Generate questions</button>
+            </div>
+          </details>
 
           <h2 class="co-h2">Questions <span class="mono small co-count" id="eCount"></span></h2>
           <label class="co-field co-timeset"><span class="mono small">Time to answer each question</span>
@@ -107,14 +255,14 @@
           <p class="login-msg co-msg" id="eMsg" role="alert"></p>
           <div class="co-actions">
             <button type="button" class="btn btn-ghost btn-md co-back">Cancel</button>
-            <button type="submit" class="btn btn-teal btn-md" id="eSave">Save pre-assessment</button>
+            <button type="submit" class="btn btn-teal btn-md" id="eSave">Save interview</button>
           </div>
         </form>
       </section>
 
       <!-- Review candidates' sessions -->
       <section id="cReviewView" class="hidden">
-        <div><button type="button" class="btn btn-ghost btn-sm co-back">← All pre-assessments</button></div>
+        <div><button type="button" class="btn btn-ghost btn-sm co-back">← Back</button></div>
         <h1 class="login-title co-title" id="rHeading">Sessions</h1>
         <p class="co-sub" id="rSub"></p>
         <div class="iv-scores co-stats" id="rStats"></div>
@@ -124,14 +272,13 @@
 
       <!-- One applicant, across all of the company's assessments -->
       <section id="cApplicantView" class="hidden">
-        <div><button type="button" class="btn btn-ghost btn-sm co-back">← All pre-assessments</button></div>
+        <div><button type="button" class="btn btn-ghost btn-sm co-back">← Back</button></div>
         <h1 class="login-title co-title" id="aHeading">Applicant</h1>
         <p class="co-sub" id="aSub"></p>
         <div class="hist-list" id="aList"></div>
       </section>
-      </div>
-    </div>
-  </main>
+    </main>
+  </div>
   <script src="config.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
