@@ -1,5 +1,5 @@
 /* =========================================================
-   AI Interview Chat — company log in (Microsoft, via Firebase Authentication)
+   AI Interview Chat — company log in (Microsoft Entra External ID via OpenID Connect, and Google, through Firebase Authentication)
    ========================================================= */
 (function () {
   'use strict';
@@ -20,6 +20,7 @@
 
   function friendly(err) {
     switch (err && err.code) {
+      case 'auth/invalid-provider-id': return 'The Microsoft (Entra External ID) provider is not set up in Firebase yet. See the README.';
       case 'auth/operation-not-allowed': return 'That sign-in method is not turned on yet. Enable it in the Firebase console (see the README).';
       case 'auth/popup-blocked': return 'Your browser blocked the sign-in pop-up. Allow pop-ups for this site and try again.';
       case 'auth/account-exists-with-different-credential': return 'An account with this email already exists with a different sign-in method. Use that method to log in.';
@@ -43,6 +44,6 @@
       msg.textContent = friendly(err);
     }
   }
-  btn.addEventListener('click', () => signIn(new firebase.auth.OAuthProvider('microsoft.com')));
+  btn.addEventListener('click', () => signIn(new firebase.auth.OAuthProvider((window.AIIC_CONFIG && AIIC_CONFIG.entraProviderId) || 'oidc.entra')));
   gbtn.addEventListener('click', () => signIn(new firebase.auth.GoogleAuthProvider()));
 })();

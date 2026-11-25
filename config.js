@@ -6,5 +6,8 @@ window.AIIC_CONFIG = {
     authDomain: 'ai-interview-chat-52c57.firebaseapp.com',
     projectId: 'ai-interview-chat-52c57',
     appId: '1:1045587072384:web:7c58911da084b98c819d65'
-  }
+  },
+  // Firebase provider ID of the Microsoft Entra External ID sign-in (OpenID Connect).
+  // Create it in Firebase with this exact ID (see README); the "oidc." prefix is required.
+  entraProviderId: 'oidc.entra'
 };
