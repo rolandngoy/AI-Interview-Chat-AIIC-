@@ -76,16 +76,15 @@ Accounts and practice history are stored in Firebase so they follow users across
 4. **Build → Firestore Database → Create database.** Then open the **Rules** tab and paste the contents of `firestore.rules`.
 5. **Project settings → Your apps → Web (`</>`).** Register an app and copy the config values into `config.js`.
 
-### Microsoft sign-in (Company page, Entra External ID)
+### Microsoft sign-in (Company page)
 
-The Company page (`company.html`) logs in with Microsoft Entra External ID (through an OpenID Connect provider in Firebase) or Google. Google is already enabled; Microsoft needs this one-time setup:
+The Company page (`company.html`) logs in with Microsoft or Google. Google is already enabled for the site; Microsoft needs this one-time setup:
 
-1. **Upgrade Firebase Authentication to Identity Platform** (Firebase console → Authentication → *Upgrade*). OpenID Connect providers need it.
-2. In the [Microsoft Entra admin center](https://entra.microsoft.com), use your external tenant (Entra External ID). **App registrations → New registration**, with **Redirect URI** (Web) `https://ai-interview-chat-52c57.firebaseapp.com/__/auth/handler`. Copy the **Application (client) ID**, then **Certificates & secrets → New client secret** and copy the secret *value*.
-3. Under **User flows**, create a sign-up and sign-in flow and add this app to it.
-4. In Firebase: **Authentication → Sign-in method → Add new provider → OpenID Connect.** Choose the *code flow*, set the **Provider ID** to `entra` (it becomes `oidc.entra`, which is what `config.js` expects), paste the client ID and secret, and for **Issuer** use `https://<tenant-subdomain>.ciamlogin.com/<tenant-id>/v2.0`. Save.
+1. In the [Azure portal](https://portal.azure.com): **Microsoft Entra ID → App registrations → New registration.** Choose "Accounts in any organizational directory and personal Microsoft accounts". Under **Redirect URI** pick *Web* and paste the redirect URL Firebase shows in step 3 below (it looks like `https://YOUR-PROJECT.firebaseapp.com/__/auth/handler`).
+2. In that app, **Certificates & secrets → New client secret.** Copy the secret *value*. Also copy the **Application (client) ID** from the Overview page.
+3. In Firebase: **Authentication → Sign-in method → Add new provider → Microsoft.** Paste the client ID and client secret, copy the redirect URL it shows into step 1 if you have not yet, and save.
 
-The client secret goes only into the Firebase console, never into this repo. If you choose a different Provider ID, change `entraProviderId` in `config.js`.
+The client secret goes only into the Firebase console, never into this repo.
 
 ### Company pre-assessments
 
